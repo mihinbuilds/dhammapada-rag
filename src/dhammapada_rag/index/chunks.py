@@ -35,6 +35,14 @@ Both fixes change the chunk count, so the index must be rebuilt end to end:
 and every retrieval/generation metric recomputed. Numbers from the
 2,769-chunk index are not comparable to numbers from this one.
 
+ROUND 2, FIX 3 -- VERSE-NUMBER ALIGNMENT NEVER EXPRESSED AS TEXT. A question
+phrased by verse number ("which single story explains Dhp 320, 321, and 322
+together?") had nothing to match: no chunk's text contains the literal
+string "320" anywhere in the corpus. Third instance of the same pattern as
+FIX 1 and FIX 2 above -- the data was there (dhp_verses/group_id, on every
+chunk, as metadata) and the index never exposed it as retrievable text. See
+docs/evaluation.md's "three instances of one pattern" section.
+
 Chunk types:
 
   verse-level (verses.jsonl, all 423):
@@ -49,6 +57,10 @@ Chunk types:
     story_titles          NEW -- title_en / title_pali / cst4_title /
                            burlingame_title / compare, one chunk, so edition
                            title variants and named persons are retrievable
+    story_alignment       NEW (round 2) -- one templated sentence naming
+                           every Dhp verse number the story explains, so
+                           verse-grouping questions have literal text to
+                           match against instead of only dhp_verses metadata
     story_cast            NEW -- dramatis personae, where present
     story_keywords        NEW -- keyword list, where present
     story_synopsis        One-paragraph synopsis
@@ -243,6 +255,28 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
         # NEW: titles across editions. Without this, cst4_title was unindexed
         # and the CST4 gold questions could not be answered by retrieval.
         chunks.append(_chunk(f"story:{gid}:titles", "story_titles", _title_text(s), dhp_verses=dv, group_id=gid))
+
+        # ROUND 2, FIX 3 -- VERSE-NUMBER ALIGNMENT WAS NEVER EXPRESSED AS
+        # TEXT. Every other chunk holds Pali, English translation, or
+        # narrative prose; none of them contain the literal string "320".
+        # A query phrased by verse number ("which single story explains Dhp
+        # 320, 321, and 322 together?") had nothing to match against -- not
+        # a retrieval weakness, a representational gap, the same pattern as
+        # story_titles above (round 1) and narrative windowing before that
+        # (round 1, fix 1): the corpus had the answer, the index just never
+        # said it in words. This one small templated chunk per story is
+        # sufficient because it's the *only* thing that needs to name the
+        # verse numbers -- the story's own content chunks still carry the
+        # substance.
+        if dv:
+            verses_str = ", ".join(f"Dhp {n}" for n in dv)
+            alignment_text = (
+                f"{verses_str} {'are' if len(dv) > 1 else 'is'} explained by a single "
+                f"commentarial story: story {gid}, {s['title_en']}. "
+                f"This story covers {len(dv)} verse(s): {verses_str}."
+            )
+            chunks.append(_chunk(f"story:{gid}:alignment", "story_alignment",
+                                 alignment_text, dhp_verses=dv, group_id=gid))
 
         if s.get("cast"):
             chunks.append(_chunk(f"story:{gid}:cast", "story_cast", f"Cast of story {gid}: {s['cast']}", dhp_verses=dv, group_id=gid))

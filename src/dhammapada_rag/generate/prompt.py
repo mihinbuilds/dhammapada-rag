@@ -53,6 +53,21 @@ Corrections applied to the previous revision:
    taxonomy twice in slightly different words in one context wastes tokens
    and gives the model two authorities to reconcile.
 
+ROUND 2 REGRESSION FIX -- CITATION LEAKING INTO CLAIM TEXT. Fix 1 above
+introduced a literal "group_id: 13.2" line so the model would have
+something unambiguous to copy into the JSON group_id field. Observed
+consequence: the model sometimes copied that whole labeled line into the
+claim's `text` field instead ("group_id: 15.6; verse_number: 204 The
+story..."), leaving the actual group_id/verse_number JSON fields null --
+audit() correctly flagged this as MISSING_PROVENANCE, but the claim was
+malformed in a way that check didn't name. The commentary block's citation
+line is now a `<<citation_fields group_id=... verse_number=...>>` marker,
+which does not read as a sentence fragment to reproduce, and SYSTEM_PROMPT
+explicitly forbids "group_id:"/"verse_number:"/the marker itself from
+appearing in `text`. schemas.audit() adds a matching CITATION_IN_TEXT error
+check as a second line of defense, since a prompt instruction alone is not
+self-enforcing (the same lesson as Fix 2's commentary-engagement retry).
+
 STILL OUTSTANDING (schema change required, not fixable here): the Claim
 schema has no field for Pali, so no Pali can appear in any answer regardless
 of what this prompt asks for. Add an optional `pali_support: str | None` to
@@ -83,8 +98,10 @@ COVERAGE. Each source group below carries both layers. Your answer must draw on 
 FRAMING. If the question presupposes a category the Dhammapada does not use, say so first, as a "synthesis" claim, before answering. For example, a question about the "purpose" of life is teleological; the text's nearest category is attha (goal, benefit, welfare) and sadattha (one's own highest good), which answer what is worth pursuing rather than why anything exists. Name the mismatch, then answer the question the text does address.
 
 CITATIONS. Every "verse" and "commentary" claim must carry group_id and verse_number.
-- group_id: copy the value after `group_id:` EXACTLY as printed. It is two numbers separated by a period and nothing else. Correct: 8.13 -- Incorrect: g8.13, group 8.13, [8.13], story 8.13.
-- verse_number: for a "verse" claim, the verse you are describing. For a "commentary" claim, the FIRST verse number listed for that source group (a story covers the whole group; do not choose arbitrarily among its verses).
+- group_id: for commentary, copy the value from the source's `<<citation_fields group_id=... verse_number=...>>` marker EXACTLY as printed there. It is two numbers separated by a period and nothing else. Correct: 8.13 -- Incorrect: g8.13, group 8.13, [8.13], story 8.13.
+- verse_number: for a "verse" claim, the verse you are describing. For a "commentary" claim, the FIRST verse number listed for that source group (a story covers the whole group; do not choose arbitrarily among its verses) -- the same value given in that marker.
+
+Put these values ONLY in the JSON group_id and verse_number fields. The `text` field is prose for a human reader: it must never contain "group_id:", "verse_number:", or a <<citation_fields>> marker. A claim whose text begins with its own citation is malformed.
 
 Answer only from the provided context. If it does not address the question, say so as a "synthesis" claim rather than inventing verse or commentary content. Keep each claim to one idea; prefer several short tagged claims over one long untagged paragraph."""
 
@@ -134,8 +151,17 @@ def format_verse_group(bundle: dict) -> str:
         first_verse = min(s["dhp_verses"]) if s.get("dhp_verses") else (verse_numbers[0] if verse_numbers else None)
         lines.append("")
         lines.append("[COMMENTARY -- Buddhaghosa's atthakatha, ~5th century CE]")
-        lines.append(f"group_id: {s['group_id']}")
-        lines.append(f"cite this commentary as verse_number: {first_verse}")
+        # Round 2, Task B fix: this used to be two literal lines,
+        # "group_id: 13.2" / "cite this commentary as verse_number: 204" --
+        # and the model was observed copying that string verbatim into a
+        # claim's `text` field ("group_id: 15.6; verse_number: 204 The
+        # story..."), with the actual group_id/verse_number JSON fields left
+        # null. A regression from round 1's prompt rewrite: bare
+        # "group_id: X" reads as prose-shaped to a model that has just been
+        # told group_id values look like "8.13" copied verbatim, so it
+        # copied the whole labeled line instead of only the value. The
+        # <<...>> marker form is unambiguously not a sentence to reproduce.
+        lines.append(f"<<citation_fields group_id={s['group_id']} verse_number={first_verse}>>")
         lines.append(f"Story title: {s['title_en']}")
         # Found during Phase 5 generation-metrics judging (post-hoc, not
         # anticipated by the original bug list): index/chunks.py's

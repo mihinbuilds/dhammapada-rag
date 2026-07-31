@@ -21,6 +21,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
 
 from dhammapada_rag.generate.generate import Generator, GenerationError  # noqa: E402
+from dhammapada_rag.generate.render import render_markdown  # noqa: E402
 from dhammapada_rag.index.assemble import assemble, load_verses_and_stories, query  # noqa: E402
 from dhammapada_rag.index.rerank import CrossEncoderReranker  # noqa: E402
 from dhammapada_rag.index.search import ChunkIndex  # noqa: E402
@@ -256,8 +257,21 @@ def page_query():
                         f"Model: {result['model']}  |  Latency: {result['latency_s']:.1f}s  |  "
                         f"Prompt: ~{result.get('prompt_tokens', '?')} tok / num_ctx {result.get('num_ctx', '?')}"
                     )
-                    for c in result["answer"].claims:
-                        render_claim(c.model_dump())
+                    # Round 2, Task A: the schema deliberately has no free-text
+                    # summary field (schemas.py's own docstring explains why --
+                    # an untagged paragraph is the escape hatch a conflated
+                    # claim would slip through), so nothing readable appeared
+                    # here before: only a stack of tagged claim cards, no
+                    # prose. render_markdown() composes that prose client-side
+                    # from the already-tagged claims, keeping the layer
+                    # distinction in the sentence itself ("The verse
+                    # states..." vs "The commentary relates...") rather than
+                    # only in the card color below, which disappears the
+                    # moment this text is copied elsewhere.
+                    st.markdown(render_markdown(result["answer"]))
+                    with st.expander("Claim-by-claim (provenance view)", expanded=False):
+                        for c in result["answer"].claims:
+                            render_claim(c.model_dump())
                     if result["warnings"]:
                         errors = [w for w in result["warnings"] if w.severity == "error"]
                         others = [w for w in result["warnings"] if w.severity != "error"]

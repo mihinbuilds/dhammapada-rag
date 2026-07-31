@@ -46,6 +46,7 @@ from pydantic import ValidationError
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from dhammapada_rag.generate.prompt import build_messages, estimate_tokens  # noqa: E402
+from dhammapada_rag.generate.render import render_plain  # noqa: E402
 from dhammapada_rag.generate.schemas import (  # noqa: E402
     AuditWarning,
     LayeredAnswer,
@@ -280,6 +281,8 @@ def main() -> None:
         print("WARNINGS:")
         for w in result["warnings"]:
             print(f"  - {w}")
+    print()
+    print(render_plain(result["answer"]))
     print()
     for c in result["answer"].claims:
         src = f"[{c.layer} | Dhp {c.verse_number} | {c.group_id}]" if (c.verse_number or c.group_id) else f"[{c.layer}]"

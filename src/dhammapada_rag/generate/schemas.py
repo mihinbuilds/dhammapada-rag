@@ -136,6 +136,7 @@ Code = Literal[
     "GROUP_NOT_RETRIEVED",        # error   -- real story, but not shown to the model
     "VERSE_GROUP_MISMATCH",       # error   -- fields stitched from two sources
     "VERSE_NOT_RETRIEVED",        # error   -- verse-only citation, verse not in context
+    "CITATION_IN_TEXT",           # error   -- prompt's citation marker leaked into claim text
     "MALFORMED_GROUP_ID",         # warning -- resolvable format drift, e.g. "g13.2"
     "SYNTHESIS_WITH_CITATION",    # info    -- synthesis claim carrying provenance
     "NO_COMMENTARY_ENGAGEMENT",   # warning -- commentary was retrieved but the answer never cites it
@@ -148,10 +149,23 @@ _SEVERITY: dict[str, Severity] = {
     "GROUP_NOT_RETRIEVED": "error",
     "VERSE_GROUP_MISMATCH": "error",
     "VERSE_NOT_RETRIEVED": "error",
+    "CITATION_IN_TEXT": "error",
     "MALFORMED_GROUP_ID": "warning",
     "SYNTHESIS_WITH_CITATION": "info",
     "NO_COMMENTARY_ENGAGEMENT": "warning",
 }
+
+# Round 2, Task B: prompt.py's commentary block renders a
+# "<<citation_fields group_id=... verse_number=...>>" marker for the model
+# to copy into the JSON fields. Observed failure: the model instead copied a
+# citation-shaped string into the claim's `text` field, leaving the actual
+# group_id/verse_number fields null -- MISSING_PROVENANCE caught the null
+# fields but didn't name that the text itself carries an untraceable,
+# copy-pasted citation. Checked against the *current* prompt.py's marker
+# syntax plus the pre-round-2 "group_id:"/"verse_number:" label form, so this
+# still catches the failure even if a future prompt revision reintroduces
+# bare labeled lines.
+_CITATION_LEAK_MARKERS = ("group_id:", "verse_number:", "citation_fields")
 
 # A story counts as "substantive commentary" above this length -- short
 # enough to exclude near-empty synopses, long enough that a real vatthu or a
@@ -244,6 +258,22 @@ def audit(
     known_ids: set[str] | None = set(corpus_group_ids) if corpus_group_ids is not None else None
 
     for i, c in enumerate(answer.claims):
+        # Checked before the per-layer branches below, and independent of
+        # them: a claim can carry a leaked marker regardless of layer, and
+        # this is checked even when group_id/verse_number are ALSO populated
+        # correctly -- a model that writes its citation into prose has
+        # produced an untraceable claim (a reader can't tell which part of
+        # the text is the model's own statement vs. copied scaffolding)
+        # even when the structured fields happen to be right too.
+        text_lower = c.text.lower()
+        leaked = [m for m in _CITATION_LEAK_MARKERS if m in text_lower]
+        if leaked:
+            warnings.append(
+                _warn("CITATION_IN_TEXT", i,
+                      f"claim text contains citation scaffolding ({', '.join(leaked)}) copied "
+                      f"from the prompt rather than composed as prose: {c.text!r}")
+            )
+
         if c.layer == "synthesis":
             if c.group_id is not None or c.verse_number is not None:
                 warnings.append(
