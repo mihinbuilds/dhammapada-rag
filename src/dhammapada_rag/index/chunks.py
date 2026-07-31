@@ -67,13 +67,29 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-# Window sizing in whitespace-delimited words. embed.py caps at 512 tokens;
-# English runs ~1.3 tokens/word and diacritic-heavy Pali higher, so 320 words
-# is a deliberately conservative ceiling with headroom rather than sitting at
-# the limit. Overlap keeps a boundary-straddling sentence retrievable from
-# both sides.
-WINDOW_WORDS = 320
-OVERLAP_WORDS = 60
+# Window sizing in whitespace-delimited words. embed.py caps at 512 tokens.
+# 320 words was the original estimate (English ~1.3 tokens/word) but
+# embed.py's tokenizer-based check_lengths() measured up to 2.13 tokens/word
+# on real windowed vatthu text -- narrative prose here is dense with
+# untransliterated Pali names and quoted verse fragments, which the plain
+# word-count heuristic undercounts badly. 200 words keeps every observed
+# chunk (200 * 2.13 = 426 tokens) comfortably under 512 even allowing for a
+# worse pocket than any window sampled so far. Re-derive this by running
+# embed.py's check against the actual tokenizer if chunks.py changes what
+# text ends up in a window, rather than trusting the ratio estimate.
+WINDOW_WORDS = 200
+OVERLAP_WORDS = 40
+
+# Pure Pali (verse_pali_ms) is a categorically different density than English
+# narrative with embedded Pali names: measured 3.98 tokens/word on the one
+# case that actually overflowed (verse 423, 195 words -> 776 tokens -- under
+# the WINDOW_WORDS=200 threshold by word count, so never even split, and
+# would still have overflowed at 200 words even if it had: 200*3.98=796).
+# WINDOW_WORDS's ratio was measured on English-with-Pali-names narrative
+# (~2.13 t/w); it does not transfer to all-Pali text. 100*3.98=398, safe
+# under 512 with margin for a denser pocket than the one sample measured.
+PALI_WINDOW_WORDS = 100
+PALI_OVERLAP_WORDS = 20
 
 
 def _chunk(
@@ -132,13 +148,15 @@ def _windowed_chunks(
     *,
     dhp_verses: list[int],
     group_id: str | None,
+    window: int = WINDOW_WORDS,
+    overlap: int = OVERLAP_WORDS,
 ) -> list[dict]:
     """One chunk per window, chained via prev/next ids.
 
     A single-window field keeps its original unsuffixed chunk_id so ids stay
     stable for short fields; only genuinely long text gains :w0, :w1.
     """
-    windows = _split_windows(text)
+    windows = _split_windows(text, window=window, overlap=overlap)
     if len(windows) == 1:
         return [_chunk(base_id, chunk_type, windows[0], dhp_verses=dhp_verses, group_id=group_id)]
 
@@ -181,19 +199,38 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
     for v in verses:
         n = v["verse"]
         if v.get("pali_mahasangiti"):
-            chunks.append(_chunk(f"verse:{n}:pali_ms", "verse_pali_ms", v["pali_mahasangiti"], dhp_verses=[n], group_id=None))
+            # Windowed defensively, not because verse text is normally long
+            # (it isn't -- this is a no-op single-chunk pass-through in every
+            # normal case) but because verse 423's pali_mahasangiti was found
+            # to carry the Mahasangiti source's trailing colophon (per-vagga
+            # story/verse-count uddana, ~170 extra words) concatenated on by
+            # Phase 1's build_verses.py segment-join. 776 tokens, well over
+            # embed.py's 512 limit. Out of scope to fix at the corpus level
+            # here (brief: "Do not regenerate data/processed/*.jsonl"), so
+            # made safe at chunking time like the synopsis/desanavasane cases
+            # above.
+            chunks.extend(
+                _windowed_chunks(
+                    f"verse:{n}:pali_ms", "verse_pali_ms", v["pali_mahasangiti"], dhp_verses=[n], group_id=None,
+                    window=PALI_WINDOW_WORDS, overlap=PALI_OVERLAP_WORDS,
+                )
+            )
         if v.get("english_sujato"):
-            chunks.append(_chunk(f"verse:{n}:en_sujato", "verse_en_sujato", v["english_sujato"], dhp_verses=[n], group_id=None))
+            chunks.extend(
+                _windowed_chunks(f"verse:{n}:en_sujato", "verse_en_sujato", v["english_sujato"], dhp_verses=[n], group_id=None)
+            )
         if v.get("interlinear_english"):
-            chunks.append(_chunk(f"verse:{n}:en_interlinear", "verse_en_interlinear", v["interlinear_english"], dhp_verses=[n], group_id=None))
+            chunks.extend(
+                _windowed_chunks(f"verse:{n}:en_interlinear", "verse_en_interlinear", v["interlinear_english"], dhp_verses=[n], group_id=None)
+            )
         notes = v.get("interlinear_notes") or []
         if notes:
             chunks.extend(
                 _windowed_chunks(f"verse:{n}:notes", "verse_notes", " ".join(notes), dhp_verses=[n], group_id=None)
             )
         if v.get("narrative_english"):
-            chunks.append(
-                _chunk(
+            chunks.extend(
+                _windowed_chunks(
                     f"verse:{n}:en_narrative", "verse_en_narrative", v["narrative_english"],
                     dhp_verses=[n], group_id=v.get("narrative_source_group_id"),
                 )
@@ -214,7 +251,15 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
                 _chunk(f"story:{gid}:keywords", "story_keywords", ", ".join(s["keywords"]), dhp_verses=dv, group_id=gid)
             )
         if s.get("synopsis"):
-            chunks.append(_chunk(f"story:{gid}:synopsis", "story_synopsis", s["synopsis"], dhp_verses=dv, group_id=gid))
+            # Usually one paragraph, but Phase 1's regex-based extraction
+            # (parse_stories.py) occasionally over-captures -- e.g. 26.40 is
+            # 1107 words, not a synopsis. Corpus is out of scope to fix here
+            # (brief: "Do not regenerate data/processed/*.jsonl"), so this
+            # field is windowed defensively like vatthu, not left to overflow
+            # embed.py's length check.
+            chunks.extend(
+                _windowed_chunks(f"story:{gid}:synopsis", "story_synopsis", s["synopsis"], dhp_verses=dv, group_id=gid)
+            )
         if s.get("nidana"):
             chunks.append(_chunk(f"story:{gid}:nidana", "story_nidana", s["nidana"], dhp_verses=dv, group_id=gid))
         if s.get("vatthu"):
@@ -222,7 +267,14 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
                 _windowed_chunks(f"story:{gid}:vatthu", "story_vatthu", s["vatthu"], dhp_verses=dv, group_id=gid)
             )
         if s.get("desanavasane"):
-            chunks.append(_chunk(f"story:{gid}:desanavasane", "story_desanavasane", s["desanavasane"], dhp_verses=dv, group_id=gid))
+            # Same over-capture issue, worse: some desanavasane fields contain
+            # a full embedded past-life narrative (e.g. 4.5 is 2181 words --
+            # a "Story of the Past" that the Phase 1 extraction regex attached
+            # to the closing pericope instead of the narrative body). Windowed
+            # for the same reason as synopsis above.
+            chunks.extend(
+                _windowed_chunks(f"story:{gid}:desanavasane", "story_desanavasane", s["desanavasane"], dhp_verses=dv, group_id=gid)
+            )
 
     return chunks
 
