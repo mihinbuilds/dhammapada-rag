@@ -1,16 +1,31 @@
-"""Construct data/eval/gold_set.jsonl: 120 questions, 30 each across
-doctrinal / philological / narrative / cross_recension, per docs/eval_rubric.md.
+"""Construct data/eval/gold_set.jsonl: 120 questions across five types --
+doctrinal (30), philological (30), narrative (30), alignment (14),
+cross_recension (16) -- per docs/eval_rubric.md.
+
+Bug 14 fix: `type` used to have four values, with a `cross_recension`
+stratum that actually mixed three different question kinds (verse-grouping
+lookups, genuine CST4 edition-title variance, corpus anomalies) under one
+label -- see build_gold_set_PATCH.py's WHY section. Every entry now also
+carries a `subtype`: doctrinal/philological/narrative subtypes equal their
+type; the other 30 questions split into subtypes verse_grouping (14, now
+its own `alignment` type), cst4_title_variant (8), colophon_not_indexed (6),
+corpus_anomaly (2), the last three still under `cross_recension`.
 
 Each entry below specifies either a verse number (for doctrinal/philological,
 where the question maps to exactly one verse's own story) or an explicit
-group_id (for narrative/cross_recension, where the specific story matters).
-Group_id/verse_number resolution against the corpus happens here, not by
-hand, to avoid transcription errors; if a verse maps to more than one story
-(true only for Dhp 416; see docs/datasheet.md), specifying by verse number
-alone would be ambiguous, so those cases use explicit group_id instead.
+group_id (for narrative/alignment/cross_recension, where the specific story
+matters). Group_id/verse_number resolution against the corpus happens here,
+not by hand, to avoid transcription errors; if a verse maps to more than one
+story (true only for Dhp 416; see docs/datasheet.md), specifying by verse
+number alone would be ambiguous, so those cases use explicit group_id
+instead.
 
 Single-annotator construction-from-known-answer method: see
-docs/eval_rubric.md "Construction method" and "Annotator status."
+docs/eval_rubric.md "Construction method" and "Annotator status." The six
+question constant lists below (DOCTRINAL, PHILOLOGICAL, NARRATIVE,
+CROSS_RECENSION_COLOPHON, CROSS_RECENSION_MULTIVERSE, CROSS_RECENSION_CST4,
+CROSS_RECENSION_SPECIAL) are hand-written and unchanged by the bug 14 fix --
+only how they get resolved and typed below changed.
 """
 
 from __future__ import annotations
@@ -182,16 +197,18 @@ def resolve_doctrinal_philological(entries, qtype, verses_by_number, stories_by_
     for verse_number, question, note in entries:
         v = verses_by_number[verse_number]
         group_ids = v["story_group_ids"]
-        assert len(group_ids) == 1, f"Dhp {verse_number} has {len(group_ids)} stories, expected 1 for unambiguous gold label: {group_ids}"
-        out.append(
-            {
-                "type": qtype,
-                "question": question,
-                "gold_group_ids": group_ids,
-                "gold_verse_numbers": [verse_number],
-                "notes": note,
-            }
+        assert len(group_ids) == 1, (
+            f"Dhp {verse_number} has {len(group_ids)} stories, expected 1 for an "
+            f"unambiguous gold label: {group_ids}"
         )
+        out.append({
+            "type": qtype,
+            "subtype": qtype,
+            "question": question,
+            "gold_group_ids": group_ids,
+            "gold_verse_numbers": [verse_number],
+            "notes": note,
+        })
     return out
 
 
@@ -199,53 +216,57 @@ def resolve_narrative(entries, stories_by_id):
     out = []
     for group_id, question, note in entries:
         s = stories_by_id[group_id]
-        out.append(
-            {
-                "type": "narrative",
-                "question": question,
-                "gold_group_ids": [group_id],
-                "gold_verse_numbers": s["dhp_verses"],
-                "notes": note,
-            }
-        )
+        out.append({
+            "type": "narrative",
+            "subtype": "narrative",
+            "question": question,
+            "gold_group_ids": [group_id],
+            "gold_verse_numbers": s["dhp_verses"],
+            "notes": note,
+        })
     return out
 
 
-def resolve_cross_recension_multiverse_cst4(entries, stories_by_id):
+def resolve_by_group(entries, stories_by_id, qtype: str, subtype: str):
+    """Shared resolver for every group_id-keyed list.
+
+    Bug 14 fix: the old resolve_cross_recension_multiverse_cst4() applied one
+    undifferentiated "cross_recension" label to three substantively different
+    question kinds (verse-grouping lookups, genuine CST4 edition-title
+    variance, and corpus anomalies), which is most of why that stratum's
+    aggregate score (0.54 against ~0.86 elsewhere) read as a retrieval
+    weakness when it was largely a labelling problem -- see
+    build_gold_set_PATCH.py's WHY section for the full diagnosis.
+    """
     out = []
     for group_id, question, note in entries:
         s = stories_by_id[group_id]
-        out.append(
-            {
-                "type": "cross_recension",
-                "question": question,
-                "gold_group_ids": [group_id],
-                "gold_verse_numbers": s["dhp_verses"],
-                "notes": note,
-            }
-        )
+        out.append({
+            "type": qtype,
+            "subtype": subtype,
+            "question": question,
+            "gold_group_ids": [group_id],
+            "gold_verse_numbers": s["dhp_verses"],
+            "notes": note,
+        })
     return out
 
 
-def resolve_cross_recension_colophon(entries):
+def resolve_colophon(entries):
     # Colophon facts aren't tied to a single retrievable verse-group -- they're
     # about the text's own back-matter, which isn't chunked/indexed (see
     # index/chunks.py). Excluded from gold_group_ids-based retrieval scoring;
     # kept in the gold set as documented, answerable-from-source knowledge
     # questions for the generation-metrics pass instead (docs/evaluation.md
     # notes this explicitly, doesn't silently drop it).
-    out = []
-    for subject, question, note in entries:
-        out.append(
-            {
-                "type": "cross_recension",
-                "question": question,
-                "gold_group_ids": [],  # not chunk-retrievable; see note above
-                "gold_verse_numbers": [],
-                "notes": f"[colophon fact, not chunk-indexed] {subject}: {note}",
-            }
-        )
-    return out
+    return [{
+        "type": "cross_recension",
+        "subtype": "colophon_not_indexed",
+        "question": question,
+        "gold_group_ids": [],  # not chunk-retrievable; see note above
+        "gold_verse_numbers": [],
+        "notes": f"[colophon fact, not chunk-indexed] {subject}: {note}",
+    } for subject, question, note in entries]
 
 
 def main():
@@ -254,19 +275,32 @@ def main():
     doctrinal = resolve_doctrinal_philological(DOCTRINAL, "doctrinal", verses_by_number, stories_by_id)
     philological = resolve_doctrinal_philological(PHILOLOGICAL, "philological", verses_by_number, stories_by_id)
     narrative = resolve_narrative(NARRATIVE, stories_by_id)
+
+    # Bug 14, part 2: alignment questions become their own TYPE. They test
+    # the verse-to-story grouping table (the project's most valuable single
+    # artifact -- see docs/datasheet.md), not edition variance, and burying
+    # them inside cross_recension hid a real, well-supported result (this
+    # stratum) behind a stratum that could not support the claim it was
+    # being read to support.
+    alignment = resolve_by_group(CROSS_RECENSION_MULTIVERSE, stories_by_id, "alignment", "verse_grouping")
+
+    # cross_recension now keeps only questions actually about edition
+    # variance. CST4 title variants are the only retrievable ones of the
+    # three sub-kinds, and only now that index/chunks.py emits story_titles
+    # (Phase 2) -- previously unanswerable by retrieval by construction.
     cross_recension = (
-        resolve_cross_recension_colophon(CROSS_RECENSION_COLOPHON)
-        + resolve_cross_recension_multiverse_cst4(CROSS_RECENSION_MULTIVERSE, stories_by_id)
-        + resolve_cross_recension_multiverse_cst4(CROSS_RECENSION_CST4, stories_by_id)
-        + resolve_cross_recension_multiverse_cst4(CROSS_RECENSION_SPECIAL, stories_by_id)
+        resolve_colophon(CROSS_RECENSION_COLOPHON)
+        + resolve_by_group(CROSS_RECENSION_CST4, stories_by_id, "cross_recension", "cst4_title_variant")
+        + resolve_by_group(CROSS_RECENSION_SPECIAL, stories_by_id, "corpus_anomaly", "corpus_anomaly")
     )
 
-    all_questions = doctrinal + philological + narrative + cross_recension
+    all_questions = doctrinal + philological + narrative + alignment + cross_recension
     assert len(doctrinal) == 30, len(doctrinal)
     assert len(philological) == 30, len(philological)
     assert len(narrative) == 30, len(narrative)
-    assert len(cross_recension) == 30, len(cross_recension)
-    assert len(all_questions) == 120
+    assert len(alignment) == 14, len(alignment)
+    assert len(cross_recension) == 16, len(cross_recension)
+    assert len(all_questions) == 120, len(all_questions)
 
     for i, q in enumerate(all_questions):
         q["question_id"] = f"q{i+1:03d}"
@@ -277,9 +311,23 @@ def main():
             f.write(json.dumps(q, ensure_ascii=False) + "\n")
 
     print(f"Wrote {out_path}: {len(all_questions)} questions")
-    print(f"  doctrinal: {len(doctrinal)}, philological: {len(philological)}, narrative: {len(narrative)}, cross_recension: {len(cross_recension)}")
+    by_type: dict[str, int] = {}
+    by_sub: dict[str, int] = {}
+    for q in all_questions:
+        by_type[q["type"]] = by_type.get(q["type"], 0) + 1
+        by_sub[q["subtype"]] = by_sub.get(q["subtype"], 0) + 1
+    print("  by type:    " + json.dumps(by_type))
+    print("  by subtype: " + json.dumps(by_sub))
+
     n_retrievable = sum(1 for q in all_questions if q["gold_group_ids"])
-    print(f"  chunk-retrievable (non-colophon): {n_retrievable}/{len(all_questions)}")
+    n_xrec = sum(1 for q in all_questions if q["type"] == "cross_recension" and q["gold_group_ids"])
+    print(f"  chunk-retrievable: {n_retrievable}/{len(all_questions)}")
+    print(
+        f"\n  NOTE: only {n_xrec} retrievable cross_recension questions remain, all of them\n"
+        f"  CST4 title variants. This stratum cannot support a general claim about\n"
+        f"  cross-recension retrieval; the corpus holds no Udanavarga, Gandhari, or\n"
+        f"  Patna Dharmapada. Say so, or ingest SuttaCentral's parallels data."
+    )
 
 
 if __name__ == "__main__":
