@@ -130,14 +130,15 @@ class LayeredAnswer(BaseModel):
 Severity = Literal["error", "warning", "info"]
 
 Code = Literal[
-    "MISSING_PROVENANCE",      # error   -- verse/commentary claim cites nothing
-    "UNPARSEABLE_GROUP_ID",    # error   -- cannot be reduced to canonical form
-    "UNKNOWN_GROUP_ID",        # error   -- canonical, but no such story in corpus
-    "GROUP_NOT_RETRIEVED",     # error   -- real story, but not shown to the model
-    "VERSE_GROUP_MISMATCH",    # error   -- fields stitched from two sources
-    "VERSE_NOT_RETRIEVED",     # error   -- verse-only citation, verse not in context
-    "MALFORMED_GROUP_ID",      # warning -- resolvable format drift, e.g. "g13.2"
-    "SYNTHESIS_WITH_CITATION", # info    -- synthesis claim carrying provenance
+    "MISSING_PROVENANCE",         # error   -- verse/commentary claim cites nothing
+    "UNPARSEABLE_GROUP_ID",       # error   -- cannot be reduced to canonical form
+    "UNKNOWN_GROUP_ID",           # error   -- canonical, but no such story in corpus
+    "GROUP_NOT_RETRIEVED",        # error   -- real story, but not shown to the model
+    "VERSE_GROUP_MISMATCH",       # error   -- fields stitched from two sources
+    "VERSE_NOT_RETRIEVED",        # error   -- verse-only citation, verse not in context
+    "MALFORMED_GROUP_ID",         # warning -- resolvable format drift, e.g. "g13.2"
+    "SYNTHESIS_WITH_CITATION",    # info    -- synthesis claim carrying provenance
+    "NO_COMMENTARY_ENGAGEMENT",   # warning -- commentary was retrieved but the answer never cites it
 ]
 
 _SEVERITY: dict[str, Severity] = {
@@ -149,7 +150,24 @@ _SEVERITY: dict[str, Severity] = {
     "VERSE_NOT_RETRIEVED": "error",
     "MALFORMED_GROUP_ID": "warning",
     "SYNTHESIS_WITH_CITATION": "info",
+    "NO_COMMENTARY_ENGAGEMENT": "warning",
 }
+
+# A story counts as "substantive commentary" above this length -- short
+# enough to exclude near-empty synopses, long enough that a real vatthu or a
+# proper synopsis always clears it. Used both by generate.py (to decide
+# whether a zero-commentary answer is worth retrying) and by audit() (to
+# decide whether it is worth flagging).
+MIN_COMMENTARY_WORDS = 40
+
+
+def bundles_have_commentary(bundles: list[dict], min_words: int = MIN_COMMENTARY_WORDS) -> bool:
+    for b in bundles:
+        for s in b.get("stories", []):
+            text = " ".join(filter(None, (s.get("vatthu"), s.get("synopsis"))))
+            if len(text.split()) >= min_words:
+                return True
+    return False
 
 
 @dataclass(frozen=True)
@@ -302,6 +320,24 @@ def audit(
                               f"cites verse_number={c.verse_number} with no group_id; that verse was "
                               f"not among the retrieved verses {sorted(retrieved_verses)}: {c.text!r}")
                     )
+
+    # Answer-level check, not tied to one claim (claim_index=-1): commentary
+    # was substantively available but the model produced no commentary claim
+    # at all. This is the STOP GATE 3 failure mode -- num_ctx being large
+    # enough to fit the commentary does not by itself make the model use it.
+    # Surfaced as a warning, not an error: the answer may still be schema-
+    # valid and its verse claims individually correct, but the system's
+    # actual thesis (surface both layers, distinctly) went unmet.
+    if bundles is not None and bundles_have_commentary(bundles):
+        if not any(c.layer == "commentary" for c in answer.claims):
+            warnings.append(
+                _warn(
+                    "NO_COMMENTARY_ENGAGEMENT", -1,
+                    "retrieved sources included substantive commentary/narrative text, but "
+                    "the answer contains zero claims tagged 'commentary' -- the verse/"
+                    "commentary distinction this system exists to surface was not made",
+                )
+            )
 
     return warnings
 

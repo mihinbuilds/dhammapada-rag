@@ -185,6 +185,54 @@ def test_synthesis_with_citation_is_info_only():
 
 
 # --------------------------------------------------------------------------
+# STOP GATE 3 fix: zero-commentary answers must be visible, not silent
+# --------------------------------------------------------------------------
+
+def bundle_with_commentary(group_id: str, verses: list[int], vatthu_words: int = 60) -> dict:
+    b = bundle(group_id, verses)
+    b["stories"][0]["vatthu"] = " ".join(["word"] * vatthu_words)
+    return b
+
+
+def test_no_commentary_engagement_flagged_when_commentary_available():
+    """The reproduced STOP GATE 3 failure: retrieved commentary substantial,
+    answer entirely verse-tagged. Must be visible in the warning stream, not
+    silently schema-valid."""
+    rich_bundles = [bundle_with_commentary("8.13", [114])]
+    ws = audit(
+        answer(Claim(text="...", layer="verse", group_id="8.13", verse_number=114)),
+        rich_bundles,
+    )
+    assert "NO_COMMENTARY_ENGAGEMENT" in codes(ws)
+    assert summarize(ws)["warning"] >= 1
+
+
+def test_no_commentary_engagement_not_flagged_when_present():
+    rich_bundles = [bundle_with_commentary("8.13", [114])]
+    ws = audit(
+        answer(
+            Claim(text="verse claim", layer="verse", group_id="8.13", verse_number=114),
+            Claim(text="commentary claim", layer="commentary", group_id="8.13", verse_number=114),
+        ),
+        rich_bundles,
+    )
+    assert "NO_COMMENTARY_ENGAGEMENT" not in codes(ws)
+
+
+def test_no_commentary_engagement_not_flagged_when_no_commentary_retrieved():
+    """BUNDLES (module-level fixture) carries only a 4-word placeholder
+    synopsis, under MIN_COMMENTARY_WORDS -- an all-verse answer against it is
+    not a coverage failure, since there was nothing substantive to engage
+    with. Regression guard: every other test in this file uses BUNDLES with
+    all-verse answers and must keep passing unaffected by this check."""
+    ws = audit(
+        answer(Claim(text="...", layer="verse", group_id="13.2", verse_number=168)),
+        BUNDLES,
+    )
+    assert "NO_COMMENTARY_ENGAGEMENT" not in codes(ws)
+
+
+# --------------------------------------------------------------------------
 # The contract test -- wire this to the real prompt renderer
 # --------------------------------------------------------------------------
 

@@ -46,7 +46,12 @@ from pydantic import ValidationError
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from dhammapada_rag.generate.prompt import build_messages, estimate_tokens  # noqa: E402
-from dhammapada_rag.generate.schemas import AuditWarning, LayeredAnswer, audit  # noqa: E402
+from dhammapada_rag.generate.schemas import (  # noqa: E402
+    AuditWarning,
+    LayeredAnswer,
+    audit,
+    bundles_have_commentary,
+)
 
 DEFAULT_MODEL = "qwen2.5:7b-instruct"
 OLLAMA_URL = "http://localhost:11434/api/chat"
@@ -184,6 +189,36 @@ class Generator:
                             f"{e}\n\nReturn ONLY a JSON object matching the schema. Every "
                             "claim needs text, layer, and (for verse/commentary layers) "
                             "group_id and verse_number."
+                        ),
+                    },
+                ]
+                continue
+
+            # STOP GATE 3 fix: a schema-valid answer that ignores the
+            # commentary is not a JSON-validation failure, so the branch
+            # above never catches it -- verified reproducible at temperature
+            # 0 across multiple questions even with the full commentary
+            # present well under num_ctx. The prompt's prose instruction
+            # ("must draw on both layers") is not self-enforcing; nothing
+            # upstream of this rejected the answer for ignoring it. Retry
+            # with an explicit corrective message, same principle as the
+            # JSON-validation retry above: a bare resend at temperature 0
+            # would just reproduce the identical answer.
+            has_commentary = bundles_have_commentary(bundles)
+            zero_commentary_claims = not any(c.layer == "commentary" for c in answer.claims)
+            if has_commentary and zero_commentary_claims and attempt < max_retries:
+                messages = messages + [
+                    {"role": "assistant", "content": content},
+                    {
+                        "role": "user",
+                        "content": (
+                            "Your answer contained zero claims tagged 'commentary', but the "
+                            "source material above includes a substantial story (vatthu) "
+                            "explaining this verse. Revise your answer: add at least one "
+                            "claim tagged 'commentary' describing what that story says (who, "
+                            "when, why), citing its group_id and verse_number. Only omit a "
+                            "commentary claim if you can state, as a 'synthesis' claim, a "
+                            "specific reason the story does not bear on the question."
                         ),
                     },
                 ]

@@ -105,9 +105,23 @@ def _budget(text: str, remaining: int) -> tuple[str, int]:
 def format_verse_group(bundle: dict) -> str:
     verse_numbers = bundle["verse_numbers"]
     printed = ", ".join(str(n) for n in verse_numbers)
+    stories = bundle["stories"]
     lines = [f"=== SOURCE (Dhp {printed}) ==="]
 
     lines.append("[VERSE]")
+    # A "verse" claim needs a citable group_id too, same as a "commentary"
+    # claim -- without this line the model has nothing but the [COMMENTARY]
+    # block below to copy from, and was observed inventing malformed hybrids
+    # like "dhp114" (conflating the verse reference with the group_id it
+    # never saw stated for the verse layer). One story per bundle is the
+    # overwhelming common case; where a verse has more than one explaining
+    # story (only Dhp 416 in this corpus), list all of them rather than
+    # guessing which one a verse claim should cite.
+    if len(stories) == 1:
+        lines.append(f"group_id: {stories[0]['group_id']}")
+    elif stories:
+        ids = ", ".join(s["group_id"] for s in stories)
+        lines.append(f"group_id: {ids} (multiple stories explain this verse group; cite whichever applies)")
     for v in bundle["verses"]:
         lines.append(f"Dhp {v['verse']} -- Pali (Mahasangiti): {v['pali_mahasangiti']}")
         if v.get("english_sujato"):
