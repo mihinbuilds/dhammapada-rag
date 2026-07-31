@@ -1,0 +1,18 @@
+{
+  "total_verses": 423,
+  "coverage": {
+    "pali_ms": 423,
+    "english_sujato": 423,
+    "interlinear": 423,
+    "narrative_quote": 226,
+    "story_ref": 423
+  },
+  "coverage_rate": {
+    "pali_ms": 1.0,
+    "english_sujato": 1.0,
+    "interlinear": 1.0,
+    "narrative_quote": 0.5343,
+    "story_ref": 1.0
+  },
+  "fully_complete_all_layers": 423
+}

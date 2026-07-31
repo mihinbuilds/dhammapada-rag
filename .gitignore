@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+venv/
+.DS_Store
+data/interim/*
+!data/interim/.gitkeep
+*.egg-info/
+.pytest_cache/
+
+# Regenerable index build artifacts (large binary; rebuild with
+# src/dhammapada_rag/index/embed.py). chunks.jsonl is small and kept.
+data/index/dense.npy
+data/index/sparse.pkl
+data/index/colbert.pkl
+data/index/chunk_ids.json

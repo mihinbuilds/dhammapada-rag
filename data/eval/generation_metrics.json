@@ -1,0 +1,31 @@
+{
+  "n_questions": 20,
+  "n_claims": 42,
+  "layer_attribution_accuracy": 0.4762,
+  "anachronistic_conflation_rate": 0.3125,
+  "n_conflation_instances": 10,
+  "n_verse_or_commentary_tagged": 32,
+  "n_structural_warnings": 18,
+  "by_type": {
+    "doctrinal": {
+      "n_claims": 9,
+      "accuracy": 0.4444,
+      "conflation_rate": 0.0
+    },
+    "philological": {
+      "n_claims": 9,
+      "accuracy": 0.5556,
+      "conflation_rate": 0.0
+    },
+    "narrative": {
+      "n_claims": 9,
+      "accuracy": 0.5556,
+      "conflation_rate": 0.2857
+    },
+    "cross_recension": {
+      "n_claims": 15,
+      "accuracy": 0.4,
+      "conflation_rate": 0.7273
+    }
+  }
+}
