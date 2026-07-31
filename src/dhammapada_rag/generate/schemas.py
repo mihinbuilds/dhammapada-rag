@@ -38,7 +38,7 @@ Layer = Literal["verse", "commentary", "synthesis"]
 # Canonical form is bare "<vagga>.<story>", e.g. "13.2", "1.14", "20.11".
 # This is the form stored in data/processed/stories.jsonl and the form the
 # prompt must render. Anything else is drift.
-GROUP_ID_RE = re.compile(r"^(?P<vagga>[1-9]|1\d|2[0-6])\.(?P<story>\d{1,3})$")
+GROUP_ID_RE = re.compile(r"^(?P<vagga>[1-9]|1\d|2[0-6])\.(?P<story>[1-9]\d{0,2})$")
 
 # Tolerated decorations stripped during normalization. Each of these has been
 # observed from at least one model size; extend the list rather than loosening
