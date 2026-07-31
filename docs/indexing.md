@@ -6,11 +6,18 @@ second stage... For fusion, use Reciprocal Rank Fusion."
 
 ## Chunk schema: what gets matched on
 
-`src/dhammapada_rag/index/chunks.py` derives **2,769 chunks** from
+`src/dhammapada_rag/index/chunks.py` derives **5,667 chunks** from
 `verses.jsonl` and `stories.jsonl` -- see that module's docstring for the
 full breakdown by type (`verse_pali_ms`, `verse_en_sujato`,
-`verse_en_interlinear`, `verse_notes`, `verse_en_narrative`,
-`story_synopsis`, `story_nidana`, `story_vatthu`, `story_desanavasane`).
+`verse_en_interlinear`, `verse_notes`, `verse_en_narrative`, `story_titles`,
+`story_cast`, `story_keywords`, `story_synopsis`, `story_nidana`,
+`story_vatthu`, `story_desanavasane`). Originally 2,769: a post-hoc
+correctness pass found that `story_vatthu`/`story_synopsis`/
+`story_desanavasane` were each emitted as one unwindowed chunk per story
+regardless of length, which silently truncated at `embed.py`'s 512-token
+encoder limit for any narrative over ~380 words -- 84% of all narrative
+text was unreachable by any query as a result. See `docs/evaluation.md`'s
+headline finding for the full diagnosis and measured impact.
 
 This is the "tightest possible unit" side of Phase 3's "retrieve small,
 return whole": a chunk is never what's returned to the user, only what's
@@ -18,20 +25,22 @@ matched on. Every chunk carries `dhp_verses` and (for story-derived chunks)
 `group_id` so a hit can be resolved back to its full verse-group at assembly
 time (`assemble.py`).
 
-Not yet chunked further: `story_vatthu` is indexed as one chunk per story
-even though some vatthus run long (epic stories can be 1000+ words). Splitting
-vatthu into paragraph-level sub-chunks is a natural refinement and maps onto
-one of `DhammapadaRAG.txt` Phase 5's own planned ablations ("flat chunking
-vs. parent-group assembly") -- deferred rather than guessed at, since the
-right granularity is an empirical question the eval set should answer.
+`story_vatthu`, `story_synopsis`, and `story_desanavasane` are now windowed
+(`WINDOW_WORDS=200`, `PALI_WINDOW_WORDS=100` for pure-Pali verse text) --
+multiple chunks per story where the source text exceeds one window, each
+still carrying the parent `group_id` for reassembly. Window sizing is
+tokenizer-measured (English-narrative-with-Pali-names runs ~2.13
+tokens/word; pure Pali runs ~3.98), not a word-count guess -- see
+`chunks.py`'s own comments for the derivation.
 
 ## Embedding: BGE-M3, three representations from one model
 
 `embed.py` runs `BAAI/bge-m3` (568M params, multilingual, CPU inference on
 this machine -- MPS is available but untested here for numerical
 compatibility, CPU was chosen for reliability given the corpus is small
-enough that CPU encoding of all 2,769 chunks took ~157s) and saves, per
-chunk:
+enough that CPU encoding is tractable -- ~157s for the original 2,769-chunk
+index; not re-measured for the current 5,667-chunk index, since re-timing
+isn't load-bearing for anything this doc claims) and saves, per chunk:
 
 - **Dense**: 1024-dim normalized embedding (`dense.npy`)
 - **Sparse/lexical**: token -> weight dict, BGE-M3's learned lexical
@@ -49,7 +58,7 @@ the same space without needing separate models per language.
 `search.py`'s `ChunkIndex.search()`:
 
 1. Dense: cosine similarity (dot product; vectors pre-normalized) over all
-   2,769 chunks, top `dense_k=100`.
+   5,667 chunks, top `dense_k=100`.
 2. Sparse: BGE-M3's own `compute_lexical_matching_score` (token-overlap dot
    product weighted by learned importance) over all chunks, top
    `sparse_k=100`.
