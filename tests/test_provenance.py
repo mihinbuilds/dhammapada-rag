@@ -233,6 +233,69 @@ def test_no_commentary_engagement_not_flagged_when_no_commentary_retrieved():
 
 
 # --------------------------------------------------------------------------
+# Round 2, Task B: citation scaffolding leaking into claim text
+# --------------------------------------------------------------------------
+
+def test_claim_text_carries_no_citation_markers():
+    for bad in ("group_id", "verse_number", "citation_fields"):
+        assert bad not in Claim(text="The verse states X", layer="verse",
+                                group_id="8.13", verse_number=114).text
+
+
+def test_citation_in_text_is_flagged_as_error():
+    """The actual observed failure: a commentary claim whose `text` begins
+    with the prompt's own citation scaffolding, group_id/verse_number left
+    null. MISSING_PROVENANCE alone doesn't name that the text is copied
+    scaffolding, not composed prose -- CITATION_IN_TEXT does."""
+    ws = audit(
+        answer(Claim(
+            text="group_id: 15.6; verse_number: 204 The story of the Gifts beyond Compare...",
+            layer="commentary", group_id=None, verse_number=None,
+        )),
+        BUNDLES,
+    )
+    assert "CITATION_IN_TEXT" in codes(ws)
+    assert summarize(ws)["error"] >= 1
+
+
+def test_citation_in_text_flagged_even_when_fields_also_populated():
+    """A leaked marker makes a claim untraceable regardless of whether the
+    structured fields happen to also be correct -- checked independently,
+    not only as a fallback for when fields are null."""
+    ws = audit(
+        answer(Claim(
+            text="<<citation_fields group_id=13.2 verse_number=168>> Kisa Gotami sought mustard seeds.",
+            layer="commentary", group_id="13.2", verse_number=168,
+        )),
+        BUNDLES,
+    )
+    assert "CITATION_IN_TEXT" in codes(ws)
+
+
+def test_clean_commentary_claim_not_flagged_for_citation_in_text():
+    ws = audit(
+        answer(Claim(
+            text="Kisa Gotami sought mustard seeds from a house that had never known death.",
+            layer="commentary", group_id="13.2", verse_number=168,
+        )),
+        BUNDLES,
+    )
+    assert "CITATION_IN_TEXT" not in codes(ws)
+
+
+def test_prompt_never_renders_a_bare_labeled_citation_line_in_commentary_block():
+    """Round 2 regression guard: the commentary block's citation must be a
+    <<citation_fields ...>> marker, not a "group_id: X" / "cite this
+    commentary as verse_number: Y" line a model could copy into prose."""
+    from dhammapada_rag.generate.prompt import format_verse_group
+
+    b = bundle_with_commentary("8.13", [114])
+    rendered = format_verse_group(b)
+    assert "<<citation_fields group_id=8.13 verse_number=114>>" in rendered
+    assert "cite this commentary as verse_number:" not in rendered
+
+
+# --------------------------------------------------------------------------
 # The contract test -- wire this to the real prompt renderer
 # --------------------------------------------------------------------------
 
