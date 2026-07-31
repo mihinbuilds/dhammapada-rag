@@ -29,7 +29,23 @@ from schemas import (
 
 
 def bundle(group_id: str, verses: list[int]) -> dict:
-    return {"stories": [{"group_id": group_id, "dhp_verses": verses}]}
+    """Minimal but build_context()-complete bundle: enough fields for
+    audit()'s tests (group_id, dhp_verses) and for the prompt-renderer
+    contract test below (verse_numbers, verses[].pali_mahasangiti,
+    stories[].title_en are all accessed unconditionally by
+    format_verse_group)."""
+    return {
+        "verse_numbers": verses,
+        "verses": [{"verse": v, "pali_mahasangiti": f"<pali text for {v}>"} for v in verses],
+        "stories": [
+            {
+                "group_id": group_id,
+                "dhp_verses": verses,
+                "title_en": f"Story about {group_id}",
+                "synopsis": "A brief synopsis.",
+            }
+        ],
+    }
 
 
 BUNDLES = [bundle("13.2", [168, 169]), bundle("1.14", [19, 20]), bundle("10.5", [135])]
@@ -172,22 +188,20 @@ def test_synthesis_with_citation_is_info_only():
 # The contract test -- wire this to the real prompt renderer
 # --------------------------------------------------------------------------
 
-@pytest.mark.xfail(reason="wire to generate.prompt once the renderer is importable", strict=False)
 def test_prompt_renders_canonical_ids():
     """Every group_id the prompt shows the model must be canonical.
 
-    Replace the import and call below with the real renderer. This is the
-    test that prevents the original bug class from recurring: it fails if the
-    prompt ever decorates an ID that the audit expects bare.
+    This is the test that prevents the original bug class from recurring: it
+    fails if the prompt ever decorates an ID that the audit expects bare.
     """
-    from dhammapada_rag.generate.prompt import render_sources  # type: ignore
+    from dhammapada_rag.generate.prompt import build_context
 
-    rendered = render_sources(BUNDLES)
+    rendered = build_context(BUNDLES)
     for b in BUNDLES:
         for s in b["stories"]:
             gid = s["group_id"]
-            assert gid in rendered
-            for bad in (f"g{gid}", f"[{gid}]", f"story g{gid}"):
+            assert f"group_id: {gid}" in rendered, f"prompt never renders bare {gid!r} via the 'group_id:' token"
+            for bad in (f"g{gid}", f"[{gid}]", f"story g{gid}", f"story {gid}", f"group {gid}"):
                 assert bad not in rendered, f"prompt renders decorated id {bad!r}"
 
 
@@ -199,7 +213,7 @@ def test_corpus_ids_are_all_canonical():
     import json
     from pathlib import Path
 
-    path = Path(__file__).resolve().parents[0] / "data" / "processed" / "stories.jsonl"
+    path = Path(__file__).resolve().parents[1] / "data" / "processed" / "stories.jsonl"
     if not path.exists():
         pytest.skip("stories.jsonl not present next to this test")
 
