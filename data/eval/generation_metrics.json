@@ -1,0 +1,58 @@
+{
+  "n_questions": 27,
+  "n_claims": 53,
+  "provenance_errors": 5,
+  "format_warnings": 17,
+  "predicted_marginal": {
+    "verse": 15,
+    "commentary": 35,
+    "synthesis": 3
+  },
+  "gold_marginal": {
+    "verse": 16,
+    "commentary": 29,
+    "synthesis": 8
+  },
+  "confusion_matrix": {
+    "verse": {
+      "verse": 13,
+      "commentary": 3,
+      "synthesis": 0
+    },
+    "commentary": {
+      "verse": 1,
+      "commentary": 28,
+      "synthesis": 0
+    },
+    "synthesis": {
+      "verse": 1,
+      "commentary": 4,
+      "synthesis": 3
+    }
+  },
+  "per_class": {
+    "verse": {
+      "precision": 0.8667,
+      "recall": 0.8125,
+      "f1": 0.8387,
+      "support": 16
+    },
+    "commentary": {
+      "precision": 0.8,
+      "recall": 0.9655,
+      "f1": 0.875,
+      "support": 29
+    },
+    "synthesis": {
+      "precision": 1.0,
+      "recall": 0.375,
+      "f1": 0.5455,
+      "support": 8
+    }
+  },
+  "macro_f1": 0.7531,
+  "accuracy": 0.8302,
+  "conflation_rate": 0.02,
+  "commentary_tagged_verse": 1,
+  "verse_tagged_commentary": 3
+}

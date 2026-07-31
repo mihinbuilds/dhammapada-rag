@@ -137,6 +137,24 @@ def format_verse_group(bundle: dict) -> str:
         lines.append(f"group_id: {s['group_id']}")
         lines.append(f"cite this commentary as verse_number: {first_verse}")
         lines.append(f"Story title: {s['title_en']}")
+        # Found during Phase 5 generation-metrics judging (post-hoc, not
+        # anticipated by the original bug list): index/chunks.py's
+        # story_titles chunk (Phase 2 fix) carries title_pali/cst4_title/
+        # burlingame_title/compare and made cross-recension title-variant
+        # questions retrievable (cross_recension nDCG@10 went to a perfect
+        # 1.000). But this function never rendered those fields, only
+        # title_en -- so the generator had literally never seen a CST4 title
+        # in its context. Every CST4-title generation answer sampled was
+        # wrong or fabricated for exactly this reason: not a model failure,
+        # a prompt-completeness gap in the same file STOP GATE 3 already
+        # fixed once. Mirrors chunks.py's _title_text() field selection.
+        for label, key in (
+            ("Pali title", "title_pali"),
+            ("CST4 (Burmese edition) title", "cst4_title"),
+            ("Burlingame's title", "burlingame_title"),
+        ):
+            if s.get(key):
+                lines.append(f"{label}: {s[key]}")
         if s.get("synopsis"):
             lines.append(f"Synopsis: {s['synopsis']}")
         if s.get("nidana"):
