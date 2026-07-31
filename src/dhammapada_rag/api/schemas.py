@@ -1,0 +1,155 @@
+"""Pydantic request/response schemas for the retrieval service.
+
+Field sets mirror data/processed/verses.jsonl and stories.jsonl exactly
+(see models.py and index/build_verses.py) rather than inventing a parallel
+shape -- the API is a thin, typed/validated wrapper over the same records the
+ingest/index pipeline already produces, not a new schema to keep in sync.
+
+--------------------------------------------------------------------------
+FIX -- AnswerResponse.warnings was `list[str]`. generate/schemas.py's audit()
+now returns structured AuditWarning objects carrying a machine-readable code
+and severity, so this field would fail validation on every /answer call that
+produced a warning. It is now a typed model, which also means an API consumer
+can distinguish a genuine provenance failure (severity="error") from cosmetic
+format drift (severity="warning") without parsing message strings.
+"""
+
+from __future__ import annotations
+
+from pydantic import BaseModel, Field
+
+
+class VerseOut(BaseModel):
+    verse: int
+    vagga_number: int
+    vagga_name_pali: str
+    vagga_name_en: str
+    pali_mahasangiti: str | None
+    english_sujato: str | None
+    interlinear_pali: str | None
+    interlinear_english: str | None
+    interlinear_notes: list[str]
+    narrative_pali: str | None
+    narrative_english: str | None
+    narrative_source_group_id: str | None
+    story_group_ids: list[str]
+
+
+class FootnoteOut(BaseModel):
+    marker: str
+    source: str
+    text: str
+
+
+class StoryOut(BaseModel):
+    group_id: str
+    vagga_number: int
+    story_number: int
+    dhp_verses: list[int]
+    title_en: str
+    title_pali: str | None
+    cst4_title: str | None
+    burlingame_title: str | None
+    compare: str | None
+    synopsis: str | None
+    cast: str | None
+    keywords: list[str]
+    rating: int | None
+    pali_verse: str | None
+    english_verse: str | None
+    pali_verse_number: int | None
+    nidana: str | None
+    vatthu: str
+    desanavasane: str | None
+    footnotes: list[FootnoteOut]
+
+
+class MatchedChunkOut(BaseModel):
+    chunk_id: str
+    chunk_type: str
+    text: str
+    rerank_score: float
+
+
+class VerseGroupResult(BaseModel):
+    verse_numbers: list[int]
+    verses: list[VerseOut]
+    stories: list[StoryOut]
+    matched_chunk: MatchedChunkOut
+
+
+class QueryRequest(BaseModel):
+    query: str = Field(..., min_length=1, max_length=1000)
+    top_k: int = Field(5, ge=1, le=20)
+    candidates: int = Field(30, ge=5, le=100)
+
+
+class QueryResponse(BaseModel):
+    query: str
+    results: list[VerseGroupResult]
+
+
+class HealthResponse(BaseModel):
+    status: str
+    n_chunks: int
+    n_verses: int
+    n_stories: int
+
+
+class ClaimOut(BaseModel):
+    text: str
+    layer: str
+    group_id: str | None
+    verse_number: int | None
+
+
+class WarningOut(BaseModel):
+    """One provenance-audit finding. See generate/schemas.py audit().
+
+    severity="error"   the model cited something it was not shown
+    severity="warning" the citation resolved but deviated from the requested
+                       format (prompt compliance, not hallucination)
+    severity="info"    advisory, e.g. a synthesis claim carrying provenance
+
+    Clients should count errors and warnings separately; summing them is what
+    produced a 100% apparent fabrication rate in an earlier revision.
+    """
+
+    code: str
+    severity: str
+    claim_index: int
+    message: str
+
+
+class LayerCounts(BaseModel):
+    """Predicted-layer marginals for one answer.
+
+    Surfaced in the response because an answer with zero provenance warnings
+    and zero commentary claims is a total failure of the system's premise that
+    the audit cannot detect. A client should be able to show this.
+    """
+
+    verse: int = 0
+    commentary: int = 0
+    synthesis: int = 0
+
+
+class AnswerRequest(BaseModel):
+    question: str = Field(..., min_length=1, max_length=1000)
+    top_k: int = Field(3, ge=1, le=10)
+    candidates: int = Field(30, ge=5, le=100)
+    model: str | None = Field(None, description="Override the default Ollama model, e.g. 'qwen2.5:1.5b-instruct'")
+
+
+class AnswerResponse(BaseModel):
+    question: str
+    claims: list[ClaimOut]
+    warnings: list[WarningOut] = Field(
+        default_factory=list, description="Provenance-audit findings; see generate/schemas.py audit()"
+    )
+    layer_counts: LayerCounts
+    model: str
+    latency_s: float
+    prompt_tokens: int = Field(0, description="Estimated prompt size; compare against num_ctx")
+    num_ctx: int = Field(0, description="Context window the generator was configured with")
+    sources: list[VerseGroupResult] = Field(description="The retrieved verse-groups given to the model as context")

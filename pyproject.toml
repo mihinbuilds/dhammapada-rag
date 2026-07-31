@@ -1,0 +1,20 @@
+[project]
+name = "dhammapada-rag"
+version = "0.1.0"
+description = "Layer-attributed RAG over the Dhammapada: verse, Aṭṭhakathā commentary, and narrative story."
+requires-python = ">=3.11"
+dependencies = [
+    "beautifulsoup4>=4.12",
+    "lxml>=5.0",
+    "torch>=2.0",
+    "FlagEmbedding>=1.2",
+    "transformers<5",  # FlagEmbedding's reranker calls a tokenizer API transformers 5.x removed
+    "fastapi>=0.110",
+    "uvicorn[standard]>=0.29",
+    "requests>=2.31",
+    "streamlit>=1.35",
+    "plotly>=5.20",
+]
+
+[tool.setuptools.packages.find]
+where = ["src"]
