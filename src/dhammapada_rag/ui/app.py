@@ -33,11 +33,18 @@ LAYER_STYLE = {
     "synthesis": {"color": "#15803d", "bg": "#f0fdf4", "label": "SYNTHESIS"},
 }
 
+# Phase 6 fix: .claim-card never set its own text `color`, so it inherited
+# Streamlit's page-level default -- white in dark theme -- against the pale
+# light-mode background colors in LAYER_STYLE (e.g. verse's #eff6ff). White
+# text on pale blue is exactly the "near-white on pale blue, unreadable" bug.
+# Every colored card below now sets an explicit dark color, independent of
+# the viewer's Streamlit theme.
 CUSTOM_CSS = """
 <style>
 .claim-card {
     border-left: 4px solid var(--claim-color);
     background: var(--claim-bg);
+    color: #1f2937;
     border-radius: 6px;
     padding: 0.7rem 1rem;
     margin-bottom: 0.6rem;
@@ -55,22 +62,40 @@ CUSTOM_CSS = """
 }
 .claim-cite {
     font-size: 0.78rem;
-    color: #64748b;
+    color: #475569;
     margin-top: 0.25rem;
 }
 .warning-box {
-    border-left: 4px solid #dc2626;
-    background: #fef2f2;
+    border-left: 4px solid var(--warn-color);
+    background: var(--warn-bg);
+    color: var(--warn-text);
     border-radius: 6px;
-    padding: 0.6rem 1rem;
-    margin-bottom: 0.5rem;
+    padding: 0.5rem 1rem;
+    margin-bottom: 0.4rem;
     font-size: 0.85rem;
-    color: #991b1b;
+}
+.warning-code {
+    font-weight: 700;
+    font-size: 0.7rem;
+    letter-spacing: 0.03em;
+    margin-right: 0.4rem;
 }
 .pali-text { font-style: italic; color: #4b5563; }
 </style>
 """
 st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
+
+# severity -> (border/badge color, background, text color). Errors (citation
+# cannot be trusted) styled distinctly from format warnings (citation
+# resolved, just deviated from the requested format) and info -- conflating
+# these severities in one undifferentiated red box was the pre-Phase-6 UI's
+# own version of the same bug aggregate_generation.py's rewrite fixed for the
+# numeric side (severity-blind warning counts).
+WARNING_STYLE = {
+    "error": {"color": "#dc2626", "bg": "#fef2f2", "text": "#7f1d1d"},
+    "warning": {"color": "#d97706", "bg": "#fffbeb", "text": "#78350f"},
+    "info": {"color": "#2563eb", "bg": "#eff6ff", "text": "#1e3a5f"},
+}
 
 
 @st.cache_resource(show_spinner="Loading retrieval index (BGE-M3 + reranker)...")
@@ -123,6 +148,24 @@ def render_claim(claim: dict):
     )
 
 
+def render_warning(w) -> None:
+    """Render one AuditWarning (generate/schemas.py), styled by severity.
+
+    `w` is the dataclass object generate.Generator.generate() returns
+    (w.severity / w.code / w.message / w.claim_index) -- not a dict. The API
+    layer serializes these via warnings_to_dicts() for JSON responses; the UI
+    calls the pipeline directly and gets the objects themselves.
+    """
+    style = WARNING_STYLE.get(w.severity, WARNING_STYLE["warning"])
+    st.markdown(
+        f"""<div class="warning-box" style="--warn-color:{style['color']};--warn-bg:{style['bg']};--warn-text:{style['text']}">
+        <span class="warning-code" style="color:{style['color']}">{w.severity.upper()} / {w.code}</span>
+        claim {w.claim_index}: {w.message}
+        </div>""",
+        unsafe_allow_html=True,
+    )
+
+
 def render_verse_group(bundle: dict, key_prefix: str):
     gids = ", ".join(s["group_id"] for s in bundle["stories"]) or "-"
     title = " / ".join(s["title_en"] for s in bundle["stories"])
@@ -165,7 +208,17 @@ def page_query():
         do_generate = st.checkbox("Generate layer-attributed answer", value=True)
         st.caption("Retrieval-only is faster (~3-5s); generation adds an LLM call (~5-40s depending on model size).")
 
-    question = st.text_input("Question", placeholder="e.g. why did the Buddha teach Kisa Gotami about mustard seeds?")
+    # Phase 6 fix: the example buttons used to set a local `question` var
+    # plus a session_state override that got popped on the SAME rerun --
+    # which meant it never survived to the *next* rerun triggered by
+    # clicking Search, so clicking an example then Search silently searched
+    # for nothing. A callback that writes into the text_input's own
+    # session_state key runs before the widget is instantiated, so the
+    # value sticks across the click-example, then-click-Search sequence.
+    def _set_question(text: str) -> None:
+        st.session_state["question_input"] = text
+
+    question = st.text_input("Question", key="question_input", placeholder="e.g. why did the Buddha teach Kisa Gotami about mustard seeds?")
     example_cols = st.columns(3)
     examples = [
         "the woman whose child died",
@@ -173,11 +226,7 @@ def page_query():
         "which single story explains Dhp 320, 321, and 322 together?",
     ]
     for col, ex in zip(example_cols, examples):
-        if col.button(ex, use_container_width=True):
-            question = ex
-            st.session_state["_question_override"] = ex
-    if "_question_override" in st.session_state:
-        question = st.session_state.pop("_question_override")
+        col.button(ex, use_container_width=True, on_click=_set_question, args=(ex,))
 
     if st.button("Search", type="primary") and question:
         index, reranker, verses_by_number, stories_by_id = load_pipeline()
@@ -190,7 +239,10 @@ def page_query():
                     root=ROOT, verses_by_number=verses_by_number, stories_by_id=stories_by_id,
                 )
                 try:
-                    result = generator.generate(question, bundles) if bundles else None
+                    result = (
+                        generator.generate(question, bundles, corpus_group_ids=set(stories_by_id))
+                        if bundles else None
+                    )
                 except GenerationError as e:
                     st.error(f"Generation failed: {e}")
                     result = None
@@ -200,13 +252,23 @@ def page_query():
             else:
                 if result:
                     st.subheader("Answer")
-                    st.caption(f"Model: {result['model']}  |  Latency: {result['latency_s']:.1f}s")
+                    st.caption(
+                        f"Model: {result['model']}  |  Latency: {result['latency_s']:.1f}s  |  "
+                        f"Prompt: ~{result.get('prompt_tokens', '?')} tok / num_ctx {result.get('num_ctx', '?')}"
+                    )
                     for c in result["answer"].claims:
                         render_claim(c.model_dump())
                     if result["warnings"]:
-                        st.markdown("**Provenance audit warnings**")
-                        for w in result["warnings"]:
-                            st.markdown(f"<div class='warning-box'>{w}</div>", unsafe_allow_html=True)
+                        errors = [w for w in result["warnings"] if w.severity == "error"]
+                        others = [w for w in result["warnings"] if w.severity != "error"]
+                        if errors:
+                            st.markdown(f"**Provenance errors ({len(errors)})** -- citations that cannot be trusted:")
+                            for w in errors:
+                                render_warning(w)
+                        if others:
+                            with st.expander(f"Format warnings and info ({len(others)}) -- resolvable, not hallucinations"):
+                                for w in others:
+                                    render_warning(w)
                 st.subheader(f"Sources ({len(bundles)} verse-groups)")
                 for i, b in enumerate(bundles):
                     render_verse_group(b, key_prefix=f"gen-{i}")
@@ -260,7 +322,6 @@ def page_evaluation():
 
     ret = load_eval_json("retrieval_metrics.json")
     gen = load_eval_json("generation_metrics.json")
-    sweep_rows = load_eval_jsonl("model_sweep_results.jsonl")
 
     if ret is None or gen is None:
         st.warning("Evaluation results not found. Run `src/dhammapada_rag/eval/*.py` first (see README).")
@@ -279,63 +340,132 @@ def page_evaluation():
         type_rows.append({"type": qtype, "n": d["n"], "Recall@1": m["recall@1"], "Recall@10": m["recall@10"], "nDCG@10": m["ndcg@10"], "MRR": m["mrr"]})
     df_type = pd.DataFrame(type_rows).sort_values("nDCG@10", ascending=False)
     st.dataframe(df_type, use_container_width=True, hide_index=True)
-    st.caption("Cross-recension questions score far worse than the other three types -- an aggregate-hides-the-result finding (see docs/evaluation.md).")
+    # Phase 6 note: the Phase 2 chunking fix (title fields now indexed) moved
+    # cross_recension to a perfect 1.000 -- it is no longer the worst type,
+    # so the old caption naming it as such would now be a stale, incorrect
+    # claim. 'alignment' (multiverse groupings) is the worst substantial-n
+    # type post-fix; corpus_anomaly's 0.0 is n=2 and not a reliable estimate.
+    worst_type = df_type[df_type["n"] >= 5].sort_values("nDCG@10").iloc[0]["type"]
+    st.caption(
+        f"'{worst_type}' scores worst among types with a meaningful sample size -- an aggregate-hides-the-result "
+        "finding (see docs/evaluation.md). corpus_anomaly (n=2) is too small to draw a conclusion from on its own."
+    )
 
-    fig = go.Figure(go.Bar(x=df_type["type"], y=df_type["nDCG@10"], marker_color=["#dc2626" if t == "cross_recension" else "#2563eb" for t in df_type["type"]]))
+    fig = go.Figure(go.Bar(x=df_type["type"], y=df_type["nDCG@10"], marker_color=["#dc2626" if t == worst_type else "#2563eb" for t in df_type["type"]]))
     fig.update_layout(title="nDCG@10 by query type (baseline)", yaxis_range=[0, 1], height=350)
     st.plotly_chart(fig, use_container_width=True)
 
-    st.subheader("Ablations (overall, delta from baseline)")
+    st.subheader("Ablations (overall, delta from baseline, bootstrap 95% CI)")
+    # Phase 6 fix: ablation_deltas_ndcg10 (paired-by-question bootstrap CIs)
+    # is computed by aggregate_retrieval.py already -- recomputing a bare
+    # point-delta here would throw away the CI and could silently diverge
+    # from the number docs/evaluation.md reports.
     conds = ["verse_only", "dense_only", "no_rerank", "flat"]
     labels = {"verse_only": "Verse-only chunk set", "dense_only": "Dense-only (no RRF)", "no_rerank": "No cross-encoder rerank", "flat": "Flat chunking (no assembly)"}
-    deltas = [b["ndcg@10"] - ret["overall"][c]["ndcg@10"] for c in conds]
-    fig2 = go.Figure(go.Bar(x=[labels[c] for c in conds], y=deltas, marker_color="#7c3aed"))
-    fig2.update_layout(title="nDCG@10 drop when ablating each component", yaxis_title="baseline - variant", height=350)
+    ad = ret["ablation_deltas_ndcg10"]
+    deltas = [ad[c]["delta"] for c in conds]
+    err_lo = [ad[c]["delta"] - ad[c]["ci"][0] for c in conds]
+    err_hi = [ad[c]["ci"][1] - ad[c]["delta"] for c in conds]
+    fig2 = go.Figure(go.Bar(
+        x=[labels[c] for c in conds], y=deltas, marker_color="#7c3aed",
+        error_y=dict(type="data", symmetric=False, array=err_hi, arrayminus=err_lo),
+    ))
+    fig2.update_layout(title="nDCG@10 drop when ablating each component (error bars: 95% CI)", yaxis_title="baseline - variant", height=350)
     st.plotly_chart(fig2, use_container_width=True)
-    st.caption("Verse-only chunking causes by far the largest drop -- the strongest evidence for the project's core architectural claim. Flat-vs-assembled shows ~no difference (a genuine null result, not oversold).")
+    st.caption(
+        "Verse-only chunking causes by far the largest drop -- the strongest evidence for the project's core "
+        "architectural claim. Flat-vs-assembled shows ~no difference (a genuine null result, not oversold). "
+        "**Read with care**: this overall number is pulled down by alignment/cross-recension questions that "
+        "verse-only retrieval structurally cannot answer (their gold source is the commentary itself) -- the "
+        "doctrinal row alone does *not* show the same drop; see `docs/evaluation.md`."
+    )
+
+    if ret.get("by_subtype"):
+        st.subheader("By subtype")
+        st.dataframe(pd.DataFrame([{"subtype": s, **d["baseline"]} for s, d in ret["by_subtype"].items()]), use_container_width=True, hide_index=True)
+    else:
+        st.caption("Subtype breakdown not available in this run (retrieval_eval.py does not currently propagate `subtype` into its output rows).")
 
     st.header("Generation")
-    st.caption(f"{gen['n_questions']}-question stratified sample, {gen['n_claims']} claims, manually judged.")
+    st.caption(f"{gen['n_questions']}-question stratified sample, {gen['n_claims']} claims, manually judged against a gold layer tag per claim.")
     metric_row([
-        ("Layer attribution accuracy", f"{gen['layer_attribution_accuracy']:.3f}"),
-        ("Anachronistic conflation rate", f"{gen['anachronistic_conflation_rate']:.3f}"),
-        ("Structural warnings", f"{gen['n_structural_warnings']}/{gen['n_claims']}"),
+        ("Accuracy", f"{gen['accuracy']:.3f}"),
+        ("Macro-F1", f"{gen['macro_f1']:.3f}"),
+        ("Conflation rate", f"{gen['conflation_rate']:.3f}"),
+        ("Provenance errors", f"{gen['provenance_errors']}/{gen['n_claims']}"),
     ])
-    gen_rows = [{"type": t, "n_claims": d["n_claims"], "accuracy": d["accuracy"], "conflation_rate": d["conflation_rate"]} for t, d in gen["by_type"].items()]
-    st.dataframe(pd.DataFrame(gen_rows).sort_values("conflation_rate", ascending=False), use_container_width=True, hide_index=True)
-    st.caption("Cross-recension claims show both the worst accuracy and by far the worst conflation rate -- bad retrieval cascades into overconfident, mistagged generation.")
 
+    st.subheader("Confusion matrix (rows = gold, columns = predicted)")
+    cm = gen["confusion_matrix"]
+    layers = ["verse", "commentary", "synthesis"]
+    df_cm = pd.DataFrame([[cm[g][p] for p in layers] for g in layers], index=[f"gold: {g}" for g in layers], columns=[f"pred: {p}" for p in layers])
+    st.dataframe(df_cm, use_container_width=True)
+    st.caption(
+        f"Conflation (commentary content tagged 'verse', the failure mode this system exists to catch): "
+        f"{gen['commentary_tagged_verse']} instances. Reverse direction (verse tagged 'commentary'): "
+        f"{gen['verse_tagged_commentary']} instances."
+    )
+
+    st.subheader("Per-class precision / recall / F1")
+    pc_rows = [{"layer": l, **{k: v for k, v in d.items()}} for l, d in gen["per_class"].items()]
+    st.dataframe(pd.DataFrame(pc_rows), use_container_width=True, hide_index=True)
+    st.caption(
+        "Synthesis has perfect precision but the worst recall by a wide margin -- when the model does tag "
+        "something 'synthesis' it's right, but it under-uses the tag, folding synthesis-type reasoning into "
+        "verse or commentary claims instead."
+    )
+
+    sweep_rows = load_eval_jsonl("model_sweep_results_retries0.jsonl") + load_eval_jsonl("model_sweep_results_retries1.jsonl")
     if sweep_rows:
         st.header("Model-size sweep")
-        st.caption("Same retrieved context reused across all three sizes -- differences are attributable to the generator, not retrieval variance.")
-        by_model = {}
+        st.caption(
+            "Same retrieved context reused across all three sizes and both retry settings -- differences are "
+            "attributable to the generator, not retrieval variance. 'Clean rate' is computed over ALL attempts, "
+            "including failures, not just successful ones -- a model that fails outright doesn't get to drop out "
+            "of the denominator."
+        )
+        model_order = ["qwen2.5:1.5b-instruct", "qwen2.5:7b-instruct", "qwen2.5:14b-instruct"]
+        by_key = {}
         for r in sweep_rows:
-            if not r.get("success"):
-                continue
-            by_model.setdefault(r["model"], []).append(r)
+            by_key.setdefault((r["model"], r["max_retries"]), []).append(r)
         sweep_summary = []
-        for model, rows in by_model.items():
-            n = len(rows)
-            avg_latency = sum(r["latency_s"] for r in rows) / n
-            total_claims = sum(r["n_claims"] for r in rows)
-            total_warnings = sum(r["n_structural_warnings"] for r in rows)
-            sweep_summary.append({"model": model, "avg_latency_s": round(avg_latency, 1), "structural_warning_rate": round(total_warnings / total_claims, 3)})
+        for model in model_order:
+            for max_retries in (0, 1):
+                rows = by_key.get((model, max_retries))
+                if not rows:
+                    continue
+                n = len(rows)
+                n_clean = sum(1 for r in rows if r.get("clean"))
+                avg_latency = sum(r["latency_s"] for r in rows) / n
+                sweep_summary.append({
+                    "model": model,
+                    "max_retries": max_retries,
+                    "n": n,
+                    "clean_rate": round(n_clean / n, 3),
+                    "avg_latency_s": round(avg_latency, 1),
+                })
         df_sweep = pd.DataFrame(sweep_summary)
         st.dataframe(df_sweep, use_container_width=True, hide_index=True)
 
         fig3 = go.Figure()
-        fig3.add_trace(go.Bar(x=df_sweep["model"], y=df_sweep["structural_warning_rate"], name="Structural warning rate", marker_color="#dc2626", yaxis="y"))
-        fig3.add_trace(go.Scatter(x=df_sweep["model"], y=df_sweep["avg_latency_s"], name="Avg latency (s)", mode="lines+markers", marker_color="#2563eb", yaxis="y2"))
+        for mr, color in ((0, "#2563eb"), (1, "#7c3aed")):
+            sub = df_sweep[df_sweep["max_retries"] == mr]
+            fig3.add_trace(go.Bar(x=sub["model"], y=sub["clean_rate"], name=f"max_retries={mr}", marker_color=color))
         fig3.update_layout(
-            title="Citation reliability vs. latency by model size",
-            yaxis=dict(title="Structural warning rate", range=[0, 1]),
-            yaxis2=dict(title="Avg latency (s)", overlaying="y", side="right"),
+            title="Structural citation validity vs. model size and retry budget",
+            yaxis=dict(title="Clean rate (zero provenance errors, all attempts)", range=[0, 1]),
+            barmode="group",
             height=400,
         )
         st.plotly_chart(fig3, use_container_width=True)
-        st.caption("Citation reliability improves monotonically with model size, at a proportional latency cost -- a real compute-constraint finding, not a modeling failure.")
+        st.caption(
+            "Structural citation validity improves sharply with model size (a real compute-constraint finding, "
+            "not a modeling failure). Retrying on failure does **not** reliably help -- the 1.5B model's clean "
+            "rate gets slightly *worse* with a retry enabled, not better, so retries are not a substitute for "
+            "model capacity."
+        )
 
-    st.info("Full discussion and every number's provenance: `docs/evaluation.md`. Methodology and annotator-status caveats: `docs/eval_rubric.md`.")
+    st.info("Full discussion and every number's provenance, including the pre-fix numbers this pass superseded: `docs/evaluation.md` (pre-fix baseline archived at `docs/evaluation_pre_fix.md`). Methodology and annotator-status caveats: `docs/eval_rubric.md`.")
 
 
 def main():

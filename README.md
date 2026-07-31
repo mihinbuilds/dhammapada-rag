@@ -17,7 +17,9 @@ all 423 verses / 26 vaggas (hard validation passes), plus a fully-covering
 423/423 verse layer (Pali + two English translations + interlinear gloss).
 See `docs/datasheet.md` and `docs/licensing.md`.
 
-**Phase 2 (indexing)** complete: 2,769 chunks (see `docs/indexing.md`)
+**Phase 2 (indexing)** complete: 5,667 chunks (see `docs/indexing.md`;
+originally 2,769 -- narrative text is now windowed rather than emitted as one
+oversized chunk per story, see `docs/evaluation.md`'s headline finding)
 embedded with BGE-M3 (dense + sparse + ColBERT multi-vector), fused with
 Reciprocal Rank Fusion, reranked with `bge-reranker-v2-m3`. Verified against
 the spec's own worked example: querying "the woman whose child died" surfaces
@@ -40,20 +42,30 @@ reporting.
 
 **Phase 5 (evaluation)** complete: 120-question gold set (`docs/eval_rubric.md`,
 `data/eval/gold_set.jsonl`), retrieval metrics broken out per query type plus
-all four required ablations, generation metrics (layer attribution accuracy,
-anachronistic conflation rate), and a 1.5B/7B/14B model-size sweep. Headline
-findings in `docs/evaluation.md`: aggregate retrieval numbers look strong
-(nDCG@10=0.86) but hide that cross-recension questions score far worse
-(0.54) than the other three types; verse-only retrieval collapses for
-narrative queries specifically (nDCG@10 0.975 -> 0.054), the strongest
-evidence yet for the project's core architectural claim; layer attribution
-accuracy (47.6%) and anachronistic conflation rate (31.2%) are real,
-unresolved problems, not incidental noise; and citation reliability improves
-monotonically with model size (85% -> 44% -> 19% structural-warning rate,
-1.5B -> 7B -> 14B) at a proportional latency cost. **No inter-annotator
-agreement statistic is computed or claimed anywhere** -- see
-`docs/eval_rubric.md`'s "Annotator status" for why and what would be needed
-to add one.
+all four required ablations, generation metrics (layer attribution accuracy
+against a gold layer tag per claim, conflation rate), and a 1.5B/7B/14B
+model-size sweep. A later correctness pass (`docs/evaluation.md`) found and
+fixed two silent-truncation bugs -- Ollama's default `num_ctx=2048` dropping
+the commentary out of the generation prompt, and a 512-token encoder limit
+leaving 84% of narrative text unindexed -- neither of which raised an error
+anywhere; the system reported 100% schema-valid output throughout, while
+quietly answering from a fraction of its own source material. Post-fix
+headline findings: cross-recension retrieval, previously this system's
+worst-scoring type (nDCG@10 0.54), reached a perfect 1.000 once title
+variants were actually indexed; conflation rate dropped from 31.2% to 2.0%;
+verse-only retrieval still collapses for narrative and cross-recension
+queries (they cannot be answered without commentary/title chunks, which is
+architecturally expected) but, contrary to this project's own working
+prediction, does *not* drop for doctrinal queries -- a negative result,
+reported as one, not smoothed over; and **structural citation validity**
+(does a claim cite a group_id/verse_number actually among the retrieved
+sources -- a claim about citation *form*, not about whether the claim's
+content is true) improves monotonically with model size at a proportional
+latency cost, while retrying a failed generation does not reliably help and
+can make a small model's clean rate worse. **No inter-annotator agreement
+statistic is computed or claimed anywhere** -- see `docs/eval_rubric.md`'s
+"Annotator status" for why and what would be needed to add one. Pre-fix
+numbers are kept, not deleted, at `docs/evaluation_pre_fix.md`.
 
 ## Sources
 
@@ -97,7 +109,7 @@ data/processed/
   interlinear_gloss.jsonl      parsed interlinear edition, 423/423 verses
   *_report.json                coverage/validation reports per pipeline stage
 data/index/
-  chunks.jsonl                  2,769 indexable chunks (tracked; small)
+  chunks.jsonl                  5,667 indexable chunks (tracked; small)
   dense.npy, sparse.pkl,        BGE-M3 embeddings (gitignored; rebuild with embed.py)
   colbert.pkl, chunk_ids.json
 src/dhammapada_rag/
