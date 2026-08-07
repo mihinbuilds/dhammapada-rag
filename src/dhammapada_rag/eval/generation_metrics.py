@@ -97,7 +97,7 @@ def main() -> None:
             claims = gen["answer"].claims
             layer_counts = {
                 lyr: sum(1 for c in claims if c.layer == lyr)
-                for lyr in ("verse", "commentary", "synthesis")
+                for lyr in ("verse", "commentary", "alignment", "synthesis")
             }
             if layer_counts["commentary"] == 0:
                 n_no_commentary += 1
@@ -111,6 +111,13 @@ def main() -> None:
                 "retrieved_group_ids": [s["group_id"] for b in bundles for s in b["stories"]],
                 "claims": [c.model_dump() for c in claims],
                 "layer_counts": layer_counts,
+                # Round 8, Task Z: one of "used"/"partially_relevant"/
+                # "not_relevant" per retrieved group_id -- the field
+                # aggregate_generation.py's utilization/not-relevant-rate
+                # metrics and the gold-label cross-tab both read directly,
+                # replacing Round 7's heuristic inference from claim
+                # citations and synthesis-claim prose.
+                "source_disposition": gen["answer"].source_disposition,
                 "structural_warnings": warnings_to_dicts(gen["warnings"]),
                 "model": gen["model"],
                 "latency_s": gen["latency_s"],

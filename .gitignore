@@ -3,6 +3,7 @@ __pycache__/
 .venv/
 venv/
 .DS_Store
+._*
 data/interim/*
 !data/interim/.gitkeep
 *.egg-info/

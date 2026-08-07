@@ -138,8 +138,10 @@ def run_answer(req: AnswerRequest) -> AnswerResponse:
         layer_counts=LayerCounts(
             verse=sum(1 for c in claims if c.layer == "verse"),
             commentary=sum(1 for c in claims if c.layer == "commentary"),
+            alignment=sum(1 for c in claims if c.layer == "alignment"),
             synthesis=sum(1 for c in claims if c.layer == "synthesis"),
         ),
+        source_disposition=result["answer"].source_disposition,
         model=result["model"],
         latency_s=result["latency_s"],
         prompt_tokens=result.get("prompt_tokens", 0),

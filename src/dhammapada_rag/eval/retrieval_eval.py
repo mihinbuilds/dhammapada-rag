@@ -260,7 +260,12 @@ def main() -> None:
     t0 = time.time()
     for i, q in enumerate(retrievable):
         result = runner.run_query(q["question"])
-        row = {"question_id": q["question_id"], "type": q["type"], "gold_group_ids": q["gold_group_ids"]}
+        # subtype was previously dropped here, so aggregate_retrieval.py's
+        # by_subtype output was silently always empty -- a known gap noted
+        # in docs/evaluation.md but not fixed until round 2 needed a
+        # subtype-level before/after comparison for the verse_grouping
+        # chunk-type addition (index/chunks.py's story_alignment).
+        row = {"question_id": q["question_id"], "type": q["type"], "subtype": q.get("subtype"), "gold_group_ids": q["gold_group_ids"]}
         for cond in ("baseline", "verse_only", "dense_only", "no_rerank"):
             row[cond] = score(rank_of_hit(result[cond], q["gold_group_ids"]))
 

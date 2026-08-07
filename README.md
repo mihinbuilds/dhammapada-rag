@@ -124,7 +124,16 @@ docs/                          datasheet, licensing table, indexing/generation d
 ## Setup
 
 ```
-python3 -m venv .venv && source .venv/bin/activate
+python3 -m venv .venv && source .venv/bin/activate   # macOS/Linux
+pip install -e .
+```
+
+On Windows, the venv layout differs (`Scripts/` not `bin/`, `.ps1`/`.bat` not a
+POSIX script):
+
+```
+python -m venv .venv
+.venv\Scripts\Activate.ps1    # PowerShell
 pip install -e .
 ```
 
@@ -163,8 +172,17 @@ uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
 ```
 
 Models load once at startup (~5-10s); after that each `/query` takes ~3-5s on
-this machine (Apple Silicon MPS for the reranker -- falls back to slower CPU
-fp32 automatically where MPS isn't available, see `docs/indexing.md`).
+Apple Silicon (MPS) or an NVIDIA GPU (CUDA) -- falls back to slower CPU fp32
+automatically where neither is available, see `docs/indexing.md`. Device
+selection is logged to stderr at startup (`index/rerank.py`'s `best_device()`,
+shared by the reranker, the query-time embedder in `index/search.py`, and the
+corpus embedder in `index/embed.py`) so a silent CPU fallback on GPU hardware
+is visible rather than inferred from a slow run -- see `docs/evaluation.md`'s
+Round 6 section for why this matters even on a machine with a capable GPU.
+
+On Windows, set `PYTHONUTF8=1` before running any of the commands on this
+page -- the default terminal codepage (cp1252) cannot print Pali diacritics
+and will crash on them rather than degrade gracefully.
 
 Interactive docs at `http://127.0.0.1:8000/docs` (auto-generated from
 `src/dhammapada_rag/api/schemas.py`).
@@ -173,7 +191,7 @@ Interactive docs at `http://127.0.0.1:8000/docs` (auto-generated from
 |---|---|---|
 | `/health` | GET | Liveness + corpus size sanity check |
 | `/query` | POST | `{"query": str, "top_k"?: 1-20, "candidates"?: 5-100}` -> ranked, deduped verse-groups, each with full Pali/translations/story text and the specific chunk that matched |
-| `/answer` | POST | `{"question": str, "top_k"?: 1-10, "candidates"?: 5-100, "model"?: str}` -> retrieval + Qwen2.5-7B generation, every claim tagged `verse`/`commentary`/`synthesis` with a citation, plus a `warnings` list from the provenance audit (see `docs/generation.md`) and the `sources` actually used |
+| `/answer` | POST | `{"question": str, "top_k"?: 1-10, "candidates"?: 5-100, "model"?: str}` -> retrieval + Qwen2.5-7B generation, every claim tagged `verse`/`commentary`/`alignment`/`synthesis` with a citation, plus a `warnings` list from the provenance audit (see `docs/generation.md`) and the `sources` actually used |
 | `/verses/{verse_number}` | GET | Direct verse lookup (1-423) |
 | `/stories/{group_id}` | GET | Direct story lookup, e.g. `/stories/8.13` |
 
@@ -218,7 +236,8 @@ translations/story), **Browse corpus** (direct verse or story lookup), and
 model-size sweep, all pulled live from `data/eval/`).
 
 ```
-./.venv/bin/streamlit run src/dhammapada_rag/ui/app.py
+./.venv/bin/streamlit run src/dhammapada_rag/ui/app.py   # macOS/Linux
+.venv\Scripts\streamlit.exe run src/dhammapada_rag/ui/app.py   # Windows
 ```
 
 Opens at `http://localhost:8501`. Calls the pipeline directly (no need for

@@ -9,6 +9,7 @@ Run: streamlit run src/dhammapada_rag/ui/app.py
 
 from __future__ import annotations
 
+import html
 import json
 import sys
 from pathlib import Path
@@ -31,6 +32,9 @@ st.set_page_config(page_title="Dhammapada RAG", page_icon="\U0001f4dc", layout="
 LAYER_STYLE = {
     "verse": {"color": "#1d4ed8", "bg": "#eff6ff", "label": "VERSE"},
     "commentary": {"color": "#b45309", "bg": "#fffbeb", "label": "COMMENTARY"},
+    # Round 7, Task T: distinct from both -- neither the Buddha's words nor
+    # Buddhaghosa's gloss, a fact about the corpus's own editorial structure.
+    "alignment": {"color": "#7c3aed", "bg": "#f5f3ff", "label": "ALIGNMENT"},
     "synthesis": {"color": "#15803d", "bg": "#f0fdf4", "label": "SYNTHESIS"},
 }
 
@@ -131,19 +135,67 @@ def load_eval_jsonl(name: str):
 def render_claim(claim: dict):
     style = LAYER_STYLE.get(claim["layer"], {"color": "#6b7280", "bg": "#f9fafb", "label": claim["layer"].upper()})
     cite = ""
-    if claim.get("group_id") or claim.get("verse_number"):
+    # Round 7, Task T: AlignmentClaim.model_dump() carries verse_numbers
+    # (plural, the group's full range) instead of verse_number -- checked
+    # first so an alignment claim's citation shows the whole range rather
+    # than falling through to "no citation" (it has no verse_number key at
+    # all, so the old `claim.get("verse_number")` check alone would miss it).
+    verse_numbers = claim.get("verse_numbers")
+    if claim.get("group_id") or claim.get("verse_number") or verse_numbers:
         parts = []
-        if claim.get("verse_number"):
+        if verse_numbers:
+            parts.append(f"Dhp {', '.join(str(n) for n in verse_numbers)}")
+        elif claim.get("verse_number"):
             parts.append(f"Dhp {claim['verse_number']}")
         if claim.get("group_id"):
             parts.append(f"story {claim['group_id']}")
-        cite = " &middot; ".join(parts)
+        # Round 6, Task R: the literal middle-dot character, not the HTML
+        # entity "&middot;" -- `cite` is html.escape()'d below (group_id is
+        # model output and needs it), and escaping an entity's own "&"
+        # doubles it into visible "&amp;middot;" text. A plain Unicode "·"
+        # is inert to html.escape() and renders identically.
+        cite = " · ".join(parts)
     else:
         cite = "no citation"
+    # Round 4, Task J: VerseClaim.model_dump() carries pali_support (None for
+    # every other layer, since only VerseClaim has the field at all) --
+    # surfaced here so the provenance view, not just render.py's prose, shows
+    # the verse layer's own language. Round 6, Task R: gated on
+    # `claim.get("pali_support")` truthiness, not on `claim["layer"] ==
+    # "verse"` -- CommentaryClaim/SynthesisClaim dicts don't carry the key
+    # at all (model_dump() only emits fields declared on that claim's own
+    # variant), so .get() returning None here is the correct "no Pali
+    # block" case for every non-verse claim, not a bug to route around.
+    pali = claim.get("pali_support")
+    pali_html = f"""<div class="claim-cite pali-text">Pali: {html.escape(pali)}</div>""" if pali else ""
+    # Round 6, Task R: `claim["text"]` and `cite` are interpolated into a
+    # block rendered with unsafe_allow_html=True. `text` is verbatim model
+    # output and may contain "<" (an unbalanced "</div>" was the observed
+    # symptom -- Streamlit's HTML parser then closed the card early,
+    # corrupting everything rendered after it); `cite` is built from
+    # group_id/verse_number, which Round 5's decoder-level constraint keeps
+    # to enum-safe values in practice but which this function has no way to
+    # verify on its own. Both escaped here, same principle as
+    # render_warning()'s w.message escaping below -- this is the one
+    # complete f-string that builds the whole card, so there is no
+    # separate open/close call for an escaping gap to hide between.
+    #
+    # Round 7: `pali_html` used to sit on its own line between the citation
+    # div and the closing tag. Only VerseClaim ever carries pali_support, so
+    # for every commentary/synthesis claim that line was empty -- and an
+    # empty (whitespace-only) line inside a raw HTML block is a blank line
+    # by CommonMark's HTML-block rule, which ends the block right there. The
+    # closing "        </div>" on the next line then started a fresh block,
+    # indented enough (>=4 spaces) after a blank line to be parsed as an
+    # indented code block and printed as literal text -- exactly the
+    # "</div> shows up under every commentary claim" symptom, since
+    # commentary claims are precisely the ones with no pali_html. Folding
+    # pali_html onto the previous line keeps the block blank-line-free
+    # regardless of whether it's empty.
     st.markdown(
         f"""<div class="claim-card" style="--claim-color:{style['color']};--claim-bg:{style['bg']}">
-        <span class="layer-badge" style="--claim-color:{style['color']}">{style['label']}</span>{claim['text']}
-        <div class="claim-cite">{cite}</div>
+        <span class="layer-badge" style="--claim-color:{style['color']}">{style['label']}</span>{html.escape(claim['text'])}
+        <div class="claim-cite">{html.escape(cite)}</div>{pali_html}
         </div>""",
         unsafe_allow_html=True,
     )
@@ -156,21 +208,48 @@ def render_warning(w) -> None:
     (w.severity / w.code / w.message / w.claim_index) -- not a dict. The API
     layer serializes these via warnings_to_dicts() for JSON responses; the UI
     calls the pipeline directly and gets the objects themselves.
+
+    Round 3, Task C: this block is rendered with unsafe_allow_html=True, and
+    w.message embeds both our own literal text (e.g. "'<vagga>.<story>' form",
+    now written without brackets in schemas.py) and model output (a claim's
+    `text`, via `!r`) -- either can contain '<', which Streamlit's underlying
+    HTML parser then treats as a tag start and silently drops. w.message is
+    escaped here so any future '<' in a claim corrupts nothing, independent
+    of whatever schemas.py's message strings happen to contain.
     """
     style = WARNING_STYLE.get(w.severity, WARNING_STYLE["warning"])
     st.markdown(
         f"""<div class="warning-box" style="--warn-color:{style['color']};--warn-bg:{style['bg']};--warn-text:{style['text']}">
         <span class="warning-code" style="color:{style['color']}">{w.severity.upper()} / {w.code}</span>
-        claim {w.claim_index}: {w.message}
+        claim {w.claim_index}: {html.escape(w.message)}
         </div>""",
         unsafe_allow_html=True,
     )
 
 
-def render_verse_group(bundle: dict, key_prefix: str):
+# Round 8, Task Z: same severity-style palette as WARNING_STYLE, repurposed
+# for disposition -- 'not_relevant' reads as a dismissal (amber, like a
+# warning), 'used'/'partially_relevant' read as engaged (green/blue).
+DISPOSITION_STYLE = {
+    "used": {"color": "#15803d", "bg": "#f0fdf4", "label": "USED"},
+    "partially_relevant": {"color": "#2563eb", "bg": "#eff6ff", "label": "PARTIALLY RELEVANT"},
+    "not_relevant": {"color": "#d97706", "bg": "#fffbeb", "label": "NOT RELEVANT"},
+}
+
+
+def render_verse_group(bundle: dict, key_prefix: str, disposition: dict | None = None):
     gids = ", ".join(s["group_id"] for s in bundle["stories"]) or "-"
     title = " / ".join(s["title_en"] for s in bundle["stories"])
-    with st.expander(f"Dhp {bundle['verse_numbers']} -- {title}  (story {gids})", expanded=False):
+    # Round 8, Task Z: the model's own disposition for this group, if the
+    # caller has one (only page_query()'s generation path does -- retrieval-
+    # only and the browse page have no answer to draw it from). Surfaced in
+    # the expander label so it's visible without opening every source.
+    disp_label = ""
+    if disposition:
+        disp_values = {disposition[s["group_id"]] for s in bundle["stories"] if s["group_id"] in disposition}
+        if disp_values:
+            disp_label = "  [" + ", ".join(sorted(disp_values)) + "]"
+    with st.expander(f"Dhp {bundle['verse_numbers']} -- {title}  (story {gids}){disp_label}", expanded=False):
         for v in bundle["verses"]:
             st.markdown(f"**Dhp {v['verse']}** ({v['vagga_name_pali']})")
             col1, col2 = st.columns(2)
@@ -284,8 +363,9 @@ def page_query():
                                 for w in others:
                                     render_warning(w)
                 st.subheader(f"Sources ({len(bundles)} verse-groups)")
+                disposition = result["answer"].source_disposition if result else None
                 for i, b in enumerate(bundles):
-                    render_verse_group(b, key_prefix=f"gen-{i}")
+                    render_verse_group(b, key_prefix=f"gen-{i}", disposition=disposition)
         else:
             with st.spinner("Retrieving..."):
                 bundles = query(
@@ -411,7 +491,9 @@ def page_evaluation():
 
     st.subheader("Confusion matrix (rows = gold, columns = predicted)")
     cm = gen["confusion_matrix"]
-    layers = ["verse", "commentary", "synthesis"]
+    # Round 7, Task T: 4x4 -- "alignment" (facts about the corpus's own
+    # editorial structure) is a fourth layer, not folded into commentary.
+    layers = ["verse", "commentary", "alignment", "synthesis"]
     df_cm = pd.DataFrame([[cm[g][p] for p in layers] for g in layers], index=[f"gold: {g}" for g in layers], columns=[f"pred: {p}" for p in layers])
     st.dataframe(df_cm, use_container_width=True)
     st.caption(
@@ -423,6 +505,31 @@ def page_evaluation():
     st.subheader("Per-class precision / recall / F1")
     pc_rows = [{"layer": l, **{k: v for k, v in d.items()}} for l, d in gen["per_class"].items()]
     st.dataframe(pd.DataFrame(pc_rows), use_container_width=True, hide_index=True)
+
+    # Round 7, Task V: neither metric above asks whether an answer used what
+    # retrieval gave it, or how many of the four layers it actually drew on --
+    # a single well-formed, correctly-tagged claim passes every check above
+    # while leaving the rest of the retrieved context untouched.
+    if gen.get("context_utilization") and gen.get("layer_count_distribution"):
+        st.subheader("Context utilization and layer-count distribution (Task V)")
+        util = gen["context_utilization"]
+        dist = gen["layer_count_distribution"]
+        cpa = gen.get("claims_per_answer") or {}
+        util_cols = st.columns(3)
+        util_cols[0].metric("Mean context utilization", f"{util['mean']:.3f}" if util.get("mean") is not None else "n/a")
+        util_cols[1].metric("Fully accounted", f"{util['n_fully_accounted']}/{util['n_questions']}")
+        util_cols[2].metric("Mean claims/answer", f"{cpa.get('mean', 0):.2f}" if cpa.get("mean") is not None else "n/a")
+        st.caption(
+            "Utilization = (retrieved groups cited + retrieved groups explicitly dismissed in a "
+            "synthesis claim) / retrieved groups, per question. A group neither cited nor dismissed "
+            "was silently ignored -- retrieved but never accounted for in the answer."
+        )
+        dist_df = pd.DataFrame(
+            [{"layers used": k, "answers": v} for k, v in sorted(dist.items(), key=lambda kv: int(kv[0]))]
+        )
+        fig_dist = go.Figure(go.Bar(x=dist_df["layers used"].astype(str), y=dist_df["answers"], marker_color="#7c3aed"))
+        fig_dist.update_layout(title="How many distinct layers does each answer use?", xaxis_title="layers used", yaxis_title="answers", height=300)
+        st.plotly_chart(fig_dist, use_container_width=True)
     st.caption(
         "Synthesis has perfect precision but the worst recall by a wide margin -- when the model does tag "
         "something 'synthesis' it's right, but it under-uses the tag, folding synthesis-type reasoning into "

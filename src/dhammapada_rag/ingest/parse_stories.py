@@ -46,6 +46,21 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from dhammapada_rag.ingest.corrections import CORRECTIONS, apply_corrections  # noqa: E402
 from dhammapada_rag.models import Footnote, Story  # noqa: E402
 
+# The source PDF's font mis-maps its curly-quote glyphs when extracted by
+# pdftotext: most single-quote/apostrophe occurrences come out as U+2015
+# (HORIZONTAL BAR, opening) / U+2016 (DOUBLE VERTICAL LINE, closing/
+# apostrophe) instead of U+2018/U+2019 (e.g. "ox‖s foot", "―Who is
+# he?‖"). Confirmed a 1:1 substitution, not a context-dependent one: a
+# minority of quote glyphs in the same raw dump (314 U+2019 / 26 U+2018)
+# extract correctly, in the identical apostrophe/opening-quote roles as
+# their mis-mapped counterparts (e.g. "beings’ deeds", "‘Shine
+# forth..."). Applied here, at read time, so data/raw/ stays an untouched
+# extraction (per README's "unmodified beyond format conversion") while
+# every field derived from this text -- title, synopsis, nidana, vatthu,
+# desanavasane, footnotes -- gets the fix for free, rather than patching
+# each field separately downstream.
+_GLYPH_FIX = str.maketrans({"―": "‘", "‖": "’"})
+
 HEADER_RE = re.compile(r"^\s*(\d+)\.(\d+)\s+(\S.*)$")
 DHP_RE = re.compile(r"^Dhp\s+(\d+)(?:\s*[-–—]\s*(\d+))?\.?\s*$")
 FOOTER_RE = re.compile(r"^\s*\d+\.\s+.+ - \d+\s*$")
@@ -194,6 +209,11 @@ def extract_footnotes(body_lines: list[str]) -> tuple[list[Footnote], list[str]]
 
 def clean_body_text(lines: list[str]) -> str:
     text = "\n".join(lines)
+    # U+000C (form feed): the PDF's page-break character, surviving pdftotext
+    # extraction on stories that fall at or near a vagga boundary. Not
+    # narrative content -- strip before it can propagate into vatthu,
+    # desanavasane (a suffix of this same cleaned text), or embeddings.
+    text = text.replace("\x0c", "")
     text = BRACKET_RE.sub("", text)
     # collapse runs of blank lines and trailing spaces
     text = re.sub(r"[ \t]+\n", "\n", text)
@@ -424,7 +444,7 @@ def main() -> None:
     out_path = root / "data" / "processed" / "stories.jsonl"
     report_path = root / "data" / "processed" / "parse_report.json"
 
-    raw_text = raw_path.read_text(encoding="utf-8")
+    raw_text = raw_path.read_text(encoding="utf-8").translate(_GLYPH_FIX)
     stories = parse_stories(raw_text)
     story_dicts = [s.to_dict() for s in stories]
 

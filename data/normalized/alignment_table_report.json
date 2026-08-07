@@ -1,0 +1,20 @@
+{
+  "n_stories": 305,
+  "n_verses_covered": 423,
+  "n_verses_expected": 423,
+  "missing_verses": [],
+  "duplicated_verses": {
+    "416": [
+      "26.33",
+      "26.34"
+    ]
+  },
+  "closure_ok": true,
+  "n_sources": 1,
+  "agreement_breakdown": {
+    "single_source": 305,
+    "full": 0,
+    "partial": 0,
+    "disputed": 0
+  }
+}

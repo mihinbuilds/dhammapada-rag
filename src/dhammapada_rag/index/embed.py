@@ -28,6 +28,7 @@ from __future__ import annotations
 
 import json
 import pickle
+import sys
 import time
 from pathlib import Path
 
@@ -68,6 +69,9 @@ def check_lengths(model: BGEM3FlagModel, texts: list[str], chunk_ids: list[str])
 
 def main() -> None:
     root = Path(__file__).resolve().parents[3]
+    sys.path.insert(0, str(root / "src"))
+    from dhammapada_rag.index.rerank import best_device  # noqa: E402
+
     chunks_path = root / "data" / "index" / "chunks.jsonl"
     index_dir = root / "data" / "index"
 
@@ -79,10 +83,20 @@ def main() -> None:
     if long_by_words:
         print(f"Note: {len(long_by_words)} chunks exceed {WORDS_WARN} words; verifying against the tokenizer.")
 
-    print(f"Embedding {len(texts)} chunks with BAAI/bge-m3...")
+    # Round 6, Task S: this used to hardcode devices=["cpu"] unconditionally
+    # -- correct on the Apple Silicon machine this project was developed on
+    # only because that machine's MPS backend wasn't wired up here either,
+    # not because CPU was ever the intended default. best_device() (index/
+    # rerank.py) checks CUDA, then MPS, then falls back to CPU, and is
+    # shared with CrossEncoderReranker so both models in the pipeline pick
+    # the same hardware the same way. Logged explicitly so a GPU machine
+    # silently running this on CPU is visible here rather than inferred
+    # from a 10-20 minute embed run instead of the expected few minutes.
+    device, use_fp16 = best_device()
+    print(f"Embedding {len(texts)} chunks with BAAI/bge-m3 (device={device!r} fp16={use_fp16})...")
 
     t0 = time.time()
-    model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=False, devices=["cpu"])
+    model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=use_fp16, devices=[device])
     print(f"Model loaded in {time.time() - t0:.1f}s")
 
     check_lengths(model, texts, chunk_ids)
