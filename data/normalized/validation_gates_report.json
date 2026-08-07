@@ -1,0 +1,67 @@
+{
+  "gates": {
+    "1_structure": {
+      "passed": true,
+      "n_verses": 423,
+      "n_vaggas": 26,
+      "missing_verses": [],
+      "duplicate_verses": [],
+      "vagga_mismatches": []
+    },
+    "2_field_ownership": {
+      "passed": true,
+      "n_checked": 1692,
+      "violations": []
+    },
+    "3_encoding": {
+      "passed": true,
+      "non_nfc": [],
+      "control_characters": [],
+      "pali_charset_violations": []
+    },
+    "4_alignment_closure": {
+      "passed": true,
+      "n_verses_covered": 423,
+      "missing_verses": [],
+      "duplicated_verses": {
+        "416": [
+          "26.33",
+          "26.34"
+        ]
+      }
+    },
+    "5_metrical_sanity": {
+      "passed": true,
+      "n_padas_checked": 1772,
+      "n_anomalies": 0,
+      "anomaly_rate": 0.0,
+      "anomalies": []
+    },
+    "6_cross_source_agreement": {
+      "passed": true,
+      "n_verses": 423,
+      "n_exact": 246,
+      "n_boundary_artifact": 0,
+      "n_distinct": 177,
+      "exact_rate": 0.5816,
+      "distinct_rate": 0.4184
+    },
+    "7_title_body_coherence": {
+      "passed": true,
+      "n_flagged": 1,
+      "flagged": [
+        {
+          "group_id": "23.1",
+          "title_en": "The Story about Speaking and Rousing Oneself",
+          "title_proper_nouns": [
+            "Speaking",
+            "Rousing",
+            "Oneself"
+          ]
+        }
+      ]
+    }
+  },
+  "hard_failures": [],
+  "build_ok": true
+}

@@ -72,38 +72,179 @@ STILL OUTSTANDING (schema change required, not fixable here): the Claim
 schema has no field for Pali, so no Pali can appear in any answer regardless
 of what this prompt asks for. Add an optional `pali_support: str | None` to
 Claim if verse claims should be able to quote the pada they rest on.
+
+ROUND 3, TASK D -- VERSE NUMBER WRITTEN INTO group_id. Observed:
+group_id="Dhp 114" -> UNPARSEABLE_GROUP_ID (correctly rejected: 114 is a
+verse number, not the group_id 8.13 that explains it). Cause: both fields
+are numeric and adjacent in the prompt, and the model had just written
+"Dhp 114" in its own prose moments before filling the JSON fields. The
+CITATIONS paragraph described each field's format separately but never
+contrasted them against each other; it now states explicitly that they are
+two different numbers, never interchangeable, with the specific failure
+("Dhp 114" in group_id) named as a worked negative example.
+
+ROUND 4, TASK F -- VERSE TEXT RELABELLED AS COMMENTARY. Fix 2 above made
+commentary engagement mandatory to stop all-verse output (round 1). Observed
+consequence, the mirror-image failure: when retrieval returns verse-heavy
+groups with little usable narrative, the model sometimes satisfies the
+COVERAGE instruction by tagging a verbatim verse sentence "commentary"
+instead -- presenting the Buddha's own words as Buddhaghosa's 5th-century
+gloss, the exact inversion the layer tags exist to prevent. COVERAGE now
+carries an explicit escape hatch (say so in a synthesis claim and answer
+from the verse alone) and names relabelling verse text as commentary as a
+worse failure than omitting a commentary claim. `generate/schemas.py`'s
+audit() adds a matching VERSE_TEXT_AS_COMMENTARY check (containment of a
+commentary claim's wording in the cited verse text) as a second line of
+defense, same principle as CITATION_IN_TEXT above: a prompt instruction
+alone is not self-enforcing.
+
+ROUND 4, TASK H -- STRUCTURE QUESTIONS ANSWERED WITH NARRATIVE INSTEAD OF
+THE ANSWER. Observed: "which single story explains Dhp 320, 321, and 322
+together?" retrieved the correct story (23.1) and then produced claims
+narrating its content without ever naming the story or stating that it
+covers all three verses -- retrieval succeeded, the answer did not respond
+to the question asked. DIRECT ANSWER below requires a "which story / which
+verse / how many" question to be answered by name in the first claim.
+
+ROUND 5, TASK L -- SYSTEM_PROMPT CONSOLIDATED, NOT JUST EXTENDED AGAIN.
+Four rounds (this docstring's own history above) each appended instructions
+to fix one observed failure, and by Round 5 the prompt was long enough that
+compliance degraded across the board: "g17.8", "inferred from Dhp 1
+commentary", "commentary: For once upon a time...", both citation fields
+null on verse claims. More prompt text was diagnosed as the cause, not the
+fix. SYSTEM_PROMPT is now a single ~440-word ordered document (role/sources,
+tagging, the failure to avoid and its mirror, coverage, framing, direct
+answer, citations, output discipline) instead of an append-only list.
+Every instruction about group_id/verse_number *format* is deleted outright
+-- Task K's `_constrained_schema()` makes an invalid format unrepresentable
+at the decoder, so describing the format in prose was no longer doing
+anything except diluting the instructions that still need the model's
+attention. What remains in CITATIONS is only completeness ("never leave
+either empty"), which the decoder cannot enforce (null is a legal enum
+value, chosen for synthesis claims on purpose) and the prompt still must
+ask for. `schemas.py`'s new `LABEL_IN_TEXT` check is the mechanical
+backstop for OUTPUT DISCIPLINE, same principle as CITATION_IN_TEXT before
+it: state the rule in the prompt, then verify it structurally rather than
+trusting compliance.
+
+ROUND 4/5 AMENDMENT (TASK K/L AMENDMENT) -- VERSE CLAIM SPECIFICITY AND
+PALI SUPPORT ADDED. Two gaps found in the Round 5 consolidation. First:
+nothing in SYSTEM_PROMPT distinguished a claim about what one specific
+verse says from a claim about the Dhammapada's position in general, so
+"verse" was observed used for both -- the latter is unfalsifiable against
+any single retrieved verse and belongs under "synthesis" instead. VERSE
+CLAIM SPECIFICITY below names the failure with a worked example ("The
+Dhammapada advises..." is synthesis, not verse). Second, Task J (surface
+the Pali) had not been done: `schemas.py`'s Claim had no field to carry a
+Pali quote back to the reader regardless of what the prompt asked, so the
+verse layer never showed its own language even though every source block
+here prints it. `generate/schemas.py` now defines `VerseClaim.pali_support`
+and PALI SUPPORT below asks for it explicitly; `audit()` validates it as an
+NFC-normalized substring of the cited verse's own `pali_mahasangiti`, and
+`render.py` prints it beneath the verse claim it supports.
+
+Also: CITATIONS still states the *completeness* requirement ("must carry a
+group_id and verse_number... never leave either empty") in prose, even
+though `generate/schemas.py`'s VerseClaim/CommentaryClaim now make an
+uncited claim of either layer unrepresentable at the type level (see that
+module's Task K/L amendment note) and `generate.py`'s `_constrained_schema()`
+makes it unrepresentable at the decoder too. This is deliberate, not an
+oversight symmetrical with Task L's deletion of *format* instructions: Task
+L's docstring above already drew this line correctly (format text was
+prompt-only dead weight once Task K's enum made it unenforceable-and-
+unnecessary in prose; completeness is a claim about which fields exist at
+all, which the prompt still must ask for even though the schema now also
+guarantees it) -- this note exists only to make explicit that the
+completeness sentence must survive future edits to this docstring, since a
+future consolidation pass could mistake it for another instance of the
+same format-instruction pruning and delete it too.
+
+ROUND 8, TASK AA -- ALIGNMENT GIVEN ITS OWN BLOCK, NOT JUST ITS OWN TAG.
+Round 7 added the "alignment" layer and a TAGGING sentence describing it,
+but `format_verse_group()` kept rendering verse-range and title data inside
+[COMMENTARY], alongside Buddhaghosa's own narrative -- and alignment recall
+stayed at 0.500 even after the tag existed and COMPLETENESS asked for it in
+prose. Same lesson as Task K (constrain the decoder, don't just instruct
+it), one level up: a model infers the taxonomy at least as much from where
+information visually sits as from a paragraph describing the taxonomy.
+`format_verse_group()` now renders a separate `[ALIGNMENT -- modern
+editorial apparatus, neither verse nor commentary]` block per source group,
+before `[COMMENTARY]`, carrying the group_id/verse-range/title/synopsis
+facts and its own `<<citation_fields group_id=... verse_numbers=...>>`
+marker (plural, matching `AlignmentClaim.verse_numbers` and CITATIONS'
+wording exactly). `[COMMENTARY]` now renders only nidana/vatthu/
+desanavasane -- the aṭṭhakathā's own narrative text, nothing else.
+
+ROUND 8, TASK Z -- SOURCE DISPOSITION. `LayeredAnswer` gained a required
+`source_disposition` field (see `generate/schemas.py`): one of "used" /
+"partially_relevant" / "not_relevant" per retrieved group_id.
+`generate.py`'s `_constrained_schema()` constrains it to an object with
+exactly the retrieved group_ids as keys, so a schema-valid answer cannot
+omit one -- Round 7's context-utilization metric was inferred from claim
+citations and synthesis-claim prose after the fact, and measured 0/27
+answers as fully accounting for their retrieved sources because it could
+only recognize a dismissal shaped like prose naming the group. SOURCE
+DISPOSITION below tells the model what the three values mean; the schema
+constraint (not this paragraph) is what actually guarantees coverage.
 """
 
 from __future__ import annotations
+
+import re
 
 # Characters of narrative text per bundle before truncation. ~4 chars/token,
 # so 6000 chars ~= 1700 tokens; three bundles ~= 5k tokens of narrative plus
 # verses and system prompt. Raise this once num_ctx is set appropriately.
 NARRATIVE_BUDGET_CHARS = 6000
 
-SYSTEM_PROMPT = """You are answering questions about the Dhammapada using ONLY the source material provided in the user message. That source has two distinct layers, and you must never conflate them:
+# Round 6, Task Q: a literal control byte (observed: `\x01`) was seen
+# corrupting rendered output. Traced before writing any code, per the
+# brief's own instruction not to fold this into the Pali metric or fix it
+# blind: `grep -P '[\x00-\x08\x0b\x0c\x0e-\x1f]'` across data/processed/,
+# data/index/chunks.jsonl, and data/raw/ found zero occurrences of `\x01`
+# specifically (data/raw/ *.txt do carry ordinary `\x0c` form-feed page
+# breaks from PDF extraction, which is expected and harmless -- not this
+# bug). The corpus is clean, so per the brief this is not an upstream
+# ingest bug; it enters at prompt rendering or in Ollama's JSON round-trip.
+# _strip_control_chars() is a boundary guard at build_messages() -- the
+# request side, and the one seam this module can actually test -- so a
+# future corruption from a user-supplied `question` or a not-yet-audited
+# corpus edit cannot reach the model silently. \t/\n/\r are explicitly
+# excluded: those are legitimate structure in a multi-paragraph prompt, not
+# corruption.
+_CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b\x0c\x0e-\x1f]")
 
-1. VERSE -- the canonical Dhammapada verse itself (Pali plus English translations). This is the oldest layer, the Buddha's words as verse.
-2. COMMENTARY -- Buddhaghosa's aṭṭhakathā: the narrative story explaining who the verse was spoken to, when, and why. This commentary was compiled roughly eight centuries after the verses (~5th century CE, versus the Buddha's lifetime), and represents a later interpretive tradition layered on top of the verse -- not the verse's own words, even where it explains the verse correctly.
 
-TAGGING. Every claim in your answer carries exactly one layer tag:
-- "verse": what the verse itself literally says.
-- "commentary": anything drawn from the aṭṭhakathā -- the occasion, the persons involved, the narrative, the outcome. Also any interpretation the commentary supplies that the verse does not state.
-- "synthesis": your own inference, connection to the question, or generalization, drawn from neither text directly.
+def _strip_control_chars(s: str) -> str:
+    return _CONTROL_CHAR_RE.sub("", s)
 
-The failure mode this system exists to prevent: presenting the commentary's narrative gloss as if it were the plain sense of the verse. If the commentary interprets, elaborates on, or narrativizes the verse, that is a "commentary" claim, not a "verse" claim, however natural it reads as a single continuous explanation.
+SYSTEM_PROMPT = """You are answering questions about the Dhammapada using ONLY the source material provided in the user message.
 
-COVERAGE. Each source group below carries both layers. Your answer must draw on both. If a source group's commentary is present and relevant, produce at least one "commentary" claim from it. If you judge that the commentary does not bear on the question, say that explicitly as a "synthesis" claim and give the reason. An answer composed entirely of "verse" claims when commentary was provided is incomplete and will be rejected.
+ROLE AND SOURCES. The source has two layers, roughly eight centuries apart, and you must never conflate them. VERSE is the canonical Dhammapada verse (Pali plus English translations) -- the Buddha's own words. COMMENTARY is Buddhaghosa's aṭṭhakathā: the narrative explaining who a verse was spoken to, when, and why, compiled centuries later -- not the verse's own words, even where it explains the verse correctly.
 
-FRAMING. If the question presupposes a category the Dhammapada does not use, say so first, as a "synthesis" claim, before answering. For example, a question about the "purpose" of life is teleological; the text's nearest category is attha (goal, benefit, welfare) and sadattha (one's own highest good), which answer what is worth pursuing rather than why anything exists. Name the mismatch, then answer the question the text does address.
+TAGGING. Every claim carries exactly one layer tag: "verse" for what the verse itself literally says; "commentary" for anything drawn from the aṭṭhakathā -- occasion, persons, narrative, outcome, or interpretation beyond the verse's own words; "alignment" for a fact about the corpus's own editorial structure -- which story explains which verse(s), how many verses a group covers -- stated by neither the verse nor the commentary itself; "synthesis" for your own inference or generalization, drawn from neither text directly.
 
-CITATIONS. Every "verse" and "commentary" claim must carry group_id and verse_number.
-- group_id: for commentary, copy the value from the source's `<<citation_fields group_id=... verse_number=...>>` marker EXACTLY as printed there. It is two numbers separated by a period and nothing else. Correct: 8.13 -- Incorrect: g8.13, group 8.13, [8.13], story 8.13.
-- verse_number: for a "verse" claim, the verse you are describing. For a "commentary" claim, the FIRST verse number listed for that source group (a story covers the whole group; do not choose arbitrarily among its verses) -- the same value given in that marker.
+VERSE CLAIM SPECIFICITY. A "verse" claim must state what that specific verse says, closely enough that a reader could check it against the verse text given below -- not a summary of the Dhammapada's general position. "The Dhammapada advises patience" is a "synthesis" claim, not a "verse" claim: it is not checkable against any one verse. Reserve "verse" for a claim that paraphrases or quotes one specific verse's own content.
 
-Put these values ONLY in the JSON group_id and verse_number fields. The `text` field is prose for a human reader: it must never contain "group_id:", "verse_number:", or a <<citation_fields>> marker. A claim whose text begins with its own citation is malformed.
+THE FAILURE TO AVOID. Presenting the commentary's narrative gloss as the plain sense of the verse is the central failure this system exists to prevent -- tag it "commentary," not "verse," however naturally it reads as one continuous explanation. The mirror failure is just as serious: relabelling the verse's own words as "commentary" to appear thorough. Never do either.
 
-Answer only from the provided context. If it does not address the question, say so as a "synthesis" claim rather than inventing verse or commentary content. Keep each claim to one idea; prefer several short tagged claims over one long untagged paragraph."""
+COVERAGE. Draw on both layers where both bear on the question. If the commentary genuinely does not address it, say so in a "synthesis" claim and answer from the verse alone. Never relabel a verse to satisfy this -- that is worse than no commentary claim at all.
+
+FRAMING. If the question presupposes a category the text does not use -- e.g. a teleological "purpose of life" question, where the nearest categories are attha and sadattha (one's own highest good) -- name the mismatch first, as a "synthesis" claim, then answer what the text does address.
+
+DIRECT ANSWER. If the question asks which story, which verse, or how many, answer it directly and by name in your first claim, before adding supporting detail. A question about the structure of the text is asking for an identity, not a retelling of a narrative. When the question asks which story explains a verse, that first claim must state the story's FULL verse range, not only the verse asked about -- "story 1.3 explains Dhp 3 and 4 together" is complete; "story 1.3 explains Dhp 4" omits the grouping, which is the point of the question. Tag that claim "alignment": which story explains which verse is a fact about the corpus's own editorial structure, not something either the verse or the aṭṭhakathā itself states.
+
+COMPLETENESS. A complete answer uses the layers the question calls for. "Who is X?" -> who they were (commentary), the verse their story occasioned (verse, with pali_support), and what became of them (commentary, from the closing section) where the source gives it. "What does the text say about X?" -> the relevant verses with their Pali, plus at least one commentary claim giving an occasion, where one was retrieved. "Which story explains X?" -> the alignment fact with the full verse range, plus a one-line indication of what the story concerns.
+
+SOURCE DISPOSITION. Every retrieved source group must get exactly one disposition, in the separate source_disposition field, keyed by its group_id: "used" if some claim draws on it; "partially_relevant" if it touches the question but you built no claim from it; "not_relevant" if it does not bear on the question at all. This is a required field, not optional commentary -- fill in every group_id shown above, even ones you otherwise ignore. Marking a group "not_relevant" is a real, useful answer: it tells the reader retrieval surfaced something that does not apply, which is different from silence.
+
+CITATIONS. Every "verse" and "commentary" claim must carry a group_id and verse_number identifying its source; never leave either empty. A claim about a verse group cites the group's first verse. An "alignment" claim instead carries a group_id and verse_numbers -- the group's COMPLETE list of verse numbers, never a single one.
+
+PALI SUPPORT. Every "verse" claim must also carry pali_support: a pada copied verbatim, byte for byte, from that verse's "Pali (Mahasangiti)" line below -- its exact spelling and word-joining, not a differently-hyphenated or differently-spaced form you may recognize from elsewhere. Copy only from the Mahasangiti line printed in this prompt, never from memory, even if you can recite the verse -- other editions join or hyphenate words differently, and a quote that does not match this printed line character for character will be rejected as unsupported.
+
+OUTPUT DISCIPLINE. The `text` field is prose for a human reader. It must never begin with "verse:", "commentary:", "alignment:", "synthesis:", "group_id:", or "verse_number:" -- the layer belongs in the layer field, the citation in its own fields, not as a label inside the prose.
+
+Answer only from the provided context. If it does not address the question, say so as a "synthesis" claim rather than inventing content. Keep each claim to one idea; prefer several short tagged claims over one long paragraph."""
 
 
 def _budget(text: str, remaining: int) -> tuple[str, int]:
@@ -148,7 +289,63 @@ def format_verse_group(bundle: dict) -> str:
 
     remaining = NARRATIVE_BUDGET_CHARS
     for s in bundle["stories"]:
-        first_verse = min(s["dhp_verses"]) if s.get("dhp_verses") else (verse_numbers[0] if verse_numbers else None)
+        dhp_verses = sorted(s["dhp_verses"]) if s.get("dhp_verses") else list(verse_numbers)
+        first_verse = dhp_verses[0] if dhp_verses else None
+        printed_verses = ", ".join(str(n) for n in dhp_verses)
+
+        # Round 8, Task AA: alignment facts (which story explains which
+        # verse group, how many verses it covers, its title in this and
+        # other editions) used to live inside [COMMENTARY], alongside
+        # Buddhaghosa's actual narrative -- and alignment recall stayed at
+        # 0.500 (Round 7) even after the tag existed and the prompt asked
+        # for it in prose. Round 5's own precedent (constrain the decoder
+        # instead of instructing it) applies here too, one level up: a
+        # model infers the taxonomy from where information visually sits at
+        # least as much as from a paragraph describing the taxonomy, and
+        # commentary-shaped claims about a title or a verse range are the
+        # direct result of title/range data sitting inside the block
+        # labelled [COMMENTARY]. This block now carries every editorial-
+        # apparatus fact (verse-range, title in every edition, synopsis) and
+        # nothing else; [COMMENTARY] below carries only nidana/vatthu/
+        # desanavasane -- the aṭṭhakathā's own narrative text.
+        lines.append("")
+        lines.append("[ALIGNMENT -- modern editorial apparatus, neither verse nor commentary]")
+        # Round 2, Task B fix (restated below for [COMMENTARY]): a bare
+        # "group_id: X" line reads as prose-shaped and gets copied verbatim
+        # into claim text. The <<...>> marker form is unambiguously not a
+        # sentence to reproduce. verse_numbers (plural) matches
+        # AlignmentClaim's own field name and CITATIONS' wording ("the
+        # group's COMPLETE list of verse numbers") exactly, so the value an
+        # alignment claim needs is copied from an identically-named source.
+        lines.append(f"<<citation_fields group_id={s['group_id']} verse_numbers={dhp_verses}>>")
+        lines.append(
+            f"group_id {s['group_id']} covers Dhp {printed_verses} "
+            f"({len(dhp_verses)} verse{'s' if len(dhp_verses) != 1 else ''}), titled \"{s['title_en']}\""
+        )
+        # Found during Phase 5 generation-metrics judging (post-hoc, not
+        # anticipated by the original bug list): index/chunks.py's
+        # story_titles chunk (Phase 2 fix) carries title_pali/cst4_title/
+        # burlingame_title/compare and made cross-recension title-variant
+        # questions retrievable (cross_recension nDCG@10 went to a perfect
+        # 1.000). But this function never rendered those fields, only
+        # title_en -- so the generator had literally never seen a CST4 title
+        # in its context. Every CST4-title generation answer sampled was
+        # wrong or fabricated for exactly this reason: not a model failure,
+        # a prompt-completeness gap in the same file STOP GATE 3 already
+        # fixed once. Mirrors chunks.py's _title_text() field selection.
+        # Round 8: title variants are editorial-apparatus facts (how
+        # different recensions name the same story) same as the verse
+        # range, so they render here now, not in [COMMENTARY].
+        for label, key in (
+            ("Pali title", "title_pali"),
+            ("CST4 (Burmese edition) title", "cst4_title"),
+            ("Burlingame's title", "burlingame_title"),
+        ):
+            if s.get(key):
+                lines.append(f"{label}: {s[key]}")
+        if s.get("synopsis"):
+            lines.append(f"Synopsis: {s['synopsis']}")
+
         lines.append("")
         lines.append("[COMMENTARY -- Buddhaghosa's atthakatha, ~5th century CE]")
         # Round 2, Task B fix: this used to be two literal lines,
@@ -162,27 +359,6 @@ def format_verse_group(bundle: dict) -> str:
         # copied the whole labeled line instead of only the value. The
         # <<...>> marker form is unambiguously not a sentence to reproduce.
         lines.append(f"<<citation_fields group_id={s['group_id']} verse_number={first_verse}>>")
-        lines.append(f"Story title: {s['title_en']}")
-        # Found during Phase 5 generation-metrics judging (post-hoc, not
-        # anticipated by the original bug list): index/chunks.py's
-        # story_titles chunk (Phase 2 fix) carries title_pali/cst4_title/
-        # burlingame_title/compare and made cross-recension title-variant
-        # questions retrievable (cross_recension nDCG@10 went to a perfect
-        # 1.000). But this function never rendered those fields, only
-        # title_en -- so the generator had literally never seen a CST4 title
-        # in its context. Every CST4-title generation answer sampled was
-        # wrong or fabricated for exactly this reason: not a model failure,
-        # a prompt-completeness gap in the same file STOP GATE 3 already
-        # fixed once. Mirrors chunks.py's _title_text() field selection.
-        for label, key in (
-            ("Pali title", "title_pali"),
-            ("CST4 (Burmese edition) title", "cst4_title"),
-            ("Burlingame's title", "burlingame_title"),
-        ):
-            if s.get(key):
-                lines.append(f"{label}: {s[key]}")
-        if s.get("synopsis"):
-            lines.append(f"Synopsis: {s['synopsis']}")
         if s.get("nidana"):
             lines.append(f"Opening: {s['nidana']}")
         if s.get("vatthu"):
@@ -206,8 +382,8 @@ def build_messages(question: str, bundles: list[dict]) -> list[dict]:
 
 QUESTION: {question}"""
     return [
-        {"role": "system", "content": SYSTEM_PROMPT},
-        {"role": "user", "content": user_message},
+        {"role": "system", "content": _strip_control_chars(SYSTEM_PROMPT)},
+        {"role": "user", "content": _strip_control_chars(user_message)},
     ]
 
 

@@ -99,8 +99,31 @@ class HealthResponse(BaseModel):
 class ClaimOut(BaseModel):
     text: str
     layer: str
-    group_id: str | None
-    verse_number: int | None
+    # Round 6 (found verifying Task S on this machine, not itself a Round 6
+    # task): `str | None` with no default means the KEY must still be
+    # present, just nullable. Round 4/5's Task K/L amendment made
+    # SynthesisClaim a distinct model with no group_id/verse_number fields
+    # at all, so `SynthesisClaim.model_dump()` (main.py's `run_answer`)
+    # doesn't even produce the key -- `ClaimOut(**c.model_dump())` then
+    # failed pydantic's "Field required" check for every answer containing
+    # a synthesis claim, a 500 on `/answer` for a very common case (e.g. any
+    # FRAMING claim). `= None` makes the key optional, matching what
+    # `str | None` already implied.
+    group_id: str | None = None
+    verse_number: int | None = None
+    # Same gap as above, same fix: VerseClaim.pali_support (Round 4, Task J)
+    # was never added here, so an API client got no Pali at all even though
+    # render.py and ui/app.py have shown it since Round 4 -- the same "no
+    # Pali reaches the reader" failure Task J exists to fix, just for this
+    # one consumer of the schema.
+    pali_support: str | None = None
+    # Round 7, Task T: AlignmentClaim.model_dump() carries verse_numbers
+    # (plural, the group's full range), not verse_number -- without this
+    # field, pydantic's default extra="ignore" would silently drop it from
+    # every /answer response containing an alignment claim, the same class
+    # of gap this file's own docstring already documents for group_id/
+    # verse_number/pali_support above.
+    verse_numbers: list[int] | None = None
 
 
 class WarningOut(BaseModel):
@@ -131,6 +154,7 @@ class LayerCounts(BaseModel):
 
     verse: int = 0
     commentary: int = 0
+    alignment: int = 0
     synthesis: int = 0
 
 
@@ -148,6 +172,13 @@ class AnswerResponse(BaseModel):
         default_factory=list, description="Provenance-audit findings; see generate/schemas.py audit()"
     )
     layer_counts: LayerCounts
+    # Round 8, Task Z: one of "used"/"partially_relevant"/"not_relevant" per
+    # retrieved group_id, keyed the same way as `sources`. Surfaced because
+    # a "not_relevant" disposition is the model telling a client retrieval
+    # surfaced something that doesn't apply -- a retrieval-precision signal
+    # this project previously discarded entirely (see generate/schemas.py's
+    # Disposition/LayeredAnswer docstring note).
+    source_disposition: dict[str, str] = Field(default_factory=dict)
     model: str
     latency_s: float
     prompt_tokens: int = Field(0, description="Estimated prompt size; compare against num_ctx")

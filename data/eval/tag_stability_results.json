@@ -1,0 +1,92 @@
+{
+  "n_verses": 15,
+  "n_questions": 45,
+  "n_claims": 136,
+  "n_groups": 105,
+  "n_multi_member_groups": 24,
+  "containment_threshold": 0.8,
+  "overall_tag_stability": 0.875,
+  "per_layer": {
+    "verse": {
+      "n_groups": 19,
+      "stability": 0.8421052631578947
+    },
+    "commentary": {
+      "n_groups": 5,
+      "stability": 1.0
+    },
+    "synthesis": {
+      "n_groups": 0,
+      "stability": null
+    }
+  },
+  "unstable_examples": [
+    {
+      "verse_number": 39,
+      "layers": [
+        "commentary",
+        "verse"
+      ],
+      "claims": [
+        {
+          "text": "One whose mind is not festering, whose heart is undamaged, who’s given up making merit and demerit, alert, has nothing to fear.",
+          "layer": "commentary",
+          "question": "What does the Dhammapada say about a person whose mind does not fester and who has given up notions of right and wrong?"
+        },
+        {
+          "text": "One whose mind is not festering, whose heart is undamaged, who’s given up making merit and demerit, alert, has nothing to fear.",
+          "layer": "verse",
+          "question": "What does the Dhammapada say about someone whose heart is undamaged and free from fear?"
+        }
+      ]
+    },
+    {
+      "verse_number": 89,
+      "layers": [
+        "commentary",
+        "verse"
+      ],
+      "claims": [
+        {
+          "text": "For those who have well developed with right mind the factors of complete awakening, having given up grasping, those who delight in being unattached, pollutant-free and shining forth, are emancipated here.",
+          "layer": "verse",
+          "question": "What does the Dhammapada say happens to those whose minds are rightly developed in the awakening factors and who let go of attachment?"
+        },
+        {
+          "text": "For those who have well developed with right mind the factors of complete awakening, having given up grasping, those who delight in being unattached, pollutant-free and shining forth, are emancipated here.",
+          "layer": "verse",
+          "question": "What does the Dhammapada say about those who let go of attachment and develop the awakening factors?"
+        },
+        {
+          "text": "Those who delight in being unattached, pollutant-free and shining forth are emancipated here.",
+          "layer": "commentary",
+          "question": "According to the Dhammapada, what happens to those whose defilements have ended?"
+        }
+      ]
+    },
+    {
+      "verse_number": 181,
+      "layers": [
+        "commentary",
+        "verse"
+      ],
+      "claims": [
+        {
+          "text": "Those wise ones intent on meditation, who delight in the peace of renunciation, even the gods are envious of them, the Sambuddhas, the ones who are mindful.",
+          "layer": "verse",
+          "question": "According to the Dhammapada, why are the Buddhas envied even by the gods?"
+        },
+        {
+          "text": "Those wise ones intent on meditation, who delight in the peace of renunciation, even the gods are envious of them, the Sambuddhas, the ones who are mindful.",
+          "layer": "commentary",
+          "question": "Why are the Buddhas envied even by the gods, according to the Dhammapada?"
+        },
+        {
+          "text": "The attentive intent on absorption, who delight in the peace of renunciation, even the gods are envious of them, the Sambuddhas, the ones who are mindful.",
+          "layer": "verse",
+          "question": "What does the Dhammapada say about those who love the peace of renunciation?"
+        }
+      ]
+    }
+  ]
+}

@@ -43,6 +43,22 @@ FIX 1 and FIX 2 above -- the data was there (dhp_verses/group_id, on every
 chunk, as metadata) and the index never exposed it as retrievable text. See
 docs/evaluation.md's "three instances of one pattern" section.
 
+FIX 4 -- COLOPHON/PAGE-BREAK LEAK (following Round 5 Task M's arm_diagnosis
+finding). "What is the purpose of life?" and several other abstract-concept
+probes all converged on story 26.40 (Dhp 423, the Brahmin Devahita story)
+regardless of retrieval arm. Cause: 26.40 is the *last* story in the source
+PDF, so parse_stories.py's regex-based field extraction swept the entire
+closing colophon -- an enumeration of all 26 chapters' story counts plus a
+Buddhaghosa authorship ascription, sharing no real content with Dhp 423 --
+into its `synopsis` (1107 words) and `desanavasane` (671 words) fields,
+windowed into 11 near-identical chunks that lexically/semantically resemble
+almost any query about the text as a whole. `_truncate_at_page_break()`
+drops everything from the source PDF's page-break character onward before
+windowing -- a corpus-wide rule (form-feed never belongs in narrative prose),
+not a 26.40 special case; it also cleans 21 other stories' minor
+next-chapter-heading leaks (each is the last story of its own vagga) as a
+side effect of the same one-line fix.
+
 Chunk types:
 
   verse-level (verses.jsonl, all 423):
@@ -127,6 +143,54 @@ def _chunk(
         "prev_chunk_id": prev_chunk_id,
         "next_chunk_id": next_chunk_id,
     }
+
+
+_COLOPHON_MARKER = "Conclusion, Nigamanakath"
+
+
+def _truncate_at_page_break(text: str) -> str:
+    """Drop everything from the first PDF page-break (form-feed, U+000C), or
+    the book's own closing colophon heading, whichever comes first.
+
+    22 stories are the last story in their vagga, so the source PDF's next
+    page -- the next chapter's own heading -- got glued onto the end of
+    `desanavasane` (and, via `extract_nidana_desanavasane`'s chunk_end ==
+    len(lines) for the very last story, `synopsis` too) by parse_stories.py's
+    regex-based field extraction. For 21 of the 22 this is a harmless few-word
+    leak ("2. The Chapter about Heedfulness, ...") and the form-feed catches
+    it. For story 26.40 -- the last story in the whole book -- what follows
+    is the source's entire closing colophon: an enumeration of all 26
+    chapters' story counts plus a Buddhaghosa authorship ascription, 1107
+    words in `synopsis` and 671 in `desanavasane`, none of it about Dhp 423
+    or the Brahmin Devahita story this chunk is nominally for. Task M's
+    arm_diagnosis.py found this single story's colophon chunks acting as a
+    near-universal lexical/semantic attractor across dense, sparse, and
+    ColBERT alike for abstract-concept queries ("purpose of life", "wisdom",
+    "suffering", "mind", "meditation") -- generic eulogistic vocabulary plus
+    every chapter name in the book resembles almost any query about the text
+    as a whole.
+
+    The form-feed alone is not enough here: it survives in `desanavasane`
+    (which is sliced directly out of `body_raw`) but is stripped by
+    `synopsis`'s line-by-line, blank-line-skipping paragraph collector in
+    parse_stories.py before the colophon text ever reaches this function --
+    confirmed empirically (`\\x0c` absent from `synopsis`, present in
+    `desanavasane`/`body_raw`, for the same story). `_COLOPHON_MARKER` is the
+    Pali heading of the colophon's own first subsection ("Conclusion,
+    Nigamanakathā") and is confirmed unique across all 305 stories' five
+    narrative fields -- it exists nowhere else in the corpus, so matching it
+    literally cannot misfire on genuine narrative content.
+
+    Neither marker is ever legitimate inside narrative prose, so truncating
+    on either is safe corpus-wide, not a 26.40-specific patch -- it happens
+    to fix one large leak and 21 small ones with the same rule.
+    data/processed/stories.jsonl itself is left untouched (out of scope per
+    the brief); this runs at chunk-build time only.
+    """
+    candidates = [i for i in (text.find("\x0c"), text.find(_COLOPHON_MARKER)) if i != -1]
+    if not candidates:
+        return text
+    return text[: min(candidates)].rstrip()
 
 
 def _split_windows(text: str, window: int = WINDOW_WORDS, overlap: int = OVERLAP_WORDS) -> list[str]:
@@ -286,13 +350,15 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
             )
         if s.get("synopsis"):
             # Usually one paragraph, but Phase 1's regex-based extraction
-            # (parse_stories.py) occasionally over-captures -- e.g. 26.40 is
-            # 1107 words, not a synopsis. Corpus is out of scope to fix here
-            # (brief: "Do not regenerate data/processed/*.jsonl"), so this
-            # field is windowed defensively like vatthu, not left to overflow
-            # embed.py's length check.
+            # (parse_stories.py) occasionally over-captures -- e.g. 26.40 was
+            # 1107 words, not a synopsis, until _truncate_at_page_break below
+            # cut it back to the genuine one-liner. Corpus is out of scope to
+            # fix here (brief: "Do not regenerate data/processed/*.jsonl"),
+            # so this field is windowed defensively like vatthu, not left to
+            # overflow embed.py's length check, on top of the page-break trim.
+            synopsis = _truncate_at_page_break(s["synopsis"])
             chunks.extend(
-                _windowed_chunks(f"story:{gid}:synopsis", "story_synopsis", s["synopsis"], dhp_verses=dv, group_id=gid)
+                _windowed_chunks(f"story:{gid}:synopsis", "story_synopsis", synopsis, dhp_verses=dv, group_id=gid)
             )
         if s.get("nidana"):
             chunks.append(_chunk(f"story:{gid}:nidana", "story_nidana", s["nidana"], dhp_verses=dv, group_id=gid))
@@ -304,10 +370,15 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
             # Same over-capture issue, worse: some desanavasane fields contain
             # a full embedded past-life narrative (e.g. 4.5 is 2181 words --
             # a "Story of the Past" that the Phase 1 extraction regex attached
-            # to the closing pericope instead of the narrative body). Windowed
-            # for the same reason as synopsis above.
+            # to the closing pericope instead of the narrative body -- a
+            # genuine content over-capture, NOT a page-break leak, so
+            # _truncate_at_page_break does not and should not touch it).
+            # Windowed for the same reason as synopsis above, after the
+            # page-break trim strips 26.40's colophon (and 21 other stories'
+            # next-chapter-heading crumbs) specifically.
+            desanavasane = _truncate_at_page_break(s["desanavasane"])
             chunks.extend(
-                _windowed_chunks(f"story:{gid}:desanavasane", "story_desanavasane", s["desanavasane"], dhp_verses=dv, group_id=gid)
+                _windowed_chunks(f"story:{gid}:desanavasane", "story_desanavasane", desanavasane, dhp_verses=dv, group_id=gid)
             )
 
     return chunks

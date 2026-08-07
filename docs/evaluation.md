@@ -63,27 +63,29 @@ parent-group assembly).
 
 | Condition | R@1 | R@3 | R@5 | R@10 | nDCG@10 | MRR |
 |---|---|---|---|---|---|---|
-| **baseline, post-fix** | 0.860 | 0.930 | 0.939 | 0.939 | **0.906** | 0.896 |
+| **baseline, post-fix** | 0.921 | 0.983 | 0.983 | 0.991 | **0.962** | 0.953 |
 | baseline, pre-fix | 0.816 | 0.886 | 0.886 | 0.895 | 0.863 | 0.854 |
 | verse_only | 0.500 | 0.526 | 0.535 | 0.553 | 0.526 | 0.523 |
-| dense_only | 0.798 | 0.868 | 0.868 | 0.868 | 0.843 | 0.836 |
-| no_rerank | 0.702 | 0.842 | 0.886 | 0.921 | 0.813 | 0.780 |
-| flat (no assembly dedup) | 0.860 | 0.930 | 0.939 | 0.939 | 0.905 | 0.895 |
+| dense_only | 0.912 | 0.974 | 0.983 | 0.983 | 0.955 | 0.945 |
+| no_rerank | 0.886 | 0.965 | 0.965 | 0.974 | 0.935 | 0.924 |
+| flat (no assembly dedup) | 0.921 | 0.983 | 0.983 | 0.991 | 0.961 | 0.951 |
 
-Overall nDCG@10 improved 0.863 → 0.906 post-fix, but the by-type table below
-is where the fixes actually show up — the overall number moved for a
-different reason than either fix, see next section.
+Overall nDCG@10 improved 0.863 → 0.962 post-fix. The by-type table below is
+where most of that movement actually comes from — the alignment fix
+(below), not a general retrieval improvement, since doctrinal/narrative/
+philological/cross_recension are within rounding of an earlier post-fix
+run (see git history of this file) and only alignment moved.
 
 ### By query type (baseline, post-fix)
 
 | Type | n | R@1 | R@3 | R@10 | nDCG@10 |
 |---|---|---|---|---|---|
 | **cross_recension** | 8 | 1.000 | 1.000 | 1.000 | **1.000** |
+| **alignment** | 14 | 1.000 | 1.000 | 1.000 | **1.000** |
 | narrative | 30 | 0.967 | 1.000 | 1.000 | 0.988 |
-| philological | 30 | 0.933 | 1.000 | 1.000 | 0.967 |
+| philological | 30 | 0.933 | 1.000 | 1.000 | 0.975 |
 | doctrinal | 30 | 0.867 | 1.000 | 1.000 | 0.951 |
-| **alignment** | 14 | 0.500 | 0.643 | 0.643 | **0.581** |
-| corpus_anomaly | 2 | 0.000 | 0.000 | 0.000 | 0.000 |
+| corpus_anomaly | 2 | 0.000 | 0.000 | 0.000 | 0.151 |
 
 **cross_recension went from this system's worst-performing type (0.539
 nDCG@10 pre-fix) to a perfect 1.000.** The pre-fix document diagnosed this
@@ -94,31 +96,35 @@ unanswerable by construction, not by retrieval failure. Indexing
 `story_titles` (title_en/title_pali/cst4_title/burlingame_title) fixed it
 completely, not partially.
 
-**alignment is now the worst-performing type with a real sample**
-(corpus_anomaly's n=2 is too small to read anything into). This bucket —
-"which single story explains Dhp *X, Y, Z* together" — was previously
-folded into the old 30-question `cross_recension` bucket and its weakness
-was averaged away; splitting it out (bug #14) is what makes this visible.
-Alignment questions ask about verse-grouping structure the same way
-CST4-title questions ask about edition-title structure, but grouping
-membership isn't carried by any single indexed field the way a title
-string is — this is a real, currently open gap, not yet fixed by anything
-in this pass (out of scope: the brief's "do not tune retrieval parameters"
-rule applies, and this needs a structural fix, not a parameter one).
+**alignment went from this system's worst-performing type with a real
+sample (0.581 nDCG@10, when this document first split it out as its own
+bucket — bug #14) to a perfect 1.000.** The diagnosis at the time was
+correct: "which single story explains Dhp *X, Y, Z* together" questions ask
+about verse-grouping structure, but grouping membership wasn't carried by
+any single indexed field the way a title string is. The fix (a follow-on
+pass, `index/chunks.py`'s `story_alignment` chunk type — one templated
+sentence per story naming its verse numbers as retrievable text, 305 new
+chunks, 5,667 → 5,972 total) is the same shape as Fix 2's `story_titles`
+fix for cross_recension: the underlying metadata (`dhp_verses`) already
+existed, it just wasn't indexed as text a query could match against. Spot
+verification at the time (Dhp 320/321/322 → 23.1, Dhp 188–192 → 14.6, Dhp
+153–154 → 11.8, all rank 1) is now confirmed by the full 14-question bucket
+on this gold set, not just those three probes. corpus_anomaly (n=2) is
+still too small to read anything into.
 
 ### Ablations
 
-**verse-only vs. verse+commentary**: overall nDCG@10 drops 0.906 → 0.526
-(delta 0.380, bootstrap 95% CI [0.292, 0.473], paired by question). Broken
+**verse-only vs. verse+commentary**: overall nDCG@10 drops 0.962 → 0.526
+(delta 0.437, bootstrap 95% CI [0.346, 0.531], paired by question). Broken
 out by type:
 
 | Type | baseline | verse_only | Δ |
 |---|---|---|---|
 | doctrinal | 0.951 | **0.975** | **+0.025** |
-| philological | 0.967 | 0.921 | -0.047 |
+| philological | 0.975 | 0.921 | -0.054 |
 | cross_recension | 1.000 | 0.125 | -0.875 |
+| alignment | 1.000 | 0.023 | -0.978 |
 | narrative | 0.988 | 0.058 | -0.930 |
-| alignment | 0.581 | 0.023 | -0.559 |
 
 **Read this row by row, not by the overall number.** The brief predicted
 the doctrinal row would be "the real evidence" for the architectural claim,
@@ -143,23 +149,132 @@ evidence the brief predicted, and reporting the prediction as confirmed
 when the data goes the other way would be exactly the kind of invented
 result ground rule 3 exists to prevent.
 
-**dense-only vs. hybrid+RRF**: nDCG@10 0.906 → 0.843 (delta 0.064, CI
-[0.027, 0.108]).
+**dense-only vs. hybrid+RRF**: nDCG@10 0.962 → 0.955 (delta 0.008, CI
+[-0.005, 0.023] — crosses zero, not distinguishable from no effect on this
+gold set at this sample size, unlike the earlier post-fix run where hybrid
+had a measurable edge; the alignment fix moved both conditions to
+ceiling-adjacent territory and compressed the gap between them).
 
-**no-rerank**: nDCG@10 0.906 → 0.813 (delta 0.094, CI [0.053, 0.136]).
-Recall@10 barely moves (0.939 → 0.921) — reranking mainly reorders an
+**no-rerank**: nDCG@10 0.962 → 0.935 (delta 0.027, CI [0.002, 0.057]).
+Recall@10 barely moves (0.991 → 0.974) — reranking mainly reorders an
 already-good candidate set, consistent with the pre-fix finding.
 
-**flat chunking**: nDCG@10 0.906 → 0.905 (delta 0.001, CI [0.000, 0.003]).
+**flat chunking**: nDCG@10 0.962 → 0.961 (delta 0.001, CI [0.000, 0.003]).
 Still a genuine null result, unchanged from pre-fix.
 
-**Known gap, not a stop-gate failure**: `by_subtype` in
-`retrieval_metrics.json` is empty — `retrieval_eval.py`'s output row never
-propagates `q["subtype"]` from the gold-set question. The `by_type` numbers
-above are unaffected (they use `q["type"]`, which is populated), but a
-finer-grained subtype breakdown (e.g. splitting cross_recension into its
-colophon vs. CST4-title-variant halves) isn't currently reportable from the
-saved JSON. Minor, unresolved, flagged rather than silently left out.
+**`by_subtype` is now populated** (previously a known gap: `retrieval_eval.py`'s
+output row never propagated `q["subtype"]` from the gold-set question; fixed
+in a follow-on pass). `cross_recension`'s two subtypes diverge sharply:
+`cst4_title_variant` (n=8, the chunk-indexed half) scores a perfect 1.000
+nDCG@10, matching the type-level number exactly since the 6 `colophon_not_indexed`
+questions are excluded from this 114-question retrievable set by
+construction (they remain intentionally not chunk-indexed — see "Gold set"
+above), not because they score poorly. `alignment`'s only subtype
+(`verse_grouping`) is identical to the type-level row, since it is the type's
+only subtype.
+
+## Corpus rebuild (2026-08-04): retrieval re-run
+
+`dhammapada_fixes/corpus_rebuild_design.md` replaced the corpus's field
+provenance (each of `pali_mahasangiti` / `english_sujato` / `interlinear_*`
+now traces to exactly one owning source — see
+`docs/corpus_source_ownership.md` — instead of one PDF silently supplying
+fields it didn't own) without changing chunk architecture, index size
+(5,973 chunks, unchanged from the numbers above), or retrieval logic.
+`docs/corpus_normalization.md` documents the three real corpus bugs the
+rebuild's own validation caught in the process (a vagga-final colophon
+folded into verse text, a second story's title header leaking into Dhp
+416's shared segments, and a citation-vs-canonical swap for Dhp 51/327);
+`docs/corpus_validation.md` records the Stage 5 gate run this cutover
+passed (423/423 verses, 0 field-ownership violations, 0 control
+characters). The index (`chunks.jsonl`, `dense.npy`/`sparse.pkl`/
+`colbert.pkl`) was rebuilt from the new corpus and retrieval re-run per
+the design doc's own instruction that "any metric from the old corpus is
+not comparable."
+
+| Type | n | old (post-fix, above) nDCG@10 | new (post-rebuild) nDCG@10 |
+|---|---|---|---|
+| alignment | 14 | 1.000 | 1.000 |
+| cross_recension | 8 | 1.000 | 1.000 |
+| narrative | 30 | 0.988 | 0.988 |
+| doctrinal | 30 | 0.951 | 0.951 |
+| philological | 30 | 0.975 | **0.963** |
+| corpus_anomaly | 2 | 0.151 | 0.151 |
+| **overall (baseline)** | 114 | 0.962 | **0.959** |
+
+Ablation deltas (nDCG@10, baseline − variant) are within CI overlap of the
+pre-rebuild run: verse_only +0.437 [0.346, 0.530] (was +0.437 [0.346,
+0.531]), dense_only +0.005 [-0.007, 0.016] (was +0.008 [-0.005, 0.023]),
+no_rerank +0.024 [-0.003, 0.053] (was +0.027 [0.002, 0.057]), flat +0.001
+[0.000, 0.003] (unchanged). None of these differences look like a real
+effect at n=114 — the architecture-level findings above are unaffected by
+the corpus rebuild.
+
+**The one real movement is philological, 0.975 → 0.963 (n=30).** This
+bucket asks about verse-level Pali/translation detail, so it's the type
+most exposed to the rebuild's field-content changes (the boundary-artifact
+fix touched Pali text on 19 verses per `corpus_normalization.md`'s
+"Measured effect" table). A per-question diff against the pre-rebuild run
+isn't available: this round's raw `retrieval_results.jsonl` /
+`retrieval_metrics.json` were overwritten by the re-run before being
+separately archived (unlike the pre-fix→post-fix transition above, which
+has `data/eval/archive_round1_post_fix/`) — noted here rather than left
+silent, since a 30-question bucket moving 1.2 points is small enough to be
+noise but not obviously so. Worth re-checking if a future round touches
+philological-adjacent corpus fields again.
+
+**Generation metrics below have not been re-run against the rebuilt
+corpus** — they still reflect the pre-rebuild pipeline. Per the design
+doc's own warning, treat them as informative but not a same-corpus
+comparison until a fresh generation pass is run.
+
+### Corpus audit Stage 0, run for real (2026-08-06): patch, not rebuild
+
+`ingest/audit_corpus.py`'s Stage 0 checks (`docs/corpus_audit.md`) were run
+against the rebuilt corpus above and found four narrow, patchable issues —
+none of them corpus-wide damage, all now fixed:
+
+1. **`\x0c` (form feed) in `desanavasane`/`body_raw`** on 22 vagga-final
+   stories (44 field hits) — a PDF page-break character surviving
+   extraction. Fixed at the source in `parse_stories.py`'s
+   `clean_body_text()`.
+2. **The Pali character-set gate's own premise was wrong**, not the
+   corpus: it flagged 22 verses for curly quotes (U+201C/U+201D) and an em
+   dash (U+2014) inside reported-speech phrases (e.g. Dhp 17's `"Pāpaṁ me
+   katan"ti`) as if they were OCR residue. They're genuine source
+   typography. `audit_corpus.py`'s `_PALI_CHARSET_RE` and
+   `validation_gates.py`'s Stage 5 gate 3 now both allow them.
+3. **Three of the four title/body-coherence flags were checker gaps, not
+   corpus errors**, hand-checked against `stories.jsonl`: 16.4 ("the
+   Licchavis") is a body-text pluralization mismatch (body says "the
+   Licchavi princes"); 20.5 ("Elder Padhānakammika Tissa") names its
+   subject only in `nidana`, which the check didn't read; 22.2 ("Fruits
+   and Powers of People's Bad Conduct") paraphrases `nidana`'s own
+   doctrinal frame and contains no actual proper noun despite title-case
+   capitalization. `check_title_body_coherence()` now also checks `nidana`
+   and tolerates a trailing-"s" plural. The fourth flag, 23.1, remains —
+   it's the Round 4/5 false positive already on record, kept flagged
+   deliberately (see the function's own docstring for why narrowing
+   further isn't the right fix).
+4. **The "0 boundary-artifact" result for check 4 is confirmed, not
+   assumed**: an earlier draft of `docs/corpus_audit.md` carried
+   leftover prose claiming Dhp 423 still held a colophon fragment, which
+   contradicted the check's own computed count (0) and didn't match a
+   direct read of `verses.jsonl` — the boundary-artifact fix from the
+   2026-08-04 rebuild above is holding. The write-up is now generated from
+   the live counts rather than a fixed paragraph, so it can't drift out of
+   sync with its own numbers again.
+
+Rebuilt `stories.jsonl` → `verses.jsonl` → `chunks.jsonl` → the dense/
+sparse/colbert index and re-ran the Stage 5 gates (all seven pass) and the
+full retrieval eval after these fixes. Every number is unchanged from the
+2026-08-04 rebuild row above (overall nDCG@10 0.959, doctrinal 0.951,
+narrative 0.988, philological 0.963) — expected, since none of the four
+fixes touch retrievable text content in a way that would move an
+embedding; corpus_anomaly moved 0.151 → 0.150, within rounding noise at
+n=2. `docs/corpus_audit.md` and `docs/corpus_validation.md` reflect the
+patched corpus; see the design doc's own verdict, reproduced there, for
+why a full Stages 1–4 rebuild was not warranted by this pass.
 
 ## Generation metrics
 
@@ -306,6 +421,639 @@ failure, not a new regression. Reported here as observed rather than
 selecting the single cleanest run to represent "the" result, per ground
 rule 3.
 
+## Round 4: the mirror-image conflation, and tag stability
+
+Round 1's fix for all-`verse` output (require at least one `commentary`
+claim per answer) induced its own opposite failure: a verbatim Dhp 222
+sentence was observed tagged `verse` in response to one question and
+`commentary` in response to another. `COVERAGE` now has an explicit escape
+hatch and `schemas.py`'s `audit()` gained a mechanical check,
+`VERSE_TEXT_AS_COMMENTARY`, for the case a machine can actually verify
+without reading for meaning: a `commentary`-tagged claim whose content
+words are mostly contained in the cited verse's own text (threshold 0.60;
+see `docs/eval_rubric.md`'s conflation-rate section). Against the existing
+27-question sample it flags 0/40 commentary claims -- a true negative, not
+a sign the check does nothing, since the one known verse-tagged-`commentary`
+case in that sample (`q019`) is a paraphrase, which this near-verbatim
+check is not designed to catch.
+
+### Tag-stability sweep (Task G) found a live instance, and a bug in the fix
+
+`src/dhammapada_rag/eval/tag_stability.py` asks 3 differently-phrased
+questions per verse for 15 verses (45 generations, 136 claims) and groups
+claims that are ≥80% mutually contained, scoped per verse. Full method in
+`docs/eval_rubric.md`'s "Layer-tag stability" section; results in
+`data/eval/tag_stability_results.json`.
+
+| | value |
+|---|---|
+| groups with >1 member | 24 |
+| overall tag_stability | 0.875 |
+| verse-majority groups | 19 (stability 0.842) |
+| commentary-majority groups | 5 (stability 1.000) |
+| unstable groups | 3 (Dhp 39, Dhp 89, Dhp 181) |
+
+All 3 unstable groups are the Task F failure mode: verse content tagged
+`verse` under one phrasing and `commentary` under another, in two cases
+(Dhp 39, Dhp 181) with byte-identical claim text across the two tags.
+
+**This sweep exposed a real bug in `VERSE_TEXT_AS_COMMENTARY` itself.**
+The check was originally placed after the `MISSING_PROVENANCE` branch's
+early `continue`, so a `commentary` claim that carried *no* citation at all
+could never be checked for content mislabelling -- exactly backwards, since
+a claim malformed on one axis (citation) is if anything the more likely
+candidate for a failure on the other axis (content) too. The Dhp 39
+instance found by this sweep had exactly that shape: verbatim verse text,
+tagged `commentary`, with `group_id`/`verse_number` both null. Moved the
+check to run independently of the citation-presence branches (both
+warnings can now fire on the same claim) and added a regression test
+(`test_verse_text_as_commentary_fires_even_with_no_citation_at_all`).
+
+Regenerating all 3 unstable cases (same questions, same seed) and auditing
+with the fixed check: **all 3 commentary-tagged claims involved are now
+flagged by `VERSE_TEXT_AS_COMMENTARY`** (Dhp 39: 100% overlap; Dhp 181:
+100% overlap; Dhp 89: 90% overlap, a paraphrase of half the verse rather
+than a verbatim match, still cleared the 0.60 threshold). The honest
+framing: the mechanism this round built to catch this failure mechanically
+did not, in its first form, actually catch the first real instance found --
+the instance was found by a *different* mechanical check (tag stability,
+comparing independent generations to each other) than the one purpose-built
+to catch it (single-answer content overlap). Both checks are now confirmed
+working on the same live cases; neither alone would have been enough.
+
+## Round 5: citations constrained at the decoder; retrieval arm diagnosis
+
+Full account of Task K (decoder-level citation constraints) and Task L
+(prompt consolidation) is in `docs/generation.md`'s "Round 5" section --
+headline result: citing `"g17.8"`, `"g26.40"`, or `"inferred from Dhp 1
+commentary"` is now unrepresentable rather than merely discouraged, and the
+two worst-offending probes from the pre-fix format-compliance table produce
+zero and zero-of-the-targeted-class warnings respectively on re-run.
+
+### Task M: is fusion dominated by one retrieval arm on conceptual queries?
+
+The motivating observation: "what is the purpose of life according to the
+Dhammapada?" retrieved Dhp 423 (the Brahmin Devahita story -- the Buddha's
+humoral disorder, a request for hot water) ahead of Dhp 166 (*sadattha*,
+"be intent on your own highest good"), the verse that actually answers the
+question. The brief's hypothesis: Dhp 423 shares surface tokens with "life"
+("former **lives**", "**birth's** destruction"), and if the lexical
+(sparse) arm reproduces the fused ranking while the dense arm ranks the
+gold verse higher, the lexical arm is dominating fusion.
+
+`src/dhammapada_rag/eval/arm_diagnosis.py` retrieves top-10 four ways
+(dense-only, sparse-only, ColBERT-only, RRF-fused, via `index/search.py`'s
+new `search_arms()` -- an additive refactor that does not touch `rrf_fuse()`
+or change `search()`'s output) for 10 conceptual queries against a
+single-verse gold anchor each. Full results:
+`data/eval/arm_diagnosis_results.json`.
+
+| arm | gold found in top-10 | mean rank when found |
+|---|---|---|
+| dense | 4/10 | 2.0 |
+| sparse | 4/10 | 4.5 |
+| colbert | 5/10 | 4.2 |
+| **fused** | **3/10** | 1.0 |
+
+**The hypothesis as stated does not hold, and the actual finding is more
+specific and more useful.** Fusion finds the gold verse in top-10 *less*
+often than any individual arm -- not because one arm dominates the others,
+but because RRF rewards candidates ranked moderately well *across multiple
+arms* over a candidate one arm ranks confidently but the others miss
+entirely (see the `craving` query below: dense finds Dhp 216 at rank 3, but
+it drops out of the fused top-10 entirely because sparse and ColBERT don't
+surface it at all). This is a real, mechanical cost of RRF fusion, visible
+only by decomposing it -- exactly what running this diagnosis before
+touching any weights was for.
+
+**The "purpose of life" failure specifically is not an arm-imbalance
+problem at all.** All three arms independently fail to find Dhp 166 in
+their own top-10, including dense (the arm the hypothesis predicted would
+rank it correctly). Inspecting *what* dense, sparse, and ColBERT all
+converge on instead: **Dhp 423 / story group 26.40 is the commentary's own
+colophon** -- the closing epilogue that literally names every chapter
+("Chapter about the Wise," "Chapter about Craving," "Chapter about Anger,"
+"Chapter about the Mind," "Chapter about Heedfulness," ...) plus generic
+eulogistic vocabulary ("purpose and benefit," "wisdom," "intelligence,"
+"the four truths"). This single chunk is a near-universal lexical and
+semantic near-match for almost *any* abstract Dhammapada-concept query --
+it also surfaces prominently for the `wisdom`, `suffering`, `mind`, and
+`meditation` probes in this same run, not just "life." The surface-token
+explanation in the brief ("life"/"lives") was too narrow: the actual
+attractor is a single structural artifact of the source document (a table
+of contents / dedication, not narrative content answering any question),
+and it affects every retrieval arm equally, not the lexical one specifically.
+
+**Caveat on this diagnosis's own construction**: several "not found in
+top-10" results (`wisdom`, gold Dhp 40) reflect the single-verse gold
+anchor being too narrow, not a true retrieval failure -- Dhp 38, a different
+wisdom verse, appears in multiple arms' top-10 for that query. This
+diagnosis asks "does something relevant to the concept appear," which a
+single fixed verse number only loosely operationalizes; treat the per-query
+ranks as illustrative, the aggregate arm comparison and the colophon finding
+as the load-bearing results.
+
+**Per "do not tune weights before running this diagnosis": no fusion or
+chunking change has been made.** The evidence-backed next step is not a
+reweighted RRF (the brief's hypothesis) but excluding or down-weighting the
+colophon chunk specifically, since it is a structural artifact rather than
+content that answers any real question -- added to "highest-leverage next
+steps" below.
+
+**Follow-up: the colophon leak was fixed, and this diagnosis was re-run
+against the rebuilt index.** Root cause traced to `ingest/parse_stories.py`:
+story 26.40 is the *last* story in the source PDF, so the parser's
+regex-based field extraction swept the book's entire closing colophon (an
+enumeration of all 26 chapters' story counts plus a Buddhaghosa authorship
+ascription -- 1107 words into `synopsis`, 671 into `desanavasane`, none of
+it about Dhp 423) past the story's own actual boundary. `index/chunks.py`'s
+`_truncate_at_page_break()` now drops everything from the source PDF's
+page-break character (or, where that character was itself stripped by an
+upstream extraction step, the colophon's own Pali heading, "Conclusion,
+Nigamanakathā" -- confirmed unique across all 305 stories' narrative
+fields) before windowing -- a corpus-wide rule, not a 26.40 special case; it
+also cleans 21 other vagga-final stories' smaller next-chapter-heading
+leaks as a side effect. `data/processed/stories.jsonl` itself is untouched,
+consistent with the brief's "corpus regeneration is out of scope" rule --
+this runs at chunk-build time only. Index rebuilt end to end (5,972 → 5,961
+chunks; the 11-chunk drop is entirely 26.40's now-collapsed
+`story_synopsis`/`story_desanavasane` windows).
+
+Re-running `arm_diagnosis.py`'s identical 10-query probe against the
+rebuilt index: **story 26.40 (Dhp 423) no longer appears in any arm's
+top-10 for any of the 10 queries** (previously present for `purpose of
+life`, `wisdom`, `suffering`, `mind`, and `meditation`) -- the universal
+attractor is gone. The aggregate arm-comparison numbers barely move (dense
+4/10 found, sparse 4/10, colbert 5/10, fused 3/10 -- unchanged from the
+pre-fix run to the digit, since those 5 queries mostly didn't have Dhp 423
+occupying their gold verse's own rank slot, just crowding the rest of the
+top-10 with noise) and **`purpose of life` specifically still does not find
+Dhp 166 under any arm.** That confirms the diagnosis's own original
+reading: this query's failure was never about arm imbalance or even about
+the colophon competing for the *correct* rank position -- it is that no
+indexed chunk closely matches "purpose of life" well enough to outrank
+*something*, and removing the wrong attractor does not manufacture a right
+one. Fixing the false attractor was still worth doing on its own terms (a
+structural artifact was answering unrelated questions across the whole
+gold set, not just this one probe) but is not, and was never claimed to be,
+a fix for `purpose of life` itself.
+
+### Task N: latency and GPU utilization
+
+`ollama ps` during a live generation call confirms `qwen2.5:7b-instruct`
+runs at **100% GPU** (Metal) already -- the observed 89.4s/53.7s/48.4s
+latencies are not a CPU-bound generation artifact. `generate()` now records
+Ollama's own `eval_count`/`eval_duration` and reports tokens/second
+alongside wall-clock latency (`Generator.generate()`'s return dict and the
+CLI's summary line), since wall-clock conflates model size with prompt
+length -- and prompt length varies by up to ~2x across the probes in this
+document (4270 to 9034 tokens) before Task L's shorter `SYSTEM_PROMPT` even
+factors in. Measured this round: 25.7-27.1 tokens/second across three
+probes at varying prompt lengths, consistent with genuine GPU-bound
+generation throughput for this model size, not a hidden CPU fallback.
+`model_sweep.py` should report tokens/second alongside latency on its next
+run so the size sweep's latency column isn't read as a compute-mode
+artifact.
+
+### Two corpus-fidelity checks from the Round 5 brief, resolved
+
+The brief flagged two claims to verify against the corpus rather than
+plausibility. Both check out; neither is a fidelity error.
+
+1. **Rohinī / "Banyan Grove" (story 17.1).** `nidana` is `null` for this
+   story, but `vatthu`'s opening sentence states the teaching was "given by
+   the Teacher while he was in residence at Banyan Grove with reference to
+   the noble maiden Rohiṇī" — the location is carried by `vatthu`, not
+   `nidana`, and the generated answer's claim is faithful to it.
+2. **Story 23.1's title vs. its Māgandiyā content.** `title_en` ("The Story
+   about Speaking and Rousing Oneself") and `title_pali` ("Attānaṁ Ārabbha
+   Kathikavatthu", literally "the story about speaking with reference to
+   oneself") name the *doctrinal frame* — the Buddha's response to
+   Māgandiyā's bribed hecklers is to speak about his own endurance ("I am
+   like an elephant that has entered the fray"), not a story titled for its
+   narrative antagonist. The alternate `cst4_title`
+   ("Attadantavatthu, the Story about One Who Tamed Himself") reinforces the
+   same frame, matching verse 322's `attadanto`. `parse_flags` is empty for
+   this story; `ingest/parse_stories.py`'s title-to-body pairing is correct,
+   not a mispairing bug.
+
+## Round 6: edition variance vs. fabrication in Pali quoting, pipeline hygiene
+
+Full mechanism-level account (Tasks O-S) is in `docs/generation.md`'s
+Round 6 section. This section reports what changed and what it measured.
+
+### Task O: the two Round 5 Pali-quote flags are edition variance, not fabrication
+
+Round 5's `PALI_QUOTE_NOT_IN_SOURCE` flagged two of three verse claims on a
+live run -- Dhp 221's `"sabbam-atikkameyya"` and Dhp 222's `"tam-ahaṁ"`/
+`"bhantaṁ va"` did not match `pali_mahasangiti` byte for byte. Per the
+brief's own required probe, run against the actual retrieved prompt for
+"what does the Dhammapada say about anger?": both the hyphenated
+(Ānandajoti) and unhyphenated (Mahasangiti) forms of each phrase are
+present in the model's own context -- the hyphenated form via each story's
+`vatthu` narrative text, which quotes the verse inline in Ānandajoti's
+orthography, not via `pali_mahasangiti`. **This is the audit-bug branch,
+not the memorization branch**: the model copied faithfully from a real
+field in its context that `audit()` never checked, not from parametric
+memory competing with a correct source in front of it. Recorded here per
+the brief's explicit instruction not to skip this determination -- the two
+cases support opposite claims about what the system is doing, and only one
+of them is true of this corpus's actual prompt construction.
+
+### Task P: three-tier Pali matching replaces the binary check
+
+`generate/schemas.py` now reports three outcomes for a `pali_support`
+quote instead of two: exact match (any available Pali field, silent),
+orthographic-variant match (matches only after folding hyphenation,
+niggahita glyph, pada-boundary case, and spacing conventions --
+`PALI_QUOTE_ORTHOGRAPHIC_VARIANT`, **warning**), or no match at either tier
+(`PALI_QUOTE_NOT_IN_SOURCE`, **error**, unchanged). The candidate set
+widened per Task O's finding: `pali_mahasangiti` and `interlinear_pali`
+from the verse record, plus `pali_verse` from every retrieved story
+explaining it -- not `pali_mahasangiti` alone.
+
+`aggregate_generation.py` now reports three rates over every `VerseClaim`
+carrying a `pali_support` quote in a generation run:
+
+```
+exact-copy rate  = exact-tier claims   / all pali_support claims
+variant rate     = variant-tier claims / all pali_support claims
+fabrication rate = neither-tier claims / all pali_support claims
+```
+
+No generation-eval run with human judgments has been captured yet under
+the Round 6 schema (the existing `data/eval/generation_raw.jsonl` predates
+`pali_support` entirely, so `aggregate_generation.py` correctly reports "no
+VerseClaim in this run carries pali_support" against it) -- the aggregate
+23-claim-sample rates from a fresh `generation_metrics.py` run, re-judged,
+are still open work for the next full eval pass, not claimed here.
+
+**What is reported here is a live, unscripted confirmation on this
+machine**, not a sampled rate: a fresh `/answer` call for "what is the
+purpose of life according to the Dhammapada?" against `qwen2.5:7b-instruct`
+produced a Dhp 20 verse claim quoting the full verse verbatim from
+`interlinear_pali`, differing from `pali_mahasangiti` only by edition
+orthography -- `PALI_QUOTE_ORTHOGRAPHIC_VARIANT` fired exactly as designed,
+at warning rather than error severity, naming the matched field. A separate
+"how to control anger?" run's `pali_support` quote matched exactly, no
+warning. This is the finding the middle tier exists to make legible: **the
+model is reading its own retrieved context, not always in the requested
+edition** -- a variant rate well above zero with a fabrication rate near
+zero is evidence of the former, not the latter, and the two would look
+identical under Round 5's binary check.
+
+### Task Q: the `\x01` corruption is a pipeline-boundary guard, not a corpus fix
+
+`grep -P '[\x00-\x08\x0b\x0c\x0e-\x1f]'` across `data/processed/*.jsonl`,
+`data/index/chunks.jsonl`, and `data/raw/*.txt` found zero occurrences of
+`\x01` anywhere in the corpus. Per the brief, a clean corpus means this is
+not an `ingest/` bug -- `prompt.py`'s `build_messages()` now strips control
+characters (excluding `\t`/`\n`/`\r`) from both message contents as a
+boundary guard against a future corpus edit or a poisoned `question`
+argument, not a fix for an active corruption this repo's data ever
+contained.
+
+### Task R: unescaped claim text in the UI card (fixed before it was observed here)
+
+`ui/app.py`'s `render_claim()` builds one complete f-string per card and
+gates the Pali line on field presence, not layer -- both already correct.
+`claim["text"]` and the citation string were not `html.escape()`d before
+this round, though, which is the general form of the brief's unbalanced-
+`</div>` symptom (any `<` in model output corrupting everything rendered
+after it in the card). Both fixed; one regression caught in the same pass
+(escaping doubled the `&` in a hardcoded `"&middot;"` HTML entity into
+visible text -- replaced with the literal `"·"` character, which
+`html.escape()` leaves alone) and verified against all three claim layers
+before it reached a real run.
+
+### Task S: PC migration
+
+`index/rerank.py`'s `best_device()` (CUDA, then MPS, then CPU fp32) is now
+shared by the reranker, `embed.py`'s corpus embedder, and -- found while
+migrating, not one of the brief's two named call sites -- `search.py`'s
+`ChunkIndex`, the query-time embedder that runs on every search rather
+than once at index-build time. All three log their device choice at
+startup.
+
+**This machine has an NVIDIA GeForce RTX 5080** (`nvidia-smi` confirms),
+but the project's `.venv` has a CPU-only torch build
+(`torch==2.13.0+cpu`), so `best_device()` correctly returns `("cpu",
+False)` -- correct behavior given the installed build, not a fix for the
+underlying gap. `ollama ps`, polled through a live `/answer` call, confirms
+`qwen2.5:7b-instruct` generation runs at 100% GPU throughout, consistent
+with the original Apple Silicon machine's Round 5, Task N finding. **The
+retrieval side (dense/sparse/ColBERT search plus reranking), not
+generation, is this machine's actual latency bottleneck** -- a live
+`/answer` call measured 2.9s of Ollama generation against an 18s wall-clock
+total. Reinstalling torch with CUDA support would very likely close most
+of that gap, given the confirmed GPU-bound generation path, but is a
+`.venv`-mutating change flagged here rather than made silently mid-round.
+
+Encoding and path-separator concerns from the brief did not find new
+issues: every non-`Path` `open()` call in `src/` is binary-mode against a
+`.pkl` file (correctly undeclared encoding), every `.read_text()`/
+`.write_text()` call already passes `encoding="utf-8"` (`ingest/`
+included), and no hardcoded `/` path separator exists outside query-label
+strings and comments.
+
+**A bug found verifying this round, not requested by it**: `/answer` 500ed
+on any question whose answer contains a synthesis claim --
+`api/schemas.py`'s `ClaimOut` was never updated for Round 4/5's
+discriminated-union schema change, so `SynthesisClaim.model_dump()`'s
+missing `group_id`/`verse_number` keys failed pydantic validation. Fixed
+(`= None` defaults, matching what `str | None` already implied); `
+pali_support` was also missing from the API's response schema entirely and
+is added for the same reason Task J added it to `render.py` and
+`ui/app.py`.
+
+**Three probes re-run live on this machine** after all of the above:
+"how to control anger?" -- canonical `group_id="17.8"` (no `g` prefix),
+zero warnings; "what is the purpose of life" -- `FRAMING` fires as a
+synthesis claim and `PALI_QUOTE_ORTHOGRAPHIC_VARIANT` fires on the
+`interlinear_pali`-sourced claim, both now surfaced through `/answer`
+instead of 500ing; "the woman whose child died" -- Kisā Gotamī's Dhp 287 /
+114 / 113 retrieved exactly as documented since Phase 2. No regression
+found; device-selection logging and the constrained-schema citation
+behavior (Round 5, Task K) both hold on this machine's hardware.
+
+### Still open from earlier rounds, checked against this round's brief
+
+- **Story 23.1's title/body pairing**: already checked twice (Round 4,
+  re-confirmed Round 5 above) against the source PDF directly, not just
+  `ingest/parse_stories.py`'s output -- title and body are correctly
+  paired, not a parsing bug. The Round 6 brief re-raised this as
+  "unreported across three rounds"; it was reported in both, restated here
+  a third time so the resolution is visible from this round's own section
+  without requiring a cross-reference.
+- **RRF arm diagnosis**: Round 5's Task M section above already is the
+  four-way (dense/sparse/ColBERT/fused) comparison the Round 6 brief asks
+  for, including a re-run after the colophon-leak fix it found. Nothing
+  further to add this round.
+- **Verse-claim specificity**: unchanged from Round 5's `SYSTEM_PROMPT`
+  addition -- improved, not resolved. Not itself a Round 6 task.
+
+## Round 7: answer completeness and the alignment layer
+
+Full mechanism-level account (Tasks T-Y) is in `docs/generation.md`'s Round
+7 section. This section reports what changed and what a fresh, fully
+re-judged 27-question generation run measured -- the same systematic sample
+used in every prior round, regenerated under the Round 7 prompt/schema and
+judged from scratch (claim text and claim counts both changed; see
+`data/eval/generation_judgments.py`'s own note on why judgments don't carry
+over between rounds).
+
+### Context utilization and layer-count distribution, reported first
+
+Per the brief's own instruction, before any other number: **0 of 27
+answers cite or explicitly dismiss every retrieved verse-group** (mean
+utilization 0.346 -- roughly one of three retrieved groups accounted for
+per question), and the `n_dismissed` count is **0 in every single
+question**. `COMPLETENESS` asks the model to name and dismiss an
+irrelevant retrieved group in a synthesis claim; on this sample it never
+does -- retrieved material is silently ignored, not reasoned about and
+set aside.
+
+Layer-count distribution (how many of the four layers each answer draws
+on): 12/27 use one layer, 13/27 use two, 2/27 use three, 0/27 use all
+four. Compared to the identical 27-question sample under the pre-Round-7
+prompt (15/9/3/0, using the three pre-existing layers only): fewer
+single-layer answers, more two-layer answers -- the `COMPLETENESS`
+instruction moved the distribution in the right direction but did not
+close it. At 44% single-layer, this is close to but has not yet crossed
+the brief's own diagnostic line ("if most answers still use one layer, the
+completeness instruction did not take, and the next step is structural").
+
+### Task T: the alignment layer, measured
+
+Of 8 claims judged `gold_layer="alignment"` in this sample, the model
+tagged 4 correctly and left 4 tagged `commentary` -- precision 1.000
+(never applied to the wrong content), recall 0.500 (used only half the
+time it should have been). Two of the four misses (`q093`, `q097`) are
+alignment/cross-recension query-type questions where the model's own first
+claim states "explains Dhp X and Y together" -- textbook alignment content
+-- but still reaches for `commentary`. The tag exists and is never
+misapplied; getting the model to reach for it consistently is unfinished.
+
+### Task U: full verse-range statement, measured against three live probes
+
+Dhp 4 (group 1.3, covers Dhp 3-4): correct on both counts -- tagged
+`alignment`, states "Dhp 3 and 4 together". Dhp 21 (group 2.1, covers Dhp
+21-23) and Dhp 153 (group 11.8, covers Dhp 153-154): both tagged
+`alignment` correctly, both state only the single verse asked about, not
+the group's full range -- `ALIGNMENT_RANGE_INCOMPLETE` (Task T's mechanical
+backstop) caught both. 1 of 3 probes fully complied with the prose
+instruction; the structural check, not the prompt text, is what makes the
+other 2 visible rather than silently wrong.
+
+### Task V: completeness, and the model that came back thin twice
+
+"Who is Cakkhupāla?" produced 2 commentary claims (up from Round 6's 1) but
+still zero verse claims and zero Pali, despite Dhp 1 sitting in its own
+retrieved context. The brief's own exact original phrasing, "Who is
+chakkhupala", reproduced the original 1-claim failure verbatim. Both
+`COMPLETENESS` and `DIRECT ANSWER`'s full-range clause are prompt-only
+fixes layered on the same architecture that Round 5 already found degrades
+under prompt length -- consistent with that finding, compliance here is
+partial, not absent and not universal.
+
+### Task W: DUPLICATE_CLAIM
+
+Unit-tested directly against the brief's own scenario (two `VerseClaim`s,
+same layer and verse_number, text differing by one word) -- fires as
+designed. Did not trigger on this round's 27-question sample; no
+duplication of that shape was produced this run. A live-but-unexercised
+check, not evidence the failure mode is gone.
+
+### Task X: arm diagnosis, third instance
+
+Full account and table: `docs/generation.md`'s Round 7 section. Headline:
+"what does the Dhammapada say about life?" (gold Dhp 110, the six-verse
+110-115 series) finds nothing in dense's top-10, sparse at rank 8 only,
+and **fused finds nothing** -- worse than the better individual arm. Unlike
+Round 5's "purpose of life" case (one structural chunk dominating all three
+arms equally), here the dense arm fails outright on its own terms,
+preferring Dhp 135 (contains the token "life") to the entire conceptual
+series. Three instances now, three different mechanical causes (a
+colophon artifact, a lexical near-miss, and this round's outright
+semantic-arm miss) -- reported separately per the brief, not averaged into
+one number that would hide which fix applies to which case.
+
+### Task Y: two more fidelity errors, found without looking for them
+
+The brief's own Dhp 135 worked example did not recur in this round's
+sample (documented as a worked example in `docs/eval_rubric.md` regardless,
+same treatment as the Kisā Gotamī case in every prior round). Ordinary
+judging of the actual sample turned up two new instances of the identical
+failure class unprompted: `q001`#2 misattributes a refusal-to-visit to "the
+Chief Disciples" rather than Sañjaya (their former teacher, per the
+nidana); `q043`#2 conflates Māra's daughters with the unrelated Māgandiyā
+of a different story sharing a similar name. Both structurally clean, both
+false. Source fidelity this round: 47/52 = 0.904 (5 unfaithful claims
+across 4 questions) -- see `data/eval/generation_judgments.py` for the
+full per-claim reasoning.
+
+### Full metrics table (this round's 27-question sample, re-judged, 4-layer)
+
+| Metric | Value |
+|---|---|
+| Context utilization (mean) | 0.346 |
+| Answers fully accounting for retrieved groups | 0/27 |
+| Layer-count distribution (1/2/3/4 layers used) | 12/13/2/0 |
+| Mean claims/answer | 1.93 (min 1, max 4) |
+| Accuracy (layer attribution) | 0.827 |
+| Macro-F1 | 0.694 |
+| Alignment precision / recall | 1.000 / 0.500 |
+| Anachronistic conflation rate | 0.044 (2/45) |
+| Source fidelity | 0.904 (47/52) |
+| Provenance errors | 7/52 claims |
+| Pali exact / variant / fabrication | 0.818 / 0.182 / 0.000 |
+
+The two anachronistic-conflation instances (`q061`#0, `q067`#0) are the
+identical claims flagged in every prior round's judged sample for these
+exact question_ids -- reproduced unchanged, confirming Tasks T-W (none of
+which target this failure mode) left it untouched, as expected.
+
+### Still open from this round
+
+- **Single-layer answers (44% of this sample)**: below the brief's own
+  "most answers" threshold for triggering a structural fix, but close
+  enough, and the underlying cause (retrieved material silently ignored,
+  never explicitly dismissed) is now measured precisely enough to act on.
+  A minimum-claims-per-answer or minimum-groups-accounted-for schema
+  constraint is the indicated next step if this persists on a larger
+  sample, per the brief's own contingency.
+- **Alignment tag recall (0.500)**: the tag is never wrong when used, just
+  under-used on exactly the query types (alignment, cross_recension) it
+  was built for. A retry-on-zero-alignment-claims path, mirroring
+  `generate.py`'s existing zero-commentary retry, is the natural parallel
+  fix, not yet built.
+- **The "life" retrieval failure (Task X)**: still unresolved, as with
+  "purpose of life" before it. Three instances now support the general
+  finding (lexical/structural/semantic-arm attractors beating conceptual
+  relevance are three distinct failure modes, not one to patch generically)
+  without yet prescribing a single fix for any of them individually.
+
+## Round 8: structural disposition, alignment's own block, and the RRF mechanism
+
+Full mechanism-level account (Tasks Z-AD) is in `docs/generation.md`'s
+Round 8 section. This section reports the numbers, from a fresh, fully
+re-judged run of the identical 27-question systematic sample (retrieval
+confirmed unchanged, question-by-question, from Round 7 -- only generation
+changed) plus a full 114-question RRF k-sweep.
+
+### Task Z: source disposition, cross-tabulated against gold labels
+
+27/27 questions carry a disposition for every retrieved group (required,
+decoder-constrained field -- see `docs/generation.md`). Disposition
+marginal: `used` 28/81 (0.346), `partially_relevant` 11/81 (0.136),
+`not_relevant` 42/81 (0.519). `DISPOSITION_CONTRADICTS_CLAIMS` fired 0/81
+times -- the model's stated disposition never disagreed with what its own
+claims actually cited. Cross-tabulated against gold labels, the number the
+brief asked for specifically: **0 of the 42 `not_relevant` dispositions
+land on a gold group.** Every dismissal observed this round reflects
+retrieval noise (a group that does not bear on the question) correctly
+recognized, not generation misjudging a source that mattered. This is the
+separation Round 7's heuristic utilization metric could not make -- it
+could only measure "was every group accounted for," not "was the model
+right to dismiss the ones it dismissed."
+
+### Task AA: alignment recall, before and after the block restructure
+
+| | precision | recall |
+|---|---|---|
+| Round 7 (verse-range facts inside `[COMMENTARY]`) | 1.000 | 0.500 (4/8) |
+| Round 8 (separate `[ALIGNMENT]` block) | 0.875 | 0.778 (7/9) |
+
+Recall clears the brief's own ~0.75 threshold; the escalation to a
+structural constraint (require an alignment claim on `verse_grouping`-type
+questions) is not indicated by this sample. All 7 of the core "explains X
+and Y together" / corpus-structure claims are tagged `alignment` this
+round, including `q093` and `q097`, Round 7's clearest misses. Precision
+dropped slightly (1.000 -> 0.875) because of one new failure shape, not a
+new kind of error: `q095` and `q097` each state their alignment fact
+*twice* in one answer, once correctly tagged and once redundantly under
+the wrong tag (`synthesis` and `commentary` respectively) -- `DUPLICATE_CLAIM`
+does not catch this (scoped to same-layer `VerseClaim`/`CommentaryClaim`
+pairs only), flagged as a gap for a future round rather than fixed this one.
+
+### Task AB: the RRF k-sweep, full 114-question gold set
+
+Checked first, per the brief: is Dhp 110 even a defensible single gold
+answer for "what does the Dhammapada say about life?" No -- Dhp 135
+("old age and death drive life from living beings," mortality) and Dhp 182
+("hard to gain a human birth... the life of mortals is hard," the rarity
+of human life) are both independently defensible answers to the same
+question, addressing different facets of "life" than the 110-115 series.
+Round 7's finding (no arm ranks Dhp 110 highly, fusion least of all) is
+real evidence about arm coverage, not evidence the system "failed" a
+question with one correct answer -- noted directly in `arm_diagnosis.py`.
+
+| condition | alignment | corpus_anomaly (n=2) | cross_recension | doctrinal | narrative | philological | **overall** |
+|---|---|---|---|---|---|---|---|
+| rrf_k=10 | 1.000 | 0.000 | 1.000 | 0.9508 | 0.9877 | 0.9550 | **0.9544** |
+| rrf_k=20 | 1.000 | 0.000 | 1.000 | 0.9508 | 0.9877 | 0.9631 | **0.9566** |
+| rrf_k=40 | 1.000 | 0.1667 | 1.000 | 0.9508 | 0.9877 | 0.9631 | **0.9595** |
+| rrf_k=60 (current default) | 1.000 | 0.1505 | 1.000 | 0.9508 | 0.9877 | 0.9631 | **0.9592** |
+| score_fusion (min-max + sum) | 1.000 | 0.000 | 1.000 | 0.9298 | 0.9877 | 0.9631 | **0.9510** |
+
+Overall nDCG@10 barely moves across k -- a <0.6-point range from 0.9544 to
+0.9595 -- because this gold set (constructed so each question has exactly
+one gold group, per `docs/eval_rubric.md`) sits at or near ceiling for
+every type except `corpus_anomaly`. That type is the only one with
+real k-sensitivity, and it is exactly the type too small to trust (n=2):
+the direction observed (worse at low k, better at high k) runs opposite
+the brief's own arithmetic prediction (lower k should soften the
+absence-penalty and help single-arm discoveries), most plausibly because a
+2-question stratum can flip on one query's rank crossing a log-scale
+boundary, not because the mechanism is wrong. **No k was adopted; `rrf_fuse()`'s
+default k=60 is unchanged.** Score-based fusion underperforms every swept
+RRF k overall (0.9510), driven mainly by a doctrinal-type drop (0.9298 vs.
+0.9508 at k=60) -- the arithmetic case for why RRF should penalize
+single-arm discoveries holds up on inspection, but does not translate into
+a practical win for score fusion on this specific corpus. Report both
+numbers; neither was adopted as a change to production retrieval.
+
+### Task AC: fidelity rate with CI, and semantic-neighbour conflation named
+
+Scoped to verse+commentary+alignment claims (excludes synthesis, which has
+no source to be faithful to): **0.933, 95% CI [0.851, 1.000]**, bootstrap
+resampled by question (n=45 claims, 2000 resamples). Overall (all claims):
+0.917 (44/48).
+
+Two more fidelity errors this round, one of them a live, unprompted
+confirmation of the pattern Task AC predicts: `q099` names an unnamed
+bhikkhu "Aggidatta" -- a name belonging only to an adjacent retrieved
+group the model itself marked `not_relevant` in the very same answer.
+Named **semantic-neighbour conflation** in `docs/eval_rubric.md` (alongside
+Round 7's Māra's-daughters/Māgandiyā case), with a refinement from this
+round's designed test: a twelve-way "Elder Tissa" name collision, probed
+directly with both a generic query (three Tissas retrieved at once) and a
+compound question explicitly naming two Tissas by their distinguishing
+epithet, produced **zero conflation** in either case -- including a
+narrative detail (the Devala/Nārada past-life story) checked and confirmed
+exactly against the source. The refined prediction: conflation clusters
+where adjacency combines with an *under-specified* distinguishing detail
+(an unnamed figure sitting next to a named one; two names that are
+themselves near-identical), not from name-or-role adjacency alone. See
+`docs/generation.md` for both probes in full.
+
+### Task AD: the working tree is committed
+
+Rounds 3-8 were sitting uncommitted in one working tree -- one accidental
+`git checkout`/`reset` from losing this and every later round's work, and
+impossible to bisect. `v0-prefix` tags the existing baseline commit
+(`4e57cd9`, "Baseline: pre-fix state of DhammapadaRAG"). Per-round
+boundaries for rounds 3-6 could not be reconstructed after the fact -- no
+intermediate snapshot was ever saved between the last real commit (Round 2,
+`0595613`) and this session, and later rounds' edits landed on the same
+files rather than only appending to them, so there is no way to
+mechanically separate "round 4's version of `schemas.py`" from "round 6's."
+Rounds 3-8 are committed together as one commit, with the commit message
+naming what each round's brief covered, rather than presenting a false
+precision the history doesn't actually have. This is a real limitation,
+not a preference: any future round's work is committed as its own commit
+from this point forward, so this gap does not recur.
+
 ## Summary
 
 **What the evidence in this document supports:**
@@ -320,37 +1068,163 @@ rule 3.
   as a genuine capacity effect, not an artifact of the bugs fixed here.
 - Retrying a failed generation is not a reliable mitigation for a
   small model's citation failures — a negative result, reported as one.
+- (Round 4) Requiring commentary engagement to fix all-verse output induces
+  a mirror-image failure, verse text relabelled as commentary, at a
+  measured 3/24 (12.5%) rate among tag-stability groups with more than one
+  member -- fixable with an explicit prompt escape hatch and mechanically
+  detectable (post-fix) for the near-verbatim case, but not for paraphrase.
+- (Round 5) Malformed, invented, and not-retrieved `group_id`/`verse_number`
+  values (`MALFORMED_GROUP_ID`, `UNPARSEABLE_GROUP_ID`, `UNKNOWN_GROUP_ID`,
+  `GROUP_NOT_RETRIEVED`) are structurally unreachable once citation fields
+  are constrained to an enum built from the retrieved context at request
+  time -- re-verified at zero occurrences on the two worst-offending probes
+  from the pre-fix format-compliance table. Citation *completeness* (the
+  model choosing to leave a field null) is a separate failure the decoder
+  cannot constrain against, and persists.
+- (Round 5) The "purpose of life" retrieval failure is not the RRF-arm
+  imbalance it was hypothesized to be -- all three retrieval arms
+  independently converge on the same wrong answer, a single colophon chunk
+  that lexically resembles almost any abstract-concept query. A predicted
+  mechanism (sparse dominating fusion) turned out to be the wrong
+  diagnosis; the actual cause (a structural, non-narrative chunk acting as
+  a universal attractor) is a different and more direct fix target.
+- (Round 6) A binary Pali-quote match/fabricate check was measuring the
+  wrong thing: two flagged quotes were a different edition's orthography of
+  the *correct* verse, reaching the model's own context via each story's
+  narrative text, not memorized or invented. The three-tier replacement
+  (exact / orthographic-variant / fabrication) separates "knows the text,
+  quoted a different edition" from "invented a quote" -- confirmed live on
+  this machine, not just by construction: a real `/answer` call produced an
+  exact edition-variant match (`PALI_QUOTE_ORTHOGRAPHIC_VARIANT`, warning)
+  on the same class of quote Round 5 would have scored as a fabrication
+  error.
+- (Round 6) This machine's actual latency bottleneck is retrieval, not
+  generation -- Ollama confirmed at 100% GPU throughout a live call (2.9s),
+  against an 18s wall-clock total, because the project's `.venv` has a
+  CPU-only torch build despite the machine having an NVIDIA RTX 5080.
+  `best_device()`'s CUDA/MPS/CPU selection is correct given the installed
+  build; the build itself is the fix, and is out of scope for a code round.
+- (Round 7) A fourth layer for corpus-structure facts (`alignment`) is never
+  misapplied once added (precision 1.000) but is still under-used on
+  exactly the query types it targets (recall 0.500) -- the tag existing is
+  necessary but not sufficient; getting the model to reach for it reliably
+  is unfinished work. The `COMPLETENESS` prompt instruction moved the
+  layer-count distribution in the right direction (single-layer answers
+  15/27 → 12/27 on an identical sample) without closing it, and context
+  utilization -- a new metric this round -- shows why: 0/27 answers account
+  for every retrieved group, and the model never once explicitly dismisses
+  an irrelevant one, it just omits it. Two more source-fidelity errors
+  (correct layer, real citation, false content) turned up in ordinary
+  sampling, not targeted probing, reinforcing Round 5's Kisā Gotamī finding
+  that this failure class is a recurring property of the system, not an
+  isolated anecdote.
+- (Round 8) Rendering alignment facts in their own prompt block (not just
+  giving them their own tag) moved recall from 0.500 to 0.778 on an
+  identical sample, past the brief's own threshold for treating the
+  prompt-level fix as sufficient -- confirms that Round 7's under-adoption
+  was substantially a *where information sits* problem, the same lesson
+  Task K established for citation format one level down. A required,
+  decoder-constrained `source_disposition` field replaced an inferred
+  utilization metric that measured 0/27 with a direct one that separates
+  retrieval noise from generation misjudgment: 0 of 42 dismissals this
+  round land on a gold group, meaning every observed dismissal was
+  retrieval noise correctly caught, not a real source wrongly thrown away.
+  A full 114-question sweep found RRF's k barely matters on this gold set
+  (ceiling effects dominate) and that score-based fusion, despite a sound
+  arithmetic argument for why it should help, does not beat RRF here in
+  practice -- a negative result for the alternative fusion method, reported
+  as one rather than reframed as a win. Semantic-neighbour conflation, named
+  this round, was confirmed live in ordinary sampling (a name migrating from
+  a dismissed neighbor) and refined by a designed test that did NOT
+  reproduce it: the trigger is adjacency combined with an under-specified
+  distinguishing detail, not name-or-role adjacency by itself.
 
 **What it does not support, and where the honest gaps are:**
 - The brief's specific prediction that the doctrinal row would show the
   "real evidence" for the verse-only ablation is not borne out — doctrinal
   does not drop when commentary chunks are removed, on this gold set.
-- `alignment` (verse-grouping structural questions) is now this system's
-  clear weak point on retrieval, unaddressed by anything in this fix pass
-  and not previously visible because it was averaged into a larger,
-  differently-composed bucket.
 - Citation-format correctness (canonical `group_id` vs. a plausible-looking
   substitute like a bare verse number) remains imperfect and
   question-dependent even for the 7B model, as shown by both the aggregate
   27-question sample (5/53 provenance errors) and the live Kisā Gotamī
   re-verification above.
-- `by_subtype` retrieval breakdown is not currently populated
-  (`retrieval_eval.py` gap, not a stop-gate failure, flagged above).
 - Same construction-from-known-answer caveat as pre-fix: absolute numbers
   are an optimistic ceiling relative to real user queries; relative
   comparisons (ablation deltas, by-type breakdown) remain more trustworthy
   than absolute numbers.
 
 **Highest-leverage next steps:**
-1. A structural fix for `alignment`-type retrieval (verse-grouping
+1. ~~A structural fix for `alignment`-type retrieval (verse-grouping
    membership isn't carried by any single indexed field the way a title
-   string is) — likely needs a dedicated small index over verse-group
-   membership rather than relying on semantic embedding search.
-2. Wire `q["subtype"]` through `retrieval_eval.py`'s output rows so
-   `by_subtype` is actually populated.
-3. Investigate why citation-format correctness degrades specifically when
-   multiple verse-groups sharing a similar theme are retrieved together
-   (the Kisā Gotamī re-verification above is one concrete, reproducible
-   case to start from).
+   string is)~~ -- addressed: `index/chunks.py`'s `story_alignment` chunk
+   type (one templated sentence per story naming its verse numbers, 305 new
+   chunks) makes grouping membership retrievable as text the same way
+   `story_titles` fixed cross_recension. `alignment` now scores a perfect
+   1.000 nDCG@10 on the full 14-question bucket (was 0.581). See "By query
+   type" above.
+2. ~~Wire `q["subtype"]` through `retrieval_eval.py`'s output rows so
+   `by_subtype` is actually populated.~~ -- done; see "`by_subtype` is now
+   populated" above.
+3. ~~Investigate why citation-format correctness degrades specifically when
+   multiple verse-groups sharing a similar theme are retrieved together~~ --
+   addressed by Round 5's Task K: constraining `group_id`/`verse_number` to
+   an enum of the retrieved context makes the *format* failure this item
+   was about unrepresentable regardless of cause. The Kisā Gotamī
+   re-verification's specific failure (citing `verse_number=287` with
+   `group_id="8.13"`, a real citation stitched from the wrong source) is
+   `VERSE_GROUP_MISMATCH` -- the one citation error Task K's per-field
+   constraint cannot prevent (see `docs/generation.md`'s Round 5 section) --
+   and remains open, worth a fresh re-verification with the constrained
+   schema in place.
 4. A second, independent human annotation pass, to compute the real
    Krippendorff's α/Cohen's κ this document still does not claim.
+5. (Round 4) Extend `VERSE_TEXT_AS_COMMENTARY` beyond near-verbatim overlap
+   to catch the paraphrase case (Dhp 89 above cleared the threshold only
+   because half the verse's own vocabulary survived the paraphrase; a
+   heavier rewording would not) -- likely needs a semantic-similarity check
+   against the verse embedding rather than a lexical containment measure,
+   trading the current check's zero-annotator-needed auditability for
+   recall on rephrased verse content.
+6. (Round 5) Exclude or down-weight the colophon chunk (story group_id
+   `26.40`'s enumeration-of-chapters content) from retrieval -- it is a
+   structural artifact of the source document, not narrative content that
+   answers any real question, and Task M found it dominating multiple
+   unrelated conceptual queries across every retrieval arm. Try this
+   *before* any RRF reweighting: the diagnosis found a specific bad chunk,
+   not a systematically miscalibrated fusion formula, and removing one
+   attractor chunk is lower-risk than reweighting the whole fusion for
+   every future query.
+7. (Round 5) Re-run `retrieval_eval.py`'s full gold-set ablations after (6),
+   not before -- Task M's 10-query diagnostic sample is illustrative, not a
+   substitute for the 120-question gold set, and the brief's own
+   instruction not to tune before diagnosing applies equally to not
+   declaring a fix validated before re-running the real eval.
+8. (Round 5, done) `model_sweep.py` now records `eval_count`/
+   `eval_duration_ns`/`tokens_per_second` per row and reports mean tok/s
+   alongside latency in its per-model summary -- next actual sweep run
+   should be read with that column, not latency alone, since Task L changed
+   `SYSTEM_PROMPT` length and any future context-budget change would
+   otherwise be invisible in latency alone.
+9. ~~(Round 6) Reinstall this machine's `.venv` torch with CUDA support.~~
+   -- done: `.venv` now has `torch==2.11.0+cu128`; `embed.py` and
+   `rerank.py` both confirmed running `device='cuda' fp16=True` during the
+   2026-08-06 corpus-audit re-index and eval re-run below, not just
+   selectable in principle.
+10. (Round 6) Run a fresh `generation_metrics.py` pass and re-judge it under
+   the Round 6 schema so `aggregate_generation.py`'s three Pali rates
+   (exact/variant/fabrication) get a real sampled measurement instead of
+   this round's live-but-unsampled confirmation. The existing
+   `generation_raw.jsonl` predates `pali_support` entirely and cannot be
+   reused for this.
+11. (Round 6) Compare `qwen2.5:7b-instruct` and `qwen2.5:14b-instruct`
+   exact-copy rates on the same probe, per the brief -- if the larger model
+   copies its context where the smaller one recalls from memory, that is a
+   scaling result with a specific mechanism (context-copying fidelity, not
+   just citation-format compliance) behind it, not yet measured.
+12. ~~Run `ingest/audit_corpus.py`'s Stage 0 checks against the rebuilt
+   corpus and act on what it finds.~~ -- done (2026-08-06): see "Corpus
+   audit Stage 0, run for real" above. Four narrow issues found and fixed
+   (a stray control character, an over-strict Pali charset gate, two
+   checker gaps that were mis-flagging correct title/body pairs, and stale
+   report prose contradicting its own computed numbers); zero measurable
+   retrieval effect. Items 10 and 11 above are still open.

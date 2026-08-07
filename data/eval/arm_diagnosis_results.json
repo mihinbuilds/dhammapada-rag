@@ -1,0 +1,140 @@
+{
+  "top_k": 10,
+  "queries": [
+    {
+      "query": "What is the purpose of life according to the Dhammapada?",
+      "gold_verse": 166,
+      "label": "purpose/sadattha",
+      "ranks": {
+        "dense": null,
+        "sparse": null,
+        "colbert": null,
+        "fused": null
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about life?",
+      "gold_verse": 110,
+      "label": "life/110-115 series",
+      "ranks": {
+        "dense": null,
+        "sparse": 8,
+        "colbert": null,
+        "fused": null
+      }
+    },
+    {
+      "query": "How to control anger?",
+      "gold_verse": 222,
+      "label": "anger",
+      "ranks": {
+        "dense": 2,
+        "sparse": 7,
+        "colbert": 2,
+        "fused": 1
+      }
+    },
+    {
+      "query": "What is craving, according to the Dhammapada?",
+      "gold_verse": 216,
+      "label": "craving",
+      "ranks": {
+        "dense": 3,
+        "sparse": null,
+        "colbert": 6,
+        "fused": 10
+      }
+    },
+    {
+      "query": "What is heedfulness?",
+      "gold_verse": 21,
+      "label": "heedfulness",
+      "ranks": {
+        "dense": 1,
+        "sparse": 1,
+        "colbert": 1,
+        "fused": 1
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about wisdom?",
+      "gold_verse": 40,
+      "label": "wisdom",
+      "ranks": {
+        "dense": null,
+        "sparse": null,
+        "colbert": null,
+        "fused": null
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about suffering?",
+      "gold_verse": 1,
+      "label": "suffering",
+      "ranks": {
+        "dense": null,
+        "sparse": 9,
+        "colbert": null,
+        "fused": null
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about meditation?",
+      "gold_verse": 110,
+      "label": "meditation",
+      "ranks": {
+        "dense": null,
+        "sparse": null,
+        "colbert": null,
+        "fused": null
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about the mind?",
+      "gold_verse": 96,
+      "label": "mind",
+      "ranks": {
+        "dense": null,
+        "sparse": null,
+        "colbert": 8,
+        "fused": 10
+      }
+    },
+    {
+      "query": "What does the Dhammapada say about restraint?",
+      "gold_verse": 361,
+      "label": "restraint",
+      "ranks": {
+        "dense": 3,
+        "sparse": 1,
+        "colbert": 2,
+        "fused": 1
+      }
+    },
+    {
+      "query": "What is the ultimate goal of the spiritual path?",
+      "gold_verse": 386,
+      "label": "goal/nibbana",
+      "ranks": {
+        "dense": null,
+        "sparse": null,
+        "colbert": null,
+        "fused": null
+      }
+    }
+  ],
+  "found_in_top_k": {
+    "dense": 4,
+    "sparse": 5,
+    "colbert": 5,
+    "fused": 5
+  },
+  "mean_rank": {
+    "dense": 2.25,
+    "sparse": 5.2,
+    "colbert": 3.8,
+    "fused": 4.6
+  },
+  "fused_matches_sparse": 6,
+  "fused_matches_dense": 7
+}

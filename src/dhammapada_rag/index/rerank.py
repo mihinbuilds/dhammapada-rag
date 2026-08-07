@@ -10,24 +10,52 @@ shortlist.
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 import torch
 from FlagEmbedding import FlagReranker
 
 
+def best_device() -> tuple[str, bool]:
+    """Return (device, use_fp16).
+
+    Round 6, Task S -- PC migration. This project was developed on Apple
+    Silicon, where this function's predecessor (an inline `torch.backends.
+    mps.is_available()` check, here and duplicated in embed.py, which
+    hardcoded devices=["cpu"] unconditionally) was the whole story: MPS or
+    CPU fp32. On a PC with an NVIDIA GPU neither branch matches, and both
+    modules silently ran on CPU -- torch.cuda.is_available() was never
+    checked anywhere in the codebase. CUDA is checked first since a machine
+    is never both.
+
+    fp16 is a win on CUDA and MPS and typically a loss on CPU, where most
+    hardware does not accelerate it -- hence the paired return rather than a
+    bare device string; every caller needs both values together, not just
+    the device name.
+    """
+    if torch.cuda.is_available():
+        return "cuda", True
+    if torch.backends.mps.is_available():
+        return "mps", True
+    return "cpu", False
+
+
 class CrossEncoderReranker:
     def __init__(self, model: FlagReranker | None = None):
-        # CPU fp32 takes ~18s for a 30-candidate shortlist on this machine;
-        # MPS (Apple Silicon GPU) + fp16 brings that to ~3s. Fall back to CPU
-        # fp32 wherever MPS isn't available -- fp16 on CPU is typically
-        # *slower* than fp32 since most CPUs don't accelerate it.
+        # CPU fp32 takes ~18s for a 30-candidate shortlist on Apple Silicon
+        # with no MPS; MPS/CUDA + fp16 brings that to ~3s. best_device()
+        # logs its choice to stderr so a silent CPU fallback on a GPU
+        # machine is visible in the terminal rather than inferred from a
+        # slow run -- see this module's Task S docstring.
         if model is not None:
             self.model = model
-        elif torch.backends.mps.is_available():
-            self.model = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=True, devices=["mps"], normalize=True)
         else:
-            self.model = FlagReranker("BAAI/bge-reranker-v2-m3", use_fp16=False, devices=["cpu"], normalize=True)
+            device, use_fp16 = best_device()
+            print(f"CrossEncoderReranker: using device={device!r} fp16={use_fp16}", file=sys.stderr)
+            self.model = FlagReranker(
+                "BAAI/bge-reranker-v2-m3", use_fp16=use_fp16, devices=[device], normalize=True
+            )
 
     def rerank(self, query: str, candidates: list[dict], top_k: int | None = None) -> list[dict]:
         pairs = [(query, c["text"]) for c in candidates]

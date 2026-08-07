@@ -1,0 +1,6035 @@
+[
+  {
+    "group_id": "1.1",
+    "dhp_verses": [
+      1
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.1",
+        "verses": [
+          1
+        ],
+        "title_en": "The Story about the Elder Cakkhupāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.2",
+    "dhp_verses": [
+      2
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.2",
+        "verses": [
+          2
+        ],
+        "title_en": "The Story about Maṭṭhakuṇḍalī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.3",
+    "dhp_verses": [
+      3,
+      4
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.3",
+        "verses": [
+          3,
+          4
+        ],
+        "title_en": "The Story about the Elder Thulla Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.4",
+    "dhp_verses": [
+      5
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.4",
+        "verses": [
+          5
+        ],
+        "title_en": "The Story about the Yakkhinī Kāḷi"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.5",
+    "dhp_verses": [
+      6
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.5",
+        "verses": [
+          6
+        ],
+        "title_en": "The Story about Those from Kosambī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.6",
+    "dhp_verses": [
+      7,
+      8
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.6",
+        "verses": [
+          7,
+          8
+        ],
+        "title_en": "The Story about Culla Kāḷa and Mahā Kāḷa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.7",
+    "dhp_verses": [
+      9,
+      10
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.7",
+        "verses": [
+          9,
+          10
+        ],
+        "title_en": "The Story about Devadatta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.8",
+    "dhp_verses": [
+      11,
+      12
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.8",
+        "verses": [
+          11,
+          12
+        ],
+        "title_en": "The Story about the Chief Disciples"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.9",
+    "dhp_verses": [
+      13,
+      14
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.9",
+        "verses": [
+          13,
+          14
+        ],
+        "title_en": "The Story about the Elder Nanda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.10",
+    "dhp_verses": [
+      15
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.10",
+        "verses": [
+          15
+        ],
+        "title_en": "The Story about the Pig Butcher Cunda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.11",
+    "dhp_verses": [
+      16
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.11",
+        "verses": [
+          16
+        ],
+        "title_en": "The Story about the Lay Disciple Dhammika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.12",
+    "dhp_verses": [
+      17
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.12",
+        "verses": [
+          17
+        ],
+        "title_en": "The Story about Devadatta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.13",
+    "dhp_verses": [
+      18
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.13",
+        "verses": [
+          18
+        ],
+        "title_en": "The Story about Queen Sumanā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "1.14",
+    "dhp_verses": [
+      19,
+      20
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "1.14",
+        "verses": [
+          19,
+          20
+        ],
+        "title_en": "The Story about Two Monastic Friends"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.1",
+    "dhp_verses": [
+      21,
+      22,
+      23
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.1",
+        "verses": [
+          21,
+          22,
+          23
+        ],
+        "title_en": "The Story about Udena"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.2",
+    "dhp_verses": [
+      24
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.2",
+        "verses": [
+          24
+        ],
+        "title_en": "The Story about Kumbhaghosaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.3",
+    "dhp_verses": [
+      25
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.3",
+        "verses": [
+          25
+        ],
+        "title_en": "The Story about the Elder Culla Panthaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.4",
+    "dhp_verses": [
+      26,
+      27
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.4",
+        "verses": [
+          26,
+          27
+        ],
+        "title_en": "The Story about the Fool’s Festival"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.5",
+    "dhp_verses": [
+      28
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.5",
+        "verses": [
+          28
+        ],
+        "title_en": "The Story about the Elder Mahā Kassapa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.6",
+    "dhp_verses": [
+      29
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.6",
+        "verses": [
+          29
+        ],
+        "title_en": "The Story about Two Bhikkhu Friends, One Heedful and One Heedless"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.7",
+    "dhp_verses": [
+      30
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.7",
+        "verses": [
+          30
+        ],
+        "title_en": "The Story about Mahāli’s Questions"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.8",
+    "dhp_verses": [
+      31
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.8",
+        "verses": [
+          31
+        ],
+        "title_en": "The Story about a Certain Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "2.9",
+    "dhp_verses": [
+      32
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "2.9",
+        "verses": [
+          32
+        ],
+        "title_en": "The Story about the Elder Nigamavāsī Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.1",
+    "dhp_verses": [
+      33,
+      34
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.1",
+        "verses": [
+          33,
+          34
+        ],
+        "title_en": "The Story about Elder Meghiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.2",
+    "dhp_verses": [
+      35
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.2",
+        "verses": [
+          35
+        ],
+        "title_en": "The Story about a Certain Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.3",
+    "dhp_verses": [
+      36
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.3",
+        "verses": [
+          36
+        ],
+        "title_en": "The Story about a Dissatisfied Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.4",
+    "dhp_verses": [
+      37
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.4",
+        "verses": [
+          37
+        ],
+        "title_en": "The Story about Nephew Saṅgharakkhita"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.5",
+    "dhp_verses": [
+      38,
+      39
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.5",
+        "verses": [
+          38,
+          39
+        ],
+        "title_en": "The Story about the Elder Cittahattha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.6",
+    "dhp_verses": [
+      40
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.6",
+        "verses": [
+          40
+        ],
+        "title_en": "The Story about 500 Bhikkhus with Insight"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.7",
+    "dhp_verses": [
+      41
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.7",
+        "verses": [
+          41
+        ],
+        "title_en": "The Story about the Elder Pūtigatta Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.8",
+    "dhp_verses": [
+      42
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.8",
+        "verses": [
+          42
+        ],
+        "title_en": "The Story about Nanda the Herdsman"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "3.9",
+    "dhp_verses": [
+      43
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "3.9",
+        "verses": [
+          43
+        ],
+        "title_en": "The Story about the Elder Soreyya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.1",
+    "dhp_verses": [
+      44,
+      45
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.1",
+        "verses": [
+          44,
+          45
+        ],
+        "title_en": "The Story about 500 Bhikkhus Engaged in Talking about the Soil"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.2",
+    "dhp_verses": [
+      46
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.2",
+        "verses": [
+          46
+        ],
+        "title_en": "The Story about the Elder Who Meditated on a Mirage"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.3",
+    "dhp_verses": [
+      47
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.3",
+        "verses": [
+          47
+        ],
+        "title_en": "The Story about Viḍūḍabha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.4",
+    "dhp_verses": [
+      48
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.4",
+        "verses": [
+          48
+        ],
+        "title_en": "The Story about the One Who Honoured Her Husband"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.5",
+    "dhp_verses": [
+      49
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.5",
+        "verses": [
+          49
+        ],
+        "title_en": "The Story about the Selfish Kosiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.6",
+    "dhp_verses": [
+      50
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.6",
+        "verses": [
+          50
+        ],
+        "title_en": "The Story about the Ājīvaka Pāṭhika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.7",
+    "dhp_verses": [
+      51,
+      52
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.7",
+        "verses": [
+          51,
+          52
+        ],
+        "title_en": "The Story about the Lay Disciple Chattapāṇi"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.8",
+    "dhp_verses": [
+      53
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.8",
+        "verses": [
+          53
+        ],
+        "title_en": "The Story about Visākhā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.9",
+    "dhp_verses": [
+      54,
+      55
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.9",
+        "verses": [
+          54,
+          55
+        ],
+        "title_en": "The Story about the Elder Ānanda’s Questions"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.10",
+    "dhp_verses": [
+      56
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.10",
+        "verses": [
+          56
+        ],
+        "title_en": "The Story about Giving Alms to the Elder Mahā Kassapa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.11",
+    "dhp_verses": [
+      57
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.11",
+        "verses": [
+          57
+        ],
+        "title_en": "The Story about the Elder Godhika’s Parinibbāna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "4.12",
+    "dhp_verses": [
+      58,
+      59
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "4.12",
+        "verses": [
+          58,
+          59
+        ],
+        "title_en": "The Story about Garahadinna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.1",
+    "dhp_verses": [
+      60
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.1",
+        "verses": [
+          60
+        ],
+        "title_en": "The Story about a Certain Man"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.2",
+    "dhp_verses": [
+      61
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.2",
+        "verses": [
+          61
+        ],
+        "title_en": "The Story about the Elder Mahā Kassapa’s Pupil"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.3",
+    "dhp_verses": [
+      62
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.3",
+        "verses": [
+          62
+        ],
+        "title_en": "The Story about the Rich Man Ānanda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.4",
+    "dhp_verses": [
+      63
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.4",
+        "verses": [
+          63
+        ],
+        "title_en": "The Story about the Thieves Who Broke Their Bonds"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.5",
+    "dhp_verses": [
+      64
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.5",
+        "verses": [
+          64
+        ],
+        "title_en": "The Story about the Elder Udāyī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.6",
+    "dhp_verses": [
+      65
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.6",
+        "verses": [
+          65
+        ],
+        "title_en": "The Story about 30 Bhikkhus from Pāṭheyya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.7",
+    "dhp_verses": [
+      66
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.7",
+        "verses": [
+          66
+        ],
+        "title_en": "The Story about the Leper Suppabuddha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.8",
+    "dhp_verses": [
+      67
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.8",
+        "verses": [
+          67
+        ],
+        "title_en": "The Story about a Farmer"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.9",
+    "dhp_verses": [
+      68
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.9",
+        "verses": [
+          68
+        ],
+        "title_en": "The Story about Sumana the Garland-Maker"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.10",
+    "dhp_verses": [
+      69
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.10",
+        "verses": [
+          69
+        ],
+        "title_en": "The Story about the Elder Uppalavaṇṇā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.11",
+    "dhp_verses": [
+      70
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.11",
+        "verses": [
+          70
+        ],
+        "title_en": "The Story about the Ājīvaka Jambuka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.12",
+    "dhp_verses": [
+      71
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.12",
+        "verses": [
+          71
+        ],
+        "title_en": "The Story about the Snake Peta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.13",
+    "dhp_verses": [
+      72
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.13",
+        "verses": [
+          72
+        ],
+        "title_en": "The Story about the Peta with Sixty Hammers"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.14",
+    "dhp_verses": [
+      73,
+      74
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.14",
+        "verses": [
+          73,
+          74
+        ],
+        "title_en": "The Story about the Edler Sudhamma"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "5.15",
+    "dhp_verses": [
+      75
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "5.15",
+        "verses": [
+          75
+        ],
+        "title_en": "The Story about the Elder Vanavāsī Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.1",
+    "dhp_verses": [
+      76
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.1",
+        "verses": [
+          76
+        ],
+        "title_en": "The Story about the Elder Rādha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.2",
+    "dhp_verses": [
+      77
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.2",
+        "verses": [
+          77
+        ],
+        "title_en": "The Story about the Followers of Assaji and Punabbasu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.3",
+    "dhp_verses": [
+      78
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.3",
+        "verses": [
+          78
+        ],
+        "title_en": "The Story about the Elder Channa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.4",
+    "dhp_verses": [
+      79
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.4",
+        "verses": [
+          79
+        ],
+        "title_en": "The Story about the Elder Mahā Kappina"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.5",
+    "dhp_verses": [
+      80
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.5",
+        "verses": [
+          80
+        ],
+        "title_en": "The Story about the Novice Paṇḍita"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.6",
+    "dhp_verses": [
+      81
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.6",
+        "verses": [
+          81
+        ],
+        "title_en": "The Story about the Elder Lakuṇṭaka Bhaddiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.7",
+    "dhp_verses": [
+      82
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.7",
+        "verses": [
+          82
+        ],
+        "title_en": "The Story about the Mother of Kāṇā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.8",
+    "dhp_verses": [
+      83
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.8",
+        "verses": [
+          83
+        ],
+        "title_en": "The Story about Five Hundred Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.9",
+    "dhp_verses": [
+      84
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.9",
+        "verses": [
+          84
+        ],
+        "title_en": "The Story about the Elder Dhammika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.10",
+    "dhp_verses": [
+      85,
+      86
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.10",
+        "verses": [
+          85,
+          86
+        ],
+        "title_en": "The Story about Listening to the Dhamma"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "6.11",
+    "dhp_verses": [
+      87,
+      88,
+      89
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "6.11",
+        "verses": [
+          87,
+          88,
+          89
+        ],
+        "title_en": "The Story about Five Hundred Visiting Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.1",
+    "dhp_verses": [
+      90
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.1",
+        "verses": [
+          90
+        ],
+        "title_en": "The Story about Jīvaka’s Question"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.2",
+    "dhp_verses": [
+      91
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.2",
+        "verses": [
+          91
+        ],
+        "title_en": "The Story about the Elder Mahā Kassapa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.3",
+    "dhp_verses": [
+      92
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.3",
+        "verses": [
+          92
+        ],
+        "title_en": "The Story about the Elder Belaṭṭhisīsa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.4",
+    "dhp_verses": [
+      93
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.4",
+        "verses": [
+          93
+        ],
+        "title_en": "The Story about the Elder Anuruddha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.5",
+    "dhp_verses": [
+      94
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.5",
+        "verses": [
+          94
+        ],
+        "title_en": "The Story about the Elder Mahā Kaccāyana"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.6",
+    "dhp_verses": [
+      95
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.6",
+        "verses": [
+          95
+        ],
+        "title_en": "The Story about the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.7",
+    "dhp_verses": [
+      96
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.7",
+        "verses": [
+          96
+        ],
+        "title_en": "The Story about Kosambivāsī Tissa’s Novice"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.8",
+    "dhp_verses": [
+      97
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.8",
+        "verses": [
+          97
+        ],
+        "title_en": "The Story about the Question and Answer to the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.9",
+    "dhp_verses": [
+      98
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.9",
+        "verses": [
+          98
+        ],
+        "title_en": "The Story about the Elder Khadiravaniya Revata"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "7.10",
+    "dhp_verses": [
+      99
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "7.10",
+        "verses": [
+          99
+        ],
+        "title_en": "The Story about a Certain Woman"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.1",
+    "dhp_verses": [
+      100
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.1",
+        "verses": [
+          100
+        ],
+        "title_en": "The Story about the Copper-Toothed Executioner"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.2",
+    "dhp_verses": [
+      101
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.2",
+        "verses": [
+          101
+        ],
+        "title_en": "The Story about the Elder Bāhiya Dārucīriya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.3",
+    "dhp_verses": [
+      102,
+      103
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.3",
+        "verses": [
+          102,
+          103
+        ],
+        "title_en": "The Story about the Elder Kuṇḍalakesī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.4",
+    "dhp_verses": [
+      104,
+      105
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.4",
+        "verses": [
+          104,
+          105
+        ],
+        "title_en": "The Story about the Brahmin Who Asked about Loss"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.5",
+    "dhp_verses": [
+      106
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.5",
+        "verses": [
+          106
+        ],
+        "title_en": "The Story about the Elder Sāriputta’s Brahmin Uncle"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.6",
+    "dhp_verses": [
+      107
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.6",
+        "verses": [
+          107
+        ],
+        "title_en": "The Story about the Elder Sāriputta’s Nephew"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.7",
+    "dhp_verses": [
+      108
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.7",
+        "verses": [
+          108
+        ],
+        "title_en": "The Story about the Elder Sāriputta’s Brahmin Companion"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.8",
+    "dhp_verses": [
+      109
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.8",
+        "verses": [
+          109
+        ],
+        "title_en": "The Story about the Youth Dīghāyu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.9",
+    "dhp_verses": [
+      110
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.9",
+        "verses": [
+          110
+        ],
+        "title_en": "The Story about the Novice Saṅkicca"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.10",
+    "dhp_verses": [
+      111
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.10",
+        "verses": [
+          111
+        ],
+        "title_en": "The Story about the Elder Khāṇu Koṇḍañña"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.11",
+    "dhp_verses": [
+      112
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.11",
+        "verses": [
+          112
+        ],
+        "title_en": "The Story about the Elder Sappadāsa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.12",
+    "dhp_verses": [
+      113
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.12",
+        "verses": [
+          113
+        ],
+        "title_en": "The Story about the Elder Paṭācārā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.13",
+    "dhp_verses": [
+      114
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.13",
+        "verses": [
+          114
+        ],
+        "title_en": "The Story about Kisā Gotamī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "8.14",
+    "dhp_verses": [
+      115
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "8.14",
+        "verses": [
+          115
+        ],
+        "title_en": "The Story about the Elder Bahuputtikā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.1",
+    "dhp_verses": [
+      116
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.1",
+        "verses": [
+          116
+        ],
+        "title_en": "The Story about the Brahmin Culla Ekasāṭaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.2",
+    "dhp_verses": [
+      117
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.2",
+        "verses": [
+          117
+        ],
+        "title_en": "The Story about the Elder Seyyasaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.3",
+    "dhp_verses": [
+      118
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.3",
+        "verses": [
+          118
+        ],
+        "title_en": "The Story about the Devadhītā Lāja"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.4",
+    "dhp_verses": [
+      119,
+      120
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.4",
+        "verses": [
+          119,
+          120
+        ],
+        "title_en": "The Story about the Wealthy Anāthapiṇḍika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.5",
+    "dhp_verses": [
+      121
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.5",
+        "verses": [
+          121
+        ],
+        "title_en": "The Story about a Bhikkhu Unrestrained with the Requisites"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.6",
+    "dhp_verses": [
+      122
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.6",
+        "verses": [
+          122
+        ],
+        "title_en": "The Story about the Rich Man Biḷālapādaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.7",
+    "dhp_verses": [
+      123
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.7",
+        "verses": [
+          123
+        ],
+        "title_en": "The Story about the Merchant Mahā Dhana"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.8",
+    "dhp_verses": [
+      124
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.8",
+        "verses": [
+          124
+        ],
+        "title_en": "The Story about Kukkuṭamitta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.9",
+    "dhp_verses": [
+      125
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.9",
+        "verses": [
+          125
+        ],
+        "title_en": "The Story about the Hunter Koka’s Dogs"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.10",
+    "dhp_verses": [
+      126
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.10",
+        "verses": [
+          126
+        ],
+        "title_en": "The Story about Elder Tissa, Who Frequented a Jeweller"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.11",
+    "dhp_verses": [
+      127
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.11",
+        "verses": [
+          127
+        ],
+        "title_en": "The Story about Three Groups"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "9.12",
+    "dhp_verses": [
+      128
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "9.12",
+        "verses": [
+          128
+        ],
+        "title_en": "The Story about Suppabuddha the Sākiyan"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.1",
+    "dhp_verses": [
+      129
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.1",
+        "verses": [
+          129
+        ],
+        "title_en": "The Story about the Group of Six"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.2",
+    "dhp_verses": [
+      130
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.2",
+        "verses": [
+          130
+        ],
+        "title_en": "The Story about the Group of Six"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.3",
+    "dhp_verses": [
+      131,
+      132
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.3",
+        "verses": [
+          131,
+          132
+        ],
+        "title_en": "The Story about a Company of Boys"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.4",
+    "dhp_verses": [
+      133,
+      134
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.4",
+        "verses": [
+          133,
+          134
+        ],
+        "title_en": "The Story about the Elder Kuṇḍadhāna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.5",
+    "dhp_verses": [
+      135
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.5",
+        "verses": [
+          135
+        ],
+        "title_en": "The Story about Visākhā and Others Observing the Observance Days"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.6",
+    "dhp_verses": [
+      136
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.6",
+        "verses": [
+          136
+        ],
+        "title_en": "The Story about the Python Peta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.7",
+    "dhp_verses": [
+      137,
+      138,
+      139,
+      140
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.7",
+        "verses": [
+          137,
+          138,
+          139,
+          140
+        ],
+        "title_en": "The Story about the Elder Mahā Moggallāna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.8",
+    "dhp_verses": [
+      141
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.8",
+        "verses": [
+          141
+        ],
+        "title_en": "The Story about the Bhikkhu with Many Possessions"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.9",
+    "dhp_verses": [
+      142
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.9",
+        "verses": [
+          142
+        ],
+        "title_en": "The Story about the Minister Santati"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.10",
+    "dhp_verses": [
+      143,
+      144
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.10",
+        "verses": [
+          143,
+          144
+        ],
+        "title_en": "The Story about the Elder Pilotika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "10.11",
+    "dhp_verses": [
+      145
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "10.11",
+        "verses": [
+          145
+        ],
+        "title_en": "The Story about the Novice Sukha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.1",
+    "dhp_verses": [
+      146
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.1",
+        "verses": [
+          146
+        ],
+        "title_en": "The Story about Visākhā’s Companions"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.2",
+    "dhp_verses": [
+      147
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.2",
+        "verses": [
+          147
+        ],
+        "title_en": "The Story about Sirimā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.3",
+    "dhp_verses": [
+      148
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.3",
+        "verses": [
+          148
+        ],
+        "title_en": "The Story about the Elder Uttarī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.4",
+    "dhp_verses": [
+      149
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.4",
+        "verses": [
+          149
+        ],
+        "title_en": "The Story about Many Vain Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.5",
+    "dhp_verses": [
+      150
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.5",
+        "verses": [
+          150
+        ],
+        "title_en": "The Story about the Elder Janapada Kaḷyāṇī Rūpanandā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.6",
+    "dhp_verses": [
+      151
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.6",
+        "verses": [
+          151
+        ],
+        "title_en": "The Story about Queen Mallikā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.7",
+    "dhp_verses": [
+      152
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.7",
+        "verses": [
+          152
+        ],
+        "title_en": "The Story about the Elder Lāḷudāyi"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.8",
+    "dhp_verses": [
+      153,
+      154
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.8",
+        "verses": [
+          153,
+          154
+        ],
+        "title_en": "The Story about the Exalted Utterances (Spoken) to Elder Ānanda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "11.9",
+    "dhp_verses": [
+      155,
+      156
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "11.9",
+        "verses": [
+          155,
+          156
+        ],
+        "title_en": "The Story about Mahā Dhana, the Rich Man’s Son"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.1",
+    "dhp_verses": [
+      157
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.1",
+        "verses": [
+          157
+        ],
+        "title_en": "The Story about Prince Bodhi"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.2",
+    "dhp_verses": [
+      158
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.2",
+        "verses": [
+          158
+        ],
+        "title_en": "The Story about the Elder Upananda the Sakyan"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.3",
+    "dhp_verses": [
+      159
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.3",
+        "verses": [
+          159
+        ],
+        "title_en": "The Story about the Elder Padhānika Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.4",
+    "dhp_verses": [
+      160
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.4",
+        "verses": [
+          160
+        ],
+        "title_en": "The Story about the Elder, the Mother of Kumāra Kassapa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.5",
+    "dhp_verses": [
+      161
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.5",
+        "verses": [
+          161
+        ],
+        "title_en": "The Story about the Lay Disciple Mahā Kāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.6",
+    "dhp_verses": [
+      162
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.6",
+        "verses": [
+          162
+        ],
+        "title_en": "The Story about Devadatta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.7",
+    "dhp_verses": [
+      163
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.7",
+        "verses": [
+          163
+        ],
+        "title_en": "The Story about Trying for a Schism in the Saṅgha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.8",
+    "dhp_verses": [
+      164
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.8",
+        "verses": [
+          164
+        ],
+        "title_en": "The Story about the Elder Kāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.9",
+    "dhp_verses": [
+      165
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.9",
+        "verses": [
+          165
+        ],
+        "title_en": "The Story about the Lay Disciple Culla Kāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "12.10",
+    "dhp_verses": [
+      166
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "12.10",
+        "verses": [
+          166
+        ],
+        "title_en": "The Story about the Elder Attadattha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.1",
+    "dhp_verses": [
+      167
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.1",
+        "verses": [
+          167
+        ],
+        "title_en": "The Story about a Certain Young Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.2",
+    "dhp_verses": [
+      168,
+      169
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.2",
+        "verses": [
+          168,
+          169
+        ],
+        "title_en": "The Story about Suddhodana"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.3",
+    "dhp_verses": [
+      170
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.3",
+        "verses": [
+          170
+        ],
+        "title_en": "The Story about 500 Bhikkhus with Insight"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.4",
+    "dhp_verses": [
+      171
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.4",
+        "verses": [
+          171
+        ],
+        "title_en": "The Story about Prince Abhaya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.5",
+    "dhp_verses": [
+      172
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.5",
+        "verses": [
+          172
+        ],
+        "title_en": "The Story about the Elder Sammuñjani"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.6",
+    "dhp_verses": [
+      173
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.6",
+        "verses": [
+          173
+        ],
+        "title_en": "The Story about the Elder Aṅgulimāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.7",
+    "dhp_verses": [
+      174
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.7",
+        "verses": [
+          174
+        ],
+        "title_en": "The Story about the Weaver’s Daughter"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.8",
+    "dhp_verses": [
+      175
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.8",
+        "verses": [
+          175
+        ],
+        "title_en": "The Story about Thirty Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.9",
+    "dhp_verses": [
+      176
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.9",
+        "verses": [
+          176
+        ],
+        "title_en": "The Story about the Young Brahmin Girl Ciñcā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.10",
+    "dhp_verses": [
+      177
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.10",
+        "verses": [
+          177
+        ],
+        "title_en": "The Story about the Gifts beyond Compare"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "13.11",
+    "dhp_verses": [
+      178
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "13.11",
+        "verses": [
+          178
+        ],
+        "title_en": "The Story about Anāthapiṇḍika’s Son Kāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.1",
+    "dhp_verses": [
+      179,
+      180
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.1",
+        "verses": [
+          179,
+          180
+        ],
+        "title_en": "The Story about Māgandiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.2",
+    "dhp_verses": [
+      181
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.2",
+        "verses": [
+          181
+        ],
+        "title_en": "The Story about the Twin Miracle"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.3",
+    "dhp_verses": [
+      182
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.3",
+        "verses": [
+          182
+        ],
+        "title_en": "The Story about the Nāga King Erakapatta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.4",
+    "dhp_verses": [
+      183,
+      184,
+      185
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.4",
+        "verses": [
+          183,
+          184,
+          185
+        ],
+        "title_en": "The Story about the Edler Ānanda’s Question about the Observance Day"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.5",
+    "dhp_verses": [
+      186,
+      187
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.5",
+        "verses": [
+          186,
+          187
+        ],
+        "title_en": "The Story about a Discontented Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.6",
+    "dhp_verses": [
+      188,
+      189,
+      190,
+      191,
+      192
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.6",
+        "verses": [
+          188,
+          189,
+          190,
+          191,
+          192
+        ],
+        "title_en": "The Story about the Brahmin Aggidatta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.7",
+    "dhp_verses": [
+      193
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.7",
+        "verses": [
+          193
+        ],
+        "title_en": "The Story about the Question Asked by Elder Ānanda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.8",
+    "dhp_verses": [
+      194
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.8",
+        "verses": [
+          194
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "14.9",
+    "dhp_verses": [
+      195,
+      196
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "14.9",
+        "verses": [
+          195,
+          196
+        ],
+        "title_en": "The Story about the Golden Shrine of Kassapa, the One of Ten Strengths"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.1",
+    "dhp_verses": [
+      197,
+      198,
+      199
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.1",
+        "verses": [
+          197,
+          198,
+          199
+        ],
+        "title_en": "The Story about Settling a Dispute amongst Relatives"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.2",
+    "dhp_verses": [
+      200
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.2",
+        "verses": [
+          200
+        ],
+        "title_en": "The Story about Māra"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.3",
+    "dhp_verses": [
+      201
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.3",
+        "verses": [
+          201
+        ],
+        "title_en": "The Story about the Defeat of the King of Kosala"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.4",
+    "dhp_verses": [
+      202
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.4",
+        "verses": [
+          202
+        ],
+        "title_en": "The Story about a Certain Maiden of Family"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.5",
+    "dhp_verses": [
+      203
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.5",
+        "verses": [
+          203
+        ],
+        "title_en": "The Story about a Certain Lay Disciple"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.6",
+    "dhp_verses": [
+      204
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.6",
+        "verses": [
+          204
+        ],
+        "title_en": "The Story about Pasedani Kosala"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.7",
+    "dhp_verses": [
+      205
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.7",
+        "verses": [
+          205
+        ],
+        "title_en": "The Story about the Elder Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "15.8",
+    "dhp_verses": [
+      206,
+      207,
+      208
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "15.8",
+        "verses": [
+          206,
+          207,
+          208
+        ],
+        "title_en": "The Story about Sakka’s Attendance"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.1",
+    "dhp_verses": [
+      209,
+      210,
+      211
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.1",
+        "verses": [
+          209,
+          210,
+          211
+        ],
+        "title_en": "The Story about Three Monastics"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.2",
+    "dhp_verses": [
+      212
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.2",
+        "verses": [
+          212
+        ],
+        "title_en": "The Story about a Certain Head of a Family"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.3",
+    "dhp_verses": [
+      213
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.3",
+        "verses": [
+          213
+        ],
+        "title_en": "The Story about Visākhā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.4",
+    "dhp_verses": [
+      214
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.4",
+        "verses": [
+          214
+        ],
+        "title_en": "The Story about the Licchavis"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.5",
+    "dhp_verses": [
+      215
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.5",
+        "verses": [
+          215
+        ],
+        "title_en": "The Story about the Youth Anitthigandha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.6",
+    "dhp_verses": [
+      216
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.6",
+        "verses": [
+          216
+        ],
+        "title_en": "The Story about a Certain Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.7",
+    "dhp_verses": [
+      217
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.7",
+        "verses": [
+          217
+        ],
+        "title_en": "The Story about Five Hundred Youths"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.8",
+    "dhp_verses": [
+      218
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.8",
+        "verses": [
+          218
+        ],
+        "title_en": "The Story about an Elder Who Was a Non-Returner"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "16.9",
+    "dhp_verses": [
+      219,
+      220
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "16.9",
+        "verses": [
+          219,
+          220
+        ],
+        "title_en": "The Story about Nandiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.1",
+    "dhp_verses": [
+      221
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.1",
+        "verses": [
+          221
+        ],
+        "title_en": "The Story about the Noble Maiden Rohinī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.2",
+    "dhp_verses": [
+      222
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.2",
+        "verses": [
+          222
+        ],
+        "title_en": "The Story about a Certain Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.3",
+    "dhp_verses": [
+      223
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.3",
+        "verses": [
+          223
+        ],
+        "title_en": "The Story about the Lay Disciple Uttarā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.4",
+    "dhp_verses": [
+      224
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.4",
+        "verses": [
+          224
+        ],
+        "title_en": "The Story about the Elder Mahā Moggallāna’s Question"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.5",
+    "dhp_verses": [
+      225
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.5",
+        "verses": [
+          225
+        ],
+        "title_en": "The Story about the Brahmin from Sāketa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.6",
+    "dhp_verses": [
+      226
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.6",
+        "verses": [
+          226
+        ],
+        "title_en": "The Story about Puṇṇā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.7",
+    "dhp_verses": [
+      227,
+      228,
+      229,
+      230
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.7",
+        "verses": [
+          227,
+          228,
+          229,
+          230
+        ],
+        "title_en": "The Story about the Lay Disciple Atula"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "17.8",
+    "dhp_verses": [
+      231,
+      232,
+      233,
+      234
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "17.8",
+        "verses": [
+          231,
+          232,
+          233,
+          234
+        ],
+        "title_en": "The Story about the Group of Six"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.1",
+    "dhp_verses": [
+      235,
+      236,
+      237,
+      238
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.1",
+        "verses": [
+          235,
+          236,
+          237,
+          238
+        ],
+        "title_en": "The Story about a Son of a Cow-Killer"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.2",
+    "dhp_verses": [
+      239
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.2",
+        "verses": [
+          239
+        ],
+        "title_en": "The Story about a Certain Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.3",
+    "dhp_verses": [
+      240
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.3",
+        "verses": [
+          240
+        ],
+        "title_en": "The Story about the Elder Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.4",
+    "dhp_verses": [
+      241
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.4",
+        "verses": [
+          241
+        ],
+        "title_en": "The Story about the Elder Lāḷudāyi"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.5",
+    "dhp_verses": [
+      242,
+      243
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.5",
+        "verses": [
+          242,
+          243
+        ],
+        "title_en": "The Story about a Certain Youth of Good Family"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.6",
+    "dhp_verses": [
+      244,
+      245
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.6",
+        "verses": [
+          244,
+          245
+        ],
+        "title_en": "The Story about Culla Sāri"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.7",
+    "dhp_verses": [
+      246,
+      247,
+      248
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.7",
+        "verses": [
+          246,
+          247,
+          248
+        ],
+        "title_en": "The Story about Five Hundred Lay Disciples"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.8",
+    "dhp_verses": [
+      249,
+      250
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.8",
+        "verses": [
+          249,
+          250
+        ],
+        "title_en": "The Story about the Young Bhikkhu Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.9",
+    "dhp_verses": [
+      251
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.9",
+        "verses": [
+          251
+        ],
+        "title_en": "The Story about Five Lay Disciples"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.10",
+    "dhp_verses": [
+      252
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.10",
+        "verses": [
+          252
+        ],
+        "title_en": "The Story about the Rich Man Meṇḍaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.11",
+    "dhp_verses": [
+      253
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.11",
+        "verses": [
+          253
+        ],
+        "title_en": "The Story about the Elder Ujjhānasaññī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "18.12",
+    "dhp_verses": [
+      254,
+      255
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "18.12",
+        "verses": [
+          254,
+          255
+        ],
+        "title_en": "The Story about the Wanderer Subhadda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.1",
+    "dhp_verses": [
+      256,
+      257
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.1",
+        "verses": [
+          256,
+          257
+        ],
+        "title_en": "The Story about the Ministers of Justice"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.2",
+    "dhp_verses": [
+      258
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.2",
+        "verses": [
+          258
+        ],
+        "title_en": "The Story about the Group of Six"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.3",
+    "dhp_verses": [
+      259
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.3",
+        "verses": [
+          259
+        ],
+        "title_en": "The Story about the Elder Ekudāna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.4",
+    "dhp_verses": [
+      260,
+      261
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.4",
+        "verses": [
+          260,
+          261
+        ],
+        "title_en": "The Story about the Elder Lakuṇḍaka Bhaddiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.5",
+    "dhp_verses": [
+      262,
+      263
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.5",
+        "verses": [
+          262,
+          263
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.6",
+    "dhp_verses": [
+      264,
+      265
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.6",
+        "verses": [
+          264,
+          265
+        ],
+        "title_en": "The Story about Hatthaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.7",
+    "dhp_verses": [
+      266,
+      267
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.7",
+        "verses": [
+          266,
+          267
+        ],
+        "title_en": "The Story about a Certain Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.8",
+    "dhp_verses": [
+      268,
+      269
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.8",
+        "verses": [
+          268,
+          269
+        ],
+        "title_en": "The Story about the Sectarians"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.9",
+    "dhp_verses": [
+      270
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.9",
+        "verses": [
+          270
+        ],
+        "title_en": "The Story about the Fisherman Named Ariya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "19.10",
+    "dhp_verses": [
+      271,
+      272
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "19.10",
+        "verses": [
+          271,
+          272
+        ],
+        "title_en": "The Story about a Company of Bhikkhus Endowed with Virtue and So On"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.1",
+    "dhp_verses": [
+      273,
+      274,
+      275,
+      276
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.1",
+        "verses": [
+          273,
+          274,
+          275,
+          276
+        ],
+        "title_en": "The Story about Five Hundred Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.2",
+    "dhp_verses": [
+      277
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.2",
+        "verses": [
+          277
+        ],
+        "title_en": "The Story about the Characteristic of Impermanence"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.3",
+    "dhp_verses": [
+      278
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.3",
+        "verses": [
+          278
+        ],
+        "title_en": "The Story about the Characteristic of Suffering"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.4",
+    "dhp_verses": [
+      279
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.4",
+        "verses": [
+          279
+        ],
+        "title_en": "The Story about the Characteristic of Non-Self"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.5",
+    "dhp_verses": [
+      280
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.5",
+        "verses": [
+          280
+        ],
+        "title_en": "The Story about the Elder Padhānakammika Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.6",
+    "dhp_verses": [
+      281
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.6",
+        "verses": [
+          281
+        ],
+        "title_en": "The Story about the Pig Peta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.7",
+    "dhp_verses": [
+      282
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.7",
+        "verses": [
+          282
+        ],
+        "title_en": "The Story about the Elder Poṭhila"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.8",
+    "dhp_verses": [
+      283,
+      284
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.8",
+        "verses": [
+          283,
+          284
+        ],
+        "title_en": "The Story about a Company of Old Elders"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.9",
+    "dhp_verses": [
+      285
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.9",
+        "verses": [
+          285
+        ],
+        "title_en": "The Story about the Elder Suvaṇṇakāra"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.10",
+    "dhp_verses": [
+      286
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.10",
+        "verses": [
+          286
+        ],
+        "title_en": "The Story about the Merchant Mahā Dhana"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.11",
+    "dhp_verses": [
+      287
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.11",
+        "verses": [
+          287
+        ],
+        "title_en": "The Story about Kisā Gotamī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "20.12",
+    "dhp_verses": [
+      288,
+      289
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "20.12",
+        "verses": [
+          288,
+          289
+        ],
+        "title_en": "The Story about Paṭācārā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.1",
+    "dhp_verses": [
+      290
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.1",
+        "verses": [
+          290
+        ],
+        "title_en": "The Story about Ascending the Ganges"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.2",
+    "dhp_verses": [
+      291
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.2",
+        "verses": [
+          291
+        ],
+        "title_en": "The Story about a Woman Who Ate Chicken Eggs"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.3",
+    "dhp_verses": [
+      292,
+      293
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.3",
+        "verses": [
+          292,
+          293
+        ],
+        "title_en": "The Story about the Bhikkhus of Bhaddiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.4",
+    "dhp_verses": [
+      294,
+      295
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.4",
+        "verses": [
+          294,
+          295
+        ],
+        "title_en": "The Story about the Elder Lakuṇṭaka Bhaddiya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.5",
+    "dhp_verses": [
+      296,
+      297,
+      298,
+      299,
+      300,
+      301
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.5",
+        "verses": [
+          296,
+          297,
+          298,
+          299,
+          300,
+          301
+        ],
+        "title_en": "The Story about a Son of a Wagon Driver"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.6",
+    "dhp_verses": [
+      302
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.6",
+        "verses": [
+          302
+        ],
+        "title_en": "The Story about the Vajjian Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.7",
+    "dhp_verses": [
+      303
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.7",
+        "verses": [
+          303
+        ],
+        "title_en": "The Story about the Householder Citta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.8",
+    "dhp_verses": [
+      304
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.8",
+        "verses": [
+          304
+        ],
+        "title_en": "The Story about Cullā Subhaddā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "21.9",
+    "dhp_verses": [
+      305
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "21.9",
+        "verses": [
+          305
+        ],
+        "title_en": "The Story about the Elder Ekavihārī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.1",
+    "dhp_verses": [
+      306
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.1",
+        "verses": [
+          306
+        ],
+        "title_en": "The Story about the Wanderer Sundarī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.2",
+    "dhp_verses": [
+      307
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.2",
+        "verses": [
+          307
+        ],
+        "title_en": "The Story about the Fruits and Powers of People’s Bad Conduct"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.3",
+    "dhp_verses": [
+      308
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.3",
+        "verses": [
+          308
+        ],
+        "title_en": "The Story about the Bhikkhus Who Lived on the Banks of the Vaggumudā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.4",
+    "dhp_verses": [
+      309,
+      310
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.4",
+        "verses": [
+          309,
+          310
+        ],
+        "title_en": "The Story about Khema"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.5",
+    "dhp_verses": [
+      311,
+      312,
+      313
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.5",
+        "verses": [
+          311,
+          312,
+          313
+        ],
+        "title_en": "The Story about a Stubborn Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.6",
+    "dhp_verses": [
+      314
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.6",
+        "verses": [
+          314
+        ],
+        "title_en": "The Story about the Woman Jealous by Nature"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.7",
+    "dhp_verses": [
+      315
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.7",
+        "verses": [
+          315
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.8",
+    "dhp_verses": [
+      316,
+      317
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.8",
+        "verses": [
+          316,
+          317
+        ],
+        "title_en": "The Story about the Nigaṇṭhas"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "22.9",
+    "dhp_verses": [
+      318,
+      319
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "22.9",
+        "verses": [
+          318,
+          319
+        ],
+        "title_en": "The Story about the Sectarian Disciples"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.1",
+    "dhp_verses": [
+      320,
+      321,
+      322
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.1",
+        "verses": [
+          320,
+          321,
+          322
+        ],
+        "title_en": "The Story about Speaking and Rousing Oneself"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.2",
+    "dhp_verses": [
+      323
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.2",
+        "verses": [
+          323
+        ],
+        "title_en": "The Story about the Bhikkhu Who Had Been an Elephant-Trainer"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.3",
+    "dhp_verses": [
+      324
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.3",
+        "verses": [
+          324
+        ],
+        "title_en": "The Story about the Old Brahmin’s Sons"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.4",
+    "dhp_verses": [
+      325
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.4",
+        "verses": [
+          325
+        ],
+        "title_en": "The Story about Pasenadi Kosala"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.5",
+    "dhp_verses": [
+      326
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.5",
+        "verses": [
+          326
+        ],
+        "title_en": "The Story about the Novice Sāṇu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.6",
+    "dhp_verses": [
+      327
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.6",
+        "verses": [
+          327
+        ],
+        "title_en": "The Story about the Elephant Baddheraka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.7",
+    "dhp_verses": [
+      328,
+      329,
+      330
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.7",
+        "verses": [
+          328,
+          329,
+          330
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "23.8",
+    "dhp_verses": [
+      331,
+      332,
+      333
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "23.8",
+        "verses": [
+          331,
+          332,
+          333
+        ],
+        "title_en": "The Story about Māra"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.1",
+    "dhp_verses": [
+      334,
+      335,
+      336,
+      337
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.1",
+        "verses": [
+          334,
+          335,
+          336,
+          337
+        ],
+        "title_en": "The Story about Kapilamaccha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.2",
+    "dhp_verses": [
+      338,
+      339,
+      340,
+      341,
+      342,
+      343
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.2",
+        "verses": [
+          338,
+          339,
+          340,
+          341,
+          342,
+          343
+        ],
+        "title_en": "The Story about the Young Sow"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.3",
+    "dhp_verses": [
+      344
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.3",
+        "verses": [
+          344
+        ],
+        "title_en": "The Story about the Runaway Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.4",
+    "dhp_verses": [
+      345,
+      346
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.4",
+        "verses": [
+          345,
+          346
+        ],
+        "title_en": "The Story about the Prison House"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.5",
+    "dhp_verses": [
+      347
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.5",
+        "verses": [
+          347
+        ],
+        "title_en": "The Story about the Elder Khemā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.6",
+    "dhp_verses": [
+      348
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.6",
+        "verses": [
+          348
+        ],
+        "title_en": "The Story about Uggasena"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.7",
+    "dhp_verses": [
+      349,
+      350
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.7",
+        "verses": [
+          349,
+          350
+        ],
+        "title_en": "The Story about the Wise Archer Culla Dhanuggaha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.8",
+    "dhp_verses": [
+      351,
+      352
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.8",
+        "verses": [
+          351,
+          352
+        ],
+        "title_en": "The Story about Māra"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.9",
+    "dhp_verses": [
+      353
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.9",
+        "verses": [
+          353
+        ],
+        "title_en": "The Story about the Ājīvaka Upaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.10",
+    "dhp_verses": [
+      354
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.10",
+        "verses": [
+          354
+        ],
+        "title_en": "The Story about Sakka’s Question"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.11",
+    "dhp_verses": [
+      355
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.11",
+        "verses": [
+          355
+        ],
+        "title_en": "The Story about the Childless Rich Man"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "24.12",
+    "dhp_verses": [
+      356,
+      357,
+      358,
+      359
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "24.12",
+        "verses": [
+          356,
+          357,
+          358,
+          359
+        ],
+        "title_en": "The Story about Aṅkura"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.1",
+    "dhp_verses": [
+      360,
+      361
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.1",
+        "verses": [
+          360,
+          361
+        ],
+        "title_en": "The Story about Five Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.2",
+    "dhp_verses": [
+      362
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.2",
+        "verses": [
+          362
+        ],
+        "title_en": "The Story about the Goose-Killing Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.3",
+    "dhp_verses": [
+      363
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.3",
+        "verses": [
+          363
+        ],
+        "title_en": "The Story about Kokālika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.4",
+    "dhp_verses": [
+      364
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.4",
+        "verses": [
+          364
+        ],
+        "title_en": "The Story about the Elder Dhammārāma"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.5",
+    "dhp_verses": [
+      365,
+      366
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.5",
+        "verses": [
+          365,
+          366
+        ],
+        "title_en": "The Story about a Treacherous Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.6",
+    "dhp_verses": [
+      367
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.6",
+        "verses": [
+          367
+        ],
+        "title_en": "The Story about the Brahmin Pañcaggadāyaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.7",
+    "dhp_verses": [
+      368,
+      369,
+      370,
+      371,
+      372,
+      373,
+      374,
+      375,
+      376
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.7",
+        "verses": [
+          368,
+          369,
+          370,
+          371,
+          372,
+          373,
+          374,
+          375,
+          376
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.8",
+    "dhp_verses": [
+      377
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.8",
+        "verses": [
+          377
+        ],
+        "title_en": "The Story about the Five Hundred Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.9",
+    "dhp_verses": [
+      378
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.9",
+        "verses": [
+          378
+        ],
+        "title_en": "The Story about the Elder Santakāya"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.10",
+    "dhp_verses": [
+      379,
+      380
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.10",
+        "verses": [
+          379,
+          380
+        ],
+        "title_en": "The Story about the Elder Naṅgalakula"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.11",
+    "dhp_verses": [
+      381
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.11",
+        "verses": [
+          381
+        ],
+        "title_en": "The Story about the Elder Vakkali"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "25.12",
+    "dhp_verses": [
+      382
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "25.12",
+        "verses": [
+          382
+        ],
+        "title_en": "The Story about the Novice Sumana"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.1",
+    "dhp_verses": [
+      383
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.1",
+        "verses": [
+          383
+        ],
+        "title_en": "The Story about the Brahmin Pasādabahula"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.2",
+    "dhp_verses": [
+      384
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.2",
+        "verses": [
+          384
+        ],
+        "title_en": "The Story about a Company of Bhikkhus"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.3",
+    "dhp_verses": [
+      385
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.3",
+        "verses": [
+          385
+        ],
+        "title_en": "The Story about Māra"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.4",
+    "dhp_verses": [
+      386
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.4",
+        "verses": [
+          386
+        ],
+        "title_en": "The Story about a Certain Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.5",
+    "dhp_verses": [
+      387
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.5",
+        "verses": [
+          387
+        ],
+        "title_en": "The Story about the Elder Ānanda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.6",
+    "dhp_verses": [
+      388
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.6",
+        "verses": [
+          388
+        ],
+        "title_en": "The Story about a Certain One Gone Forth"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.7",
+    "dhp_verses": [
+      389,
+      390
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.7",
+        "verses": [
+          389,
+          390
+        ],
+        "title_en": "The Story about the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.8",
+    "dhp_verses": [
+      391
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.8",
+        "verses": [
+          391
+        ],
+        "title_en": "The Story about Mahā Pajāpatī Gotamī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.9",
+    "dhp_verses": [
+      392
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.9",
+        "verses": [
+          392
+        ],
+        "title_en": "The Story about the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.10",
+    "dhp_verses": [
+      393
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.10",
+        "verses": [
+          393
+        ],
+        "title_en": "The Story about the Brahmin with Matted Hair"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.11",
+    "dhp_verses": [
+      394
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.11",
+        "verses": [
+          394
+        ],
+        "title_en": "The Story about the Fraudulent Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.12",
+    "dhp_verses": [
+      395
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.12",
+        "verses": [
+          395
+        ],
+        "title_en": "The Story about Kisā Gotamī"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.13",
+    "dhp_verses": [
+      396
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.13",
+        "verses": [
+          396
+        ],
+        "title_en": "The Story about One Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.14",
+    "dhp_verses": [
+      397
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.14",
+        "verses": [
+          397
+        ],
+        "title_en": "The Story about Uggasena"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.15",
+    "dhp_verses": [
+      398
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.15",
+        "verses": [
+          398
+        ],
+        "title_en": "The Story about Two Brahmins"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.16",
+    "dhp_verses": [
+      399
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.16",
+        "verses": [
+          399
+        ],
+        "title_en": "The Story about the Insolent Bhāradvāja"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.17",
+    "dhp_verses": [
+      400
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.17",
+        "verses": [
+          400
+        ],
+        "title_en": "The Story about the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.18",
+    "dhp_verses": [
+      401
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.18",
+        "verses": [
+          401
+        ],
+        "title_en": "The Story about the Elder Uppalavaṇṇā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.19",
+    "dhp_verses": [
+      402
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.19",
+        "verses": [
+          402
+        ],
+        "title_en": "The Story about a Certain Brahmin"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.20",
+    "dhp_verses": [
+      403
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.20",
+        "verses": [
+          403
+        ],
+        "title_en": "The Story about the Bhikkhunī Khemā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.21",
+    "dhp_verses": [
+      404
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.21",
+        "verses": [
+          404
+        ],
+        "title_en": "The Story about the Elder Pabbhāravāsī Tissa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.22",
+    "dhp_verses": [
+      405
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.22",
+        "verses": [
+          405
+        ],
+        "title_en": "The Story about a Certain Bhikkhu"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.23",
+    "dhp_verses": [
+      406
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.23",
+        "verses": [
+          406
+        ],
+        "title_en": "The Story about the Four Novices"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.24",
+    "dhp_verses": [
+      407
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.24",
+        "verses": [
+          407
+        ],
+        "title_en": "The Story about the Elder Mahā Panthaka"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.25",
+    "dhp_verses": [
+      408
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.25",
+        "verses": [
+          408
+        ],
+        "title_en": "The Story about the Elder Pilindavaccha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.26",
+    "dhp_verses": [
+      409
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.26",
+        "verses": [
+          409
+        ],
+        "title_en": "The Story about a Certain Elder"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.27",
+    "dhp_verses": [
+      410
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.27",
+        "verses": [
+          410
+        ],
+        "title_en": "The Story about the Elder Sāriputta"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.28",
+    "dhp_verses": [
+      411
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.28",
+        "verses": [
+          411
+        ],
+        "title_en": "The Story about the Elder Mahā Moggallāna"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.29",
+    "dhp_verses": [
+      412
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.29",
+        "verses": [
+          412
+        ],
+        "title_en": "The Story about the Elder Revata"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.30",
+    "dhp_verses": [
+      413
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.30",
+        "verses": [
+          413
+        ],
+        "title_en": "The Story about the Elder Candābha"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.31",
+    "dhp_verses": [
+      414
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.31",
+        "verses": [
+          414
+        ],
+        "title_en": "The Story about the Elder Sīvali"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.32",
+    "dhp_verses": [
+      415
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.32",
+        "verses": [
+          415
+        ],
+        "title_en": "The Story about the Elder Sundarasamudda"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.33",
+    "dhp_verses": [
+      416
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.33",
+        "verses": [
+          416
+        ],
+        "title_en": "The Story about the Elder Jaṭila"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.34",
+    "dhp_verses": [
+      416
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.34",
+        "verses": [
+          416
+        ],
+        "title_en": "The Story about the Elder Jotika"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.35",
+    "dhp_verses": [
+      417
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.35",
+        "verses": [
+          417
+        ],
+        "title_en": "The Story about the Elder, Formerly an Acrobat"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.36",
+    "dhp_verses": [
+      418
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.36",
+        "verses": [
+          418
+        ],
+        "title_en": "The Story about the Elder, Formerly an Acrobat"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.37",
+    "dhp_verses": [
+      419,
+      420
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.37",
+        "verses": [
+          419,
+          420
+        ],
+        "title_en": "The Story about the Elder Vaṅgīsa"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.38",
+    "dhp_verses": [
+      421
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.38",
+        "verses": [
+          421
+        ],
+        "title_en": "The Story about the Elder Dhammadinnā"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.39",
+    "dhp_verses": [
+      422
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.39",
+        "verses": [
+          422
+        ],
+        "title_en": "The Story about the Elder Aṅgulimāla"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  },
+  {
+    "group_id": "26.40",
+    "dhp_verses": [
+      423
+    ],
+    "sources": {
+      "anandajoti_2024": {
+        "story_no": "26.40",
+        "verses": [
+          423
+        ],
+        "title_en": "The Story about the Brahmin Devahita"
+      },
+      "burlingame_1921": null,
+      "cst4": null
+    },
+    "agreement": "single_source",
+    "notes": null
+  }
+]

@@ -208,12 +208,21 @@ def main():
                         "clean": counts["error"] == 0,
                         "latency_s": gen["latency_s"],
                         "attempt": gen["attempt"],
+                        # Round 5, Task N: wall-clock latency conflates model size
+                        # with prompt length (prompts vary by up to ~2x across
+                        # questions in this sample). tokens_per_second is Ollama's
+                        # own generation-only rate and is comparable across models
+                        # independent of how long any one prompt happened to be.
+                        "eval_count": gen["eval_count"],
+                        "eval_duration_ns": gen["eval_duration_ns"],
+                        "tokens_per_second": gen["tokens_per_second"],
+                        "schema_status": gen["schema_status"],
                         # Layer marginals -- a degenerate classifier emitting only
                         # 'verse' produces zero structural warnings while failing the
                         # project's central claim. The audit cannot see this; count it.
                         "layer_counts": {
                             lyr: sum(1 for c in gen["answer"].claims if c.layer == lyr)
-                            for lyr in ("verse", "commentary", "synthesis")
+                            for lyr in ("verse", "commentary", "alignment", "synthesis")
                         },
                     })
                 except GenerationError as e:
@@ -246,7 +255,7 @@ def main():
     print(f"\n=== Summary per model (max_retries={args.max_retries}) ===")
     print(
         f"  {'model':24s} {'clean':>12s}  {'err/claim [95% CI]':>26s}  "
-        f"{'fmt/claim':>10s}  {'fail':>6s}  {'retry':>6s}  {'latency':>8s}"
+        f"{'fmt/claim':>10s}  {'fail':>6s}  {'retry':>6s}  {'latency':>8s}  {'tok/s':>7s}"
     )
     for model_name in MODELS:
         all_rows = [r for r in results if r["model"] == model_name]
@@ -270,12 +279,20 @@ def main():
         fmt_rate = total_fmt / total_claims if total_claims else 0.0
         n_retried = sum(1 for r in ok if r["attempt"] > 1)
         avg_latency = sum(r["latency_s"] for r in ok) / len(ok)
+        tps_values = [r["tokens_per_second"] for r in ok if r.get("tokens_per_second")]
+        avg_tps = sum(tps_values) / len(tps_values) if tps_values else None
+        tps_str = f"{avg_tps:5.1f}" if avg_tps else "  n/a"
 
         print(
             f"  {model_name:24s} {n_clean:>4d}/{len(all_rows):<3d} {clean_rate:5.1%}  "
             f"{err_rate:8.3f} [{lo:.3f}, {hi:.3f}]  {fmt_rate:10.3f}  "
-            f"{n_fail:>6d}  {n_retried:>6d}  {avg_latency:7.1f}s"
+            f"{n_fail:>6d}  {n_retried:>6d}  {avg_latency:7.1f}s  {tps_str:>7s}"
         )
+    print(
+        "  tok/s is Ollama's own generation-only rate (eval_count/eval_duration) --\n"
+        "  a fairer cross-model comparison than latency alone, which conflates model\n"
+        "  size with per-question prompt length."
+    )
 
     # Layer marginals: the degenerate-classifier check.
     print("\n=== Layer marginals (predicted) ===")
@@ -283,11 +300,12 @@ def main():
         ok = [r for r in results if r["model"] == model_name and r["success"]]
         if not ok:
             continue
-        tot = {lyr: sum(r["layer_counts"][lyr] for r in ok) for lyr in ("verse", "commentary", "synthesis")}
+        tot = {lyr: sum(r["layer_counts"][lyr] for r in ok) for lyr in ("verse", "commentary", "alignment", "synthesis")}
         n = sum(tot.values()) or 1
         print(
             f"  {model_name:24s} verse={tot['verse']:>3d} ({tot['verse']/n:4.0%})  "
             f"commentary={tot['commentary']:>3d} ({tot['commentary']/n:4.0%})  "
+            f"alignment={tot['alignment']:>3d} ({tot['alignment']/n:4.0%})  "
             f"synthesis={tot['synthesis']:>3d} ({tot['synthesis']/n:4.0%})"
         )
     print(

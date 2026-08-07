@@ -1,0 +1,62 @@
+{
+  "rrf_k=10": {
+    "overall": 0.9544,
+    "by_type": {
+      "alignment": 1.0,
+      "corpus_anomaly": 0.0,
+      "cross_recension": 1.0,
+      "doctrinal": 0.9508,
+      "narrative": 0.9877,
+      "philological": 0.955
+    },
+    "n": 114
+  },
+  "rrf_k=20": {
+    "overall": 0.9566,
+    "by_type": {
+      "alignment": 1.0,
+      "corpus_anomaly": 0.0,
+      "cross_recension": 1.0,
+      "doctrinal": 0.9508,
+      "narrative": 0.9877,
+      "philological": 0.9631
+    },
+    "n": 114
+  },
+  "rrf_k=40": {
+    "overall": 0.9595,
+    "by_type": {
+      "alignment": 1.0,
+      "corpus_anomaly": 0.1667,
+      "cross_recension": 1.0,
+      "doctrinal": 0.9508,
+      "narrative": 0.9877,
+      "philological": 0.9631
+    },
+    "n": 114
+  },
+  "rrf_k=60": {
+    "overall": 0.9592,
+    "by_type": {
+      "alignment": 1.0,
+      "corpus_anomaly": 0.1505,
+      "cross_recension": 1.0,
+      "doctrinal": 0.9508,
+      "narrative": 0.9877,
+      "philological": 0.9631
+    },
+    "n": 114
+  },
+  "score_fusion": {
+    "overall": 0.951,
+    "by_type": {
+      "alignment": 1.0,
+      "corpus_anomaly": 0.0,
+      "cross_recension": 1.0,
+      "doctrinal": 0.9298,
+      "narrative": 0.9877,
+      "philological": 0.9631
+    },
+    "n": 114
+  }
+}

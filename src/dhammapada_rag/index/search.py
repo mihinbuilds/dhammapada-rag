@@ -12,10 +12,13 @@ from __future__ import annotations
 
 import json
 import pickle
+import sys
 from pathlib import Path
 
 import numpy as np
 from FlagEmbedding import BGEM3FlagModel
+
+from dhammapada_rag.index.rerank import best_device
 
 
 def rrf_fuse(rank_lists: list[list[int]], k: int = 60) -> list[tuple[int, float]]:
@@ -40,18 +43,33 @@ class ChunkIndex:
         self.chunks_by_id = {c["chunk_id"]: c for c in chunks}
         assert len(self.chunk_ids) == self.dense.shape[0] == len(self.sparse) == len(self.colbert)
 
-        self.model = model or BGEM3FlagModel("BAAI/bge-m3", use_fp16=False, devices=["cpu"])
+        # Round 6, Task S: this ran on hardcoded CPU regardless of what
+        # hardware was available -- the query-time encoder, so this is the
+        # one of the three BGE-M3/reranker instantiations in the codebase
+        # that runs on every single search, not once at index-build time.
+        # best_device() is shared with CrossEncoderReranker and embed.py so
+        # all three pick the same hardware the same way.
+        if model is not None:
+            self.model = model
+        else:
+            device, use_fp16 = best_device()
+            print(f"ChunkIndex: using device={device!r} fp16={use_fp16}", file=sys.stderr)
+            self.model = BGEM3FlagModel("BAAI/bge-m3", use_fp16=use_fp16, devices=[device])
 
-    def search(
+    def _score_arms(
         self,
         query: str,
-        top_k: int = 10,
-        dense_k: int = 100,
-        sparse_k: int = 100,
-        colbert_candidates: int = 50,
-        rrf_k: int = 60,
-        use_colbert: bool = True,
-    ) -> list[dict]:
+        dense_k: int,
+        sparse_k: int,
+        colbert_candidates: int,
+        use_colbert: bool,
+    ) -> dict:
+        """Shared encoding + per-arm scoring, factored out of `search()` so
+        Round 5's Task M (arm_diagnosis.py) can inspect each retrieval arm's
+        own ranking without duplicating the encode/score calls or -- more
+        importantly -- without touching `rrf_fuse()` or `search()`'s
+        behavior at all. Returns raw index arrays/dicts; `search()` and
+        `search_arms()` each turn these into their own public shape."""
         q = self.model.encode(
             [query], return_dense=True, return_sparse=True, return_colbert_vecs=use_colbert
         )
@@ -66,8 +84,8 @@ class ChunkIndex:
         )
         sparse_rank = list(np.argsort(-sparse_scores)[:sparse_k])
 
-        rank_lists = [dense_rank, sparse_rank]
-
+        colbert_rank: list[int] = []
+        colbert_scores: dict[int, float] = {}
         if use_colbert:
             q_colbert = np.asarray(q["colbert_vecs"][0], dtype=np.float32)
             candidate_idx = sorted(set(dense_rank[:colbert_candidates]) | set(sparse_rank[:colbert_candidates]))
@@ -75,7 +93,30 @@ class ChunkIndex:
                 int(i): float(self.model.colbert_score(q_colbert, self.colbert[i])) for i in candidate_idx
             }
             colbert_rank = sorted(colbert_scores, key=lambda i: -colbert_scores[i])
-            rank_lists.append(colbert_rank)
+
+        return {
+            "dense_scores": dense_scores, "dense_rank": dense_rank,
+            "sparse_scores": sparse_scores, "sparse_rank": sparse_rank,
+            "colbert_scores": colbert_scores, "colbert_rank": colbert_rank,
+        }
+
+    def search(
+        self,
+        query: str,
+        top_k: int = 10,
+        dense_k: int = 100,
+        sparse_k: int = 100,
+        colbert_candidates: int = 50,
+        rrf_k: int = 60,
+        use_colbert: bool = True,
+    ) -> list[dict]:
+        arms = self._score_arms(query, dense_k, sparse_k, colbert_candidates, use_colbert)
+        dense_scores, dense_rank = arms["dense_scores"], arms["dense_rank"]
+        sparse_scores, sparse_rank = arms["sparse_scores"], arms["sparse_rank"]
+
+        rank_lists = [dense_rank, sparse_rank]
+        if use_colbert:
+            rank_lists.append(arms["colbert_rank"])
 
         fused = rrf_fuse(rank_lists, k=rrf_k)[:top_k]
 
@@ -93,6 +134,45 @@ class ChunkIndex:
                 }
             )
         return results
+
+    def search_arms(
+        self,
+        query: str,
+        top_k: int = 10,
+        dense_k: int = 100,
+        sparse_k: int = 100,
+        colbert_candidates: int = 50,
+        rrf_k: int = 60,
+    ) -> dict[str, list[dict]]:
+        """Round 5, Task M: the four retrieval arms side by side --
+        dense-only, sparse-only, ColBERT-only, and RRF-fused -- each as its
+        own top_k list of {chunk_id, chunk_type, dhp_verses, score}. Existing
+        callers should keep using `search()`; this is for diagnosing which
+        arm is driving a fusion result, not for production retrieval.
+        """
+        arms = self._score_arms(query, dense_k, sparse_k, colbert_candidates, use_colbert=True)
+
+        def _rows(rank: list[int], scores) -> list[dict]:
+            out = []
+            for idx in rank[:top_k]:
+                cid = self.chunk_ids[idx]
+                chunk = self.chunks_by_id[cid]
+                score = scores[idx] if isinstance(scores, dict) else float(scores[idx])
+                out.append({
+                    "chunk_id": cid, "chunk_type": chunk["chunk_type"],
+                    "dhp_verses": chunk["dhp_verses"], "score": score,
+                })
+            return out
+
+        rank_lists = [arms["dense_rank"], arms["sparse_rank"], arms["colbert_rank"]]
+        fused = [idx for idx, _ in rrf_fuse(rank_lists, k=rrf_k)]
+
+        return {
+            "dense": _rows(arms["dense_rank"], arms["dense_scores"]),
+            "sparse": _rows(arms["sparse_rank"], arms["sparse_scores"]),
+            "colbert": _rows(arms["colbert_rank"], arms["colbert_scores"]),
+            "fused": _rows(fused, {idx: s for idx, s in rrf_fuse(rank_lists, k=rrf_k)}),
+        }
 
 
 def main() -> None:
