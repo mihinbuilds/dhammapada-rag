@@ -90,6 +90,7 @@ A chunk is skipped if its source field is null/empty -- no placeholder chunks.
 from __future__ import annotations
 
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -191,6 +192,70 @@ def _truncate_at_page_break(text: str) -> str:
     if not candidates:
         return text
     return text[: min(candidates)].rstrip()
+
+
+_PRONOUNCED_VERSE = re.compile(r"pronounc\w*\s+the\s+following\s+(?:verse|stanza)s?\s*:?", re.I)
+_VERSE_NUMBER_MARKER = re.compile(r"(?<![\d.])(\d{1,3})\.\s")
+
+
+def _strip_closing_verse_quote(text: str, dhp_verses: list[int]) -> str:
+    """Drop a story's own closing citation of the Dhp verse(s) it explains
+    from vatthu/desanavasane text, before windowing.
+
+    Burlingame's translation convention closes most stories with "...he
+    pronounced the following verse: <number>. <Pali>. <English>" -- the
+    narrative quotes, verbatim, the exact verse text that verse:<n>:pali_ms /
+    en_sujato / en_interlinear already carry as separate chunks. For short
+    single-verse stories this closing quote is most of the field, so the
+    resulting story_vatthu/story_desanavasane chunk is barely distinguishable
+    from a verse chunk -- and out-competes the true verse-layer chunks (and
+    other stories' more diffuse commentary) on any query naming words from
+    that verse, because it scores as *both* layers on a single dense passage.
+    Found via a research-validation cross-layer failure (Q16/Q26,
+    dhammapada_research_validation_results.md): a "mustard seed" query
+    matched two short single-verse stories (Dhp 401, 407) ahead of Kisā
+    Gotamī's story (Dhp 114), even though 114's own commentary discusses
+    mustard seed at length -- because 401/407's vatthu chunk *is* their own
+    verse, quoted whole, while 114's vatthu is long, windowed, and never puts
+    the "mustard seed" narrative and its closing verse-quote in the same
+    chunk. Same failure family as `_truncate_at_page_break` above (verse-
+    layer content leaking into a nominally commentary-only chunk_type), just
+    triggered by narrative convention instead of PDF pagination.
+
+    Same phrase also introduces verses recited *by characters* mid-narrative
+    (e.g. a "Story of the Past" flashback, or a secondary Udāna verse) that
+    are not the story's own dhp_verses and are genuine narrative content --
+    stripping those would be a content loss, not a fix. So this only strips
+    the LAST occurrence of the trigger phrase, and only when what follows it
+    is verse-shaped and accounted for:
+      1. it names at least one number from this story's own dhp_verses;
+      2. every own-verse number found is a contiguous suffix of dhp_verses
+         sorted ascending (Dhp 294 alone when dhp_verses is [294, 295] means
+         295's quote is missing or something else is going on -- leave it);
+      3. the remaining text is short relative to how many verses it quotes
+         (<=110 words/verse -- a stanza's Pali + numbering + two English
+         renderings runs 25-60 words; a "Story of the Past" continuing for
+         several more paragraphs after a single quoted verse does not).
+    Verified against the corpus: 291/297 candidates satisfy all three and
+    inspection of the other 6 (rejected on check 2 or 3) confirms real
+    narrative -- not a quote -- follows in each. Corpus-wide rule, not a
+    per-story patch, for the same reason as `_truncate_at_page_break`.
+    """
+    matches = list(_PRONOUNCED_VERSE.finditer(text))
+    if not matches:
+        return text
+    last = matches[-1]
+    segment = text[last.end():]
+    numbers = [int(n) for n in _VERSE_NUMBER_MARKER.findall(segment)]
+    own_numbers = sorted(set(n for n in numbers if n in dhp_verses))
+    if not own_numbers:
+        return text
+    dv_sorted = sorted(dhp_verses)
+    is_suffix = dv_sorted[-len(own_numbers):] == own_numbers
+    ratio = len(segment.split()) / len(own_numbers)
+    if not (is_suffix and ratio <= 110):
+        return text
+    return text[: last.start()].rstrip()
 
 
 def _split_windows(text: str, window: int = WINDOW_WORDS, overlap: int = OVERLAP_WORDS) -> list[str]:
@@ -363,8 +428,15 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
         if s.get("nidana"):
             chunks.append(_chunk(f"story:{gid}:nidana", "story_nidana", s["nidana"], dhp_verses=dv, group_id=gid))
         if s.get("vatthu"):
+            # _strip_closing_verse_quote: drop the narrative's own closing
+            # citation of dhp_verses (Burlingame's "...pronounced the
+            # following verse: <Pali>. <English>" convention) so this
+            # commentary chunk doesn't also double as a verbatim verse-layer
+            # chunk -- see that function's docstring for the cross-layer
+            # retrieval failure this was found to cause.
+            vatthu = _strip_closing_verse_quote(s["vatthu"], dv)
             chunks.extend(
-                _windowed_chunks(f"story:{gid}:vatthu", "story_vatthu", s["vatthu"], dhp_verses=dv, group_id=gid)
+                _windowed_chunks(f"story:{gid}:vatthu", "story_vatthu", vatthu, dhp_verses=dv, group_id=gid)
             )
         if s.get("desanavasane"):
             # Same over-capture issue, worse: some desanavasane fields contain
@@ -375,8 +447,9 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
             # _truncate_at_page_break does not and should not touch it).
             # Windowed for the same reason as synopsis above, after the
             # page-break trim strips 26.40's colophon (and 21 other stories'
-            # next-chapter-heading crumbs) specifically.
-            desanavasane = _truncate_at_page_break(s["desanavasane"])
+            # next-chapter-heading crumbs) specifically, and the same closing-
+            # verse-quote strip applied to vatthu above.
+            desanavasane = _strip_closing_verse_quote(_truncate_at_page_break(s["desanavasane"]), dv)
             chunks.extend(
                 _windowed_chunks(f"story:{gid}:desanavasane", "story_desanavasane", desanavasane, dhp_verses=dv, group_id=gid)
             )
