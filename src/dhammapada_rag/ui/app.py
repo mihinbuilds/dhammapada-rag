@@ -22,7 +22,7 @@ ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
 
 from dhammapada_rag.generate.generate import Generator, GenerationError  # noqa: E402
-from dhammapada_rag.generate.render import render_markdown  # noqa: E402
+from dhammapada_rag.generate.render import render_markdown, render_plain  # noqa: E402
 from dhammapada_rag.index.assemble import assemble, load_verses_and_stories, query  # noqa: E402
 from dhammapada_rag.index.rerank import CrossEncoderReranker  # noqa: E402
 from dhammapada_rag.index.search import ChunkIndex  # noqa: E402
@@ -272,6 +272,44 @@ def render_verse_group(bundle: dict, key_prefix: str, disposition: dict | None =
                     st.markdown(s["vatthu"])
 
 
+def _log_query_to_terminal(question: str, bundles: list[dict], result: dict | None) -> None:
+    """Print a request/response summary to stderr -- the terminal running
+    `streamlit run` otherwise only ever shows the one-time device-selection
+    log at startup (ChunkIndex/CrossEncoderReranker's own prints). Streamlit
+    renders the answer into the browser over its own websocket, not via
+    stdout/stderr, so without this a query's retrieval and generation
+    activity is invisible in the terminal even though it's fully visible in
+    the browser -- the same gap `generate.py`'s CLI `main()` doesn't have,
+    since it prints its result directly.
+    """
+    print(f"\n=== QUERY: {question!r} ===", file=sys.stderr)
+    print(f"  retrieved {len(bundles)} verse-group(s):", file=sys.stderr)
+    for b in bundles:
+        gids = ", ".join(s["group_id"] for s in b["stories"])
+        titles = " / ".join(s["title_en"] for s in b["stories"])
+        print(f"    Dhp {b['verse_numbers']} -- {titles} (story {gids})", file=sys.stderr)
+
+    if result is None:
+        return
+
+    layers = [c.layer for c in result["answer"].claims]
+    counts = {lyr: layers.count(lyr) for lyr in ("verse", "commentary", "alignment", "synthesis")}
+    print(
+        f"  generated: model={result['model']}  latency={result['latency_s']:.1f}s  "
+        f"prompt=~{result.get('prompt_tokens', '?')} tok / num_ctx {result.get('num_ctx', '?')}  "
+        f"layers={counts}",
+        file=sys.stderr,
+    )
+    if result["warnings"]:
+        print(f"  warnings ({len(result['warnings'])}):", file=sys.stderr)
+        for w in result["warnings"]:
+            print(f"    {w}", file=sys.stderr)
+    print("  --- answer ---", file=sys.stderr)
+    for line in render_plain(result["answer"]).splitlines():
+        print(f"  {line}", file=sys.stderr)
+    print("=== END ===\n", file=sys.stderr)
+
+
 def page_query():
     st.title("Ask the Dhammapada")
     st.caption(
@@ -306,7 +344,7 @@ def page_query():
         "which single story explains Dhp 320, 321, and 322 together?",
     ]
     for col, ex in zip(example_cols, examples):
-        col.button(ex, use_container_width=True, on_click=_set_question, args=(ex,))
+        col.button(ex, width="stretch", on_click=_set_question, args=(ex,))
 
     if st.button("Search", type="primary") and question:
         index, reranker, verses_by_number, stories_by_id = load_pipeline()
@@ -326,6 +364,8 @@ def page_query():
                 except GenerationError as e:
                     st.error(f"Generation failed: {e}")
                     result = None
+
+            _log_query_to_terminal(question, bundles, result)
 
             if not bundles:
                 st.warning("No retrieval results for this question.")
@@ -372,6 +412,9 @@ def page_query():
                     question, index=index, reranker=reranker, top_k=top_k, candidates=candidates,
                     root=ROOT, verses_by_number=verses_by_number, stories_by_id=stories_by_id,
                 )
+
+            _log_query_to_terminal(question, bundles, None)
+
             if not bundles:
                 st.warning("No retrieval results for this question.")
             else:
@@ -433,7 +476,7 @@ def page_evaluation():
         m = d["baseline"]
         type_rows.append({"type": qtype, "n": d["n"], "Recall@1": m["recall@1"], "Recall@10": m["recall@10"], "nDCG@10": m["ndcg@10"], "MRR": m["mrr"]})
     df_type = pd.DataFrame(type_rows).sort_values("nDCG@10", ascending=False)
-    st.dataframe(df_type, use_container_width=True, hide_index=True)
+    st.dataframe(df_type, width="stretch", hide_index=True)
     # Phase 6 note: the Phase 2 chunking fix (title fields now indexed) moved
     # cross_recension to a perfect 1.000 -- it is no longer the worst type,
     # so the old caption naming it as such would now be a stale, incorrect
@@ -447,7 +490,7 @@ def page_evaluation():
 
     fig = go.Figure(go.Bar(x=df_type["type"], y=df_type["nDCG@10"], marker_color=["#dc2626" if t == worst_type else "#2563eb" for t in df_type["type"]]))
     fig.update_layout(title="nDCG@10 by query type (baseline)", yaxis_range=[0, 1], height=350)
-    st.plotly_chart(fig, use_container_width=True)
+    st.plotly_chart(fig, width="stretch")
 
     st.subheader("Ablations (overall, delta from baseline, bootstrap 95% CI)")
     # Phase 6 fix: ablation_deltas_ndcg10 (paired-by-question bootstrap CIs)
@@ -465,7 +508,7 @@ def page_evaluation():
         error_y=dict(type="data", symmetric=False, array=err_hi, arrayminus=err_lo),
     ))
     fig2.update_layout(title="nDCG@10 drop when ablating each component (error bars: 95% CI)", yaxis_title="baseline - variant", height=350)
-    st.plotly_chart(fig2, use_container_width=True)
+    st.plotly_chart(fig2, width="stretch")
     st.caption(
         "Verse-only chunking causes by far the largest drop -- the strongest evidence for the project's core "
         "architectural claim. Flat-vs-assembled shows ~no difference (a genuine null result, not oversold). "
@@ -476,7 +519,7 @@ def page_evaluation():
 
     if ret.get("by_subtype"):
         st.subheader("By subtype")
-        st.dataframe(pd.DataFrame([{"subtype": s, **d["baseline"]} for s, d in ret["by_subtype"].items()]), use_container_width=True, hide_index=True)
+        st.dataframe(pd.DataFrame([{"subtype": s, **d["baseline"]} for s, d in ret["by_subtype"].items()]), width="stretch", hide_index=True)
     else:
         st.caption("Subtype breakdown not available in this run (retrieval_eval.py does not currently propagate `subtype` into its output rows).")
 
@@ -495,7 +538,7 @@ def page_evaluation():
     # editorial structure) is a fourth layer, not folded into commentary.
     layers = ["verse", "commentary", "alignment", "synthesis"]
     df_cm = pd.DataFrame([[cm[g][p] for p in layers] for g in layers], index=[f"gold: {g}" for g in layers], columns=[f"pred: {p}" for p in layers])
-    st.dataframe(df_cm, use_container_width=True)
+    st.dataframe(df_cm, width="stretch")
     st.caption(
         f"Conflation (commentary content tagged 'verse', the failure mode this system exists to catch): "
         f"{gen['commentary_tagged_verse']} instances. Reverse direction (verse tagged 'commentary'): "
@@ -504,7 +547,7 @@ def page_evaluation():
 
     st.subheader("Per-class precision / recall / F1")
     pc_rows = [{"layer": l, **{k: v for k, v in d.items()}} for l, d in gen["per_class"].items()]
-    st.dataframe(pd.DataFrame(pc_rows), use_container_width=True, hide_index=True)
+    st.dataframe(pd.DataFrame(pc_rows), width="stretch", hide_index=True)
 
     # Round 7, Task V: neither metric above asks whether an answer used what
     # retrieval gave it, or how many of the four layers it actually drew on --
@@ -529,7 +572,7 @@ def page_evaluation():
         )
         fig_dist = go.Figure(go.Bar(x=dist_df["layers used"].astype(str), y=dist_df["answers"], marker_color="#7c3aed"))
         fig_dist.update_layout(title="How many distinct layers does each answer use?", xaxis_title="layers used", yaxis_title="answers", height=300)
-        st.plotly_chart(fig_dist, use_container_width=True)
+        st.plotly_chart(fig_dist, width="stretch")
     st.caption(
         "Synthesis has perfect precision but the worst recall by a wide margin -- when the model does tag "
         "something 'synthesis' it's right, but it under-uses the tag, folding synthesis-type reasoning into "
@@ -566,7 +609,7 @@ def page_evaluation():
                     "avg_latency_s": round(avg_latency, 1),
                 })
         df_sweep = pd.DataFrame(sweep_summary)
-        st.dataframe(df_sweep, use_container_width=True, hide_index=True)
+        st.dataframe(df_sweep, width="stretch", hide_index=True)
 
         fig3 = go.Figure()
         for mr, color in ((0, "#2563eb"), (1, "#7c3aed")):
@@ -578,7 +621,7 @@ def page_evaluation():
             barmode="group",
             height=400,
         )
-        st.plotly_chart(fig3, use_container_width=True)
+        st.plotly_chart(fig3, width="stretch")
         st.caption(
             "Structural citation validity improves sharply with model size (a real compute-constraint finding, "
             "not a modeling failure). Retrying on failure does **not** reliably help -- the 1.5B model's clean "
