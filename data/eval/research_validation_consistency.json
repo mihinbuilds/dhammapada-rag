@@ -1,0 +1,106 @@
+{
+  "Q33": {
+    "question": "What did the Buddha ask Kisā Gotamī to bring, and why could she not bring it?",
+    "condition": "full",
+    "seed": 20260813,
+    "answers": [
+      "The Buddha asked Kisā Gotamī to bring a pinch of white mustard seed from a house where no one has ever died. She was unable to find such a house because death is pervasive; in her entire village, the number of dead exceeded the living.",
+      "The Buddha asked Kisā Gotamī to bring a pinch of white mustard seed from a house where no one has ever died. She was unable to find such a house because death is pervasive; in her entire village, the number of dead exceeded the living.",
+      "The Buddha asked Kisā Gotamī to bring a pinch of white mustard seed from a house where no one has ever died. She was unable to find such a house because death is pervasive; in her entire village, the number of dead exceeded the living."
+    ],
+    "all_identical": true
+  },
+  "Q34": {
+    "runs": [
+      {
+        "question": "who was Kisā Gotamī?",
+        "retrieved_group_ids": [
+          "26.12",
+          "8.13",
+          "1.8"
+        ],
+        "claims": [
+          {
+            "text": "Kisā Gotamī was a woman known for her leanness, often referred to as 'Kisā Gotamī' due to the lean appearance of her body.",
+            "layer": "commentary",
+            "group_id": "26.12",
+            "verse_number": 395
+          },
+          {
+            "text": "She was the daughter of a rich merchant who lost all his wealth and subsequently died, leaving Kisā Gotamī to marry the merchant's son.",
+            "layer": "commentary",
+            "group_id": "8.13",
+            "verse_number": 114
+          },
+          {
+            "text": "Kisā Gotamī sought medicine for her dead son but could not find any house that had never seen death, leading to her realization about the impermanence of life.",
+            "layer": "commentary",
+            "group_id": "8.13",
+            "verse_number": 114
+          },
+          {
+            "text": "After this experience, Kisā Gotamī attained Arahatship and the analytic knowledges upon returning to the Buddha.",
+            "layer": "commentary",
+            "group_id": "8.13",
+            "verse_number": 114
+          }
+        ]
+      },
+      {
+        "question": "tell me about the woman who lost her child",
+        "retrieved_group_ids": [
+          "8.13",
+          "8.12",
+          "26.31"
+        ],
+        "claims": [
+          {
+            "text": "The story explains that Kisā Gotamī, a woman known for having never seen death before, lost her only son.",
+            "layer": "commentary",
+            "group_id": "8.13",
+            "verse_number": 114
+          },
+          {
+            "text": "After her child died, she sought medicine to cure him but found none in the village where everyone had experienced loss.",
+            "layer": "commentary",
+            "group_id": "8.13",
+            "verse_number": 114
+          }
+        ]
+      }
+    ]
+  },
+  "Q35": {
+    "question": "To whom was Dhp 1 spoken, and what happened to him?",
+    "condition": "full",
+    "runs": [
+      {
+        "top_k": 1,
+        "retrieved_group_ids": [
+          "8.9"
+        ],
+        "answer": "Dhp 110 was given by the Buddha in reference to the novice Saṅkicca. After Saṅkicca converted five hundred thieves and they all ordained as bhikkhus, the Buddha spoke this verse to the thirty bhikkhus who had previously been threatened by those same thieves. The verse encouraged them to prioritize virtue and meditation over a long but unethical life."
+      },
+      {
+        "top_k": 3,
+        "retrieved_group_ids": [
+          "8.9",
+          "1.1",
+          "2.1"
+        ],
+        "answer": "According to the source material provided, Dhp 1 was spoken by the Buddha with reference to the Elder Cakkhupāla. The teaching had a significant impact as it instilled fear in many and was beneficial and fruitful for those assembled, resulting in 30,000 bhikkhus becoming Arahats with the analytic knowledges at its conclusion."
+      },
+      {
+        "top_k": 5,
+        "retrieved_group_ids": [
+          "8.9",
+          "1.1",
+          "2.1",
+          "13.6",
+          "8.2"
+        ],
+        "answer": "Dhp 1 was spoken with reference to the Elder Cakkhupāla. According to the source material, after the Elder Cakkhupāla determined to fulfill his practice even at the cost of his eyes, he eventually attained Awakening. The Buddha then explained the deed that caused his loss of sight in a past life and concluded with Dhp 1, which states: \"Mind precedes thoughts, mind is their chief, (their quality is) made by mind, if with base mind one speaks or acts, through that suffering follows one like a wheel follows ox’s foot.\""
+      }
+    ]
+  }
+}
