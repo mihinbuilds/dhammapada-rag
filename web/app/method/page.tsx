@@ -2,7 +2,7 @@ import { EvalTable } from "@/components/eval-table";
 import { CopyButton } from "@/components/copy-button";
 import { LAYER_META, LAYER_ORDER, SEVERITY_META } from "@/lib/layers";
 
-const GITHUB_HANDLE = "mihinXL";
+const GITHUB_HANDLE = "mihinbuilds";
 
 const CITATION = `@software{dhammapada_rag_2026,
   title = {Dhammapada-RAG: Layer-Attributed Retrieval-Augmented Generation
@@ -109,7 +109,7 @@ export default function MethodPage() {
             ]}
           />
           <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
-            CC BY-SA 4.0 propagates: any file derived from Ānandajoti's editions must carry the
+            CC BY-SA 4.0 propagates: any file derived from Ānandajoti&apos;s editions must carry the
             same license. Per-file terms: DATA_LICENSE.md.
           </p>
         </section>
