@@ -1,5 +1,6 @@
 {
   "n_questions": 72,
+  "machine": "cuda (NVIDIA GeForce RTX 5080)",
   "overall": {
     "baseline": {
       "recall@1": 0.8611,

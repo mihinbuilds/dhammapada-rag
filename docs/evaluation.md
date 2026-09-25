@@ -1242,6 +1242,83 @@ the one comparable with August.
 - The round-9 truncation warning fires on three genuine half-quotes
   (q031 34%, q043 26%, q067 32% of the verse).
 
+## Round 10: a harder gold set unmasks the reranker (2026-09-24/25)
+
+`docs/status_report.md` §8 called v1 (114 scored questions) saturated:
+baseline R@10 0.9825, and two of four ablations (`dense_only`, `no_rerank`)
+had confidence intervals spanning zero -- undetectable, not necessarily
+absent. Gold set v2 (`data/eval/build_gold_set_v2.py` ->
+`gold_set_v2.jsonl`) adds 72 questions across six categories designed to be
+harder than v1's (narrative_deep, paraphrase, pali_ascii, disambiguation,
+multi_gold, situation_to_verse). v1 is unchanged and still reported
+alongside it, not replaced. Both eval runs in this section are against the
+same CUDA-rebuilt index (`"machine": "cuda (NVIDIA GeForce RTX 5080)"`, now
+recorded directly in `retrieval_metrics.json` and `retrieval_metrics_v2.json`
+by `aggregate_retrieval.py`, since v1's own numbers already moved slightly
+between the Mac/MPS build and this one and a future reader should be able to
+tell why without re-deriving it).
+
+**The reranker result is the headline.** On v1 the cross-encoder rerank
+stage was a null result: `no_rerank` delta +0.0195 nDCG@10, CI
+[-0.0071, +0.0468] -- spanning zero, so v1 could not distinguish "the
+reranker helps" from "the reranker does nothing." Same code, same model
+(`bge-reranker-v2-m3`), run on v2's 72 harder questions: **+0.116
+[+0.056, +0.179]**, an interval clear of zero. This is the cleanest
+demonstration in the project that v1's null ablations were a property of
+the question set being too easy, not of the components being inert -- the
+reranker was doing real work all along that v1 could not see.
+
+**Two ablations are still null on v2, and are reported as null rather than
+omitted:**
+
+| Ablation | v1 delta [CI] | v2 delta [CI] |
+|---|---|---|
+| `dense_only` | +0.0016 [-0.0076, +0.0101] | +0.0222 [-0.0113, +0.0625] |
+| `no_rerank`  | +0.0195 [-0.0071, +0.0468] | **+0.1160 [+0.0563, +0.1787]** |
+| `flat`       | +0.0029 [+0.0000, +0.0076] | **+0.0000 [+0.0000, +0.0000]** |
+
+`dense_only` stays indistinguishable from zero even on the harder set:
+adding sparse and ColBERT to the RRF fusion on top of dense retrieval buys
+nothing measurable, at either difficulty level. `flat` goes from a
+marginal, barely-nonzero delta on v1 to an *exact* zero on v2 -- parent-group
+assembly (deduping ranked chunks into story/verse bundles) never changes
+which bundle contains the first relevant hit, on either gold set. Read
+together with the reranker result above, the implication is specific, not
+generic: harder questions were enough to unmask the reranker's real effect,
+but they did not unmask any effect from the extra fusion arms or from
+assembly. On the current evidence, RRF fusion beyond dense and the
+parent-group assembly step are complexity the pipeline is carrying without
+a measurable retrieval-quality return; the reranker is not.
+
+**`paraphrase` is the weak stratum, and it is diagnostic.** Of v2's six
+categories it scores lowest (nDCG@10 0.824, next-lowest `pali_ascii` at
+0.886, the rest 0.928-1.000), and it is the category *least* affected by
+removing commentary/story chunks (`verse_only` delta +0.017, smallest of
+the six -- multi_gold and narrative_deep both drop by roughly 0.9). That
+rules out the commentary layer as the cause: paraphrase questions' gold is
+already verse-anchored and reachable without it, so the gap is the
+retriever failing to match reworded phrasing to the verse text itself, a
+lexical-surface problem rather than an architectural one. It is also the
+stratum reranking helps most in absolute terms (`no_rerank` nDCG@10 0.602
+vs. baseline 0.824, a 0.222 drop, almost double the next-largest per-type
+drop) -- consistent with the headline finding, since a cross-encoder is
+exactly the component built to survive surface rewording that breaks
+lexical and even dense-vector matching.
+
+**Bug fixed while reading these results.** Both `retrieval_eval.py` and
+`aggregate_retrieval.py` printed "the load-bearing cell is the doctrinal
+row" unconditionally -- correct for v1, but v2 has no `doctrinal` stratum at
+all, so the same printout would have pointed a v2 reader at a row that does
+not exist. Both scripts now key the note off which stratum is actually
+present in the gold set being scored, printing the doctrinal note for v1
+and a paraphrase-focused note (summarizing the previous paragraph) for v2.
+
+**Still open:** the annotation sheet for a second, blind annotator
+(`src/dhammapada_rag/eval/annotation_sheet.py`, built alongside v2) has not
+been run by anyone. That is the next item, and the one most likely to
+matter to an external reviewer -- see `docs/eval_rubric.md`'s "Annotator
+status".
+
 ## Summary
 
 **What the evidence in this document supports:**
@@ -1333,6 +1410,15 @@ the one comparable with August.
   no structural check. Across rounds, each error class became measurable
   only once the one before it was fixed (see "The error profile moves once
   each class is fixed").
+- (Round 10) v1's null ablations were an artifact of a saturated gold set,
+  not evidence the components are inert: on the harder v2 set, the
+  reranker's effect becomes measurable (+0.116 [+0.056, +0.179] nDCG@10,
+  vs. a CI spanning zero on v1), while `dense_only` and `flat` stay null on
+  both sets -- RRF fusion beyond dense and parent-group assembly still show
+  no measurable return even under a harder test. The weakest v2 stratum,
+  paraphrase, is barely affected by removing commentary (smallest
+  `verse_only` delta of six), isolating a lexical-surface retrieval gap
+  rather than an architectural one.
 
 **What it does not support, and where the honest gaps are:**
 - The brief's specific prediction that the doctrinal row would show the
