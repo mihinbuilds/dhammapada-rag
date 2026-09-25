@@ -72,6 +72,45 @@ call on a freely-written question. This trades some question naturalism
   assembled verse-group ranking (`index/assemble.py`'s output), not the raw
   chunk ranking, since verse-groups are the unit the system actually returns.
 
+## Gold set v2: the harder split (2026-09-24)
+
+`data/eval/gold_set_v2.jsonl` (72 questions, built by
+`data/eval/build_gold_set_v2.py`) exists because v1 is saturated. Baseline
+Recall@10 is 0.98, and v1 cannot tell fusion, reranking or assembly apart
+from their absence (`docs/status_report.md` §8 item 8). v1 is unchanged and
+still reported; v2 sits beside it and is never merged into it.
+
+The construction method is the same as v1 (above), with the same
+single-annotator caveat; annotator 1 is Claude (Opus 5.5). Three things
+differ:
+
+1. **Difficulty is measured, not asserted.** The builder computes each
+   question's content-word overlap with its gold chunks and refuses to write
+   the file if a cap is exceeded. The caps are 0.25 for `paraphrase` and 0.5
+   for `narrative_deep` and `situation_to_verse`. For `disambiguation`, at
+   most 2 of the question's content words may occur in the gold story and in
+   none of its named distractors. Otherwise the question isn't confusable.
+2. **Six categories, each aimed at one component.** `narrative_deep`
+   (windowing), `paraphrase` (dense vs. sparse), `pali_ascii` (diacritic
+   robustness of the lexical arms), `disambiguation` (reranking, near-
+   duplicate stories), `multi_gold` (recall across several relevant
+   stories), `situation_to_verse` (narrative-to-verse linking; the
+   informative verse_only cell). Definitions are in the builder's docstring.
+3. **Multiple gold groups are allowed**, for `multi_gold` only. These are
+   scored with `gold_recall@10`, the fraction of all gold groups in the top
+   10. First-hit metrics would count one of four relevant stories as a full
+   answer. Gold sets were checked by pattern search over the story text,
+   not taken from the `keywords` field, which is applied unevenly.
+
+**Second annotator.** `src/dhammapada_rag/eval/annotation_sheet.py build`
+writes a blind CSV. For each question, the gold stories, distractors and
+each retrieval condition's top 3 are shuffled together, with no gold column.
+`... kappa <filled.csv>` then reports Cohen's κ against annotator 1 per
+subtype and lists every disagreement. This is the IAA statistic this
+document has so far declined to claim. It is not computed until a second
+person (ideally with Pali competence, per `DhammapadaRAG.txt`) fills the
+sheet.
+
 ## Layer attribution accuracy (generation metric)
 
 For each claim in a generated `LayeredAnswer`:
