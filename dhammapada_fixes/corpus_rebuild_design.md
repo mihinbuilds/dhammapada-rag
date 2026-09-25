@@ -58,9 +58,9 @@ owner and no fallback.
 |---|---|---|---|
 | `pali_mahasangiti` | SuttaCentral bilara-data (Mahāsaṅgīti) | JSON, segment-keyed | CC0 |
 | `english_sujato` | SuttaCentral bilara-data (Sujato) | JSON, segment-keyed | CC0 |
-| `interlinear_pali` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 3.0 |
-| `interlinear_english` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 3.0 |
-| `interlinear_notes` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 3.0 |
+| `interlinear_pali` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 4.0 |
+| `interlinear_english` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 4.0 |
+| `interlinear_notes` | Ānandajoti 2017 interlinear | HTML | CC BY-SA 4.0 |
 | `english_muller` (optional) | Müller 1881, SBE X | text | public domain |
 | `atthakatha_pali` | CST4 Dhammapada-aṭṭhakathā, tipitaka.org | HTML/text | see VRI terms |
 | `atthakatha_english` | Burlingame, *Buddhist Legends* HOS 28–30 | text (archive.org) | public domain |

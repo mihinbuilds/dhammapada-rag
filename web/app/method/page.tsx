@@ -104,13 +104,13 @@ export default function MethodPage() {
             rows={[
               ["Pali verse", "Mahāsaṅgīti (via SuttaCentral)", "CC0"],
               ["English verse", "Bhikkhu Sujato (via SuttaCentral)", "CC0"],
-              ["Interlinear gloss", "Ānandajoti Bhikkhu, 2017", "CC BY-SA 3.0"],
-              ["Commentary & grouping", "Ānandajoti's revision of Burlingame, 2024", "see PROVENANCE.md"],
+              ["Interlinear gloss", "Ānandajoti Bhikkhu, 2017", "CC BY-SA 4.0"],
+              ["Commentary & grouping", "Ānandajoti's revision of Burlingame, 2024", "CC BY-SA 4.0"],
             ]}
           />
           <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
-            CC BY-SA 3.0 propagates: any file derived from the interlinear edition must carry a
-            compatible license. Per-file terms: docs/licensing.md.
+            CC BY-SA 4.0 propagates: any file derived from Ānandajoti's editions must carry the
+            same license. Per-file terms: DATA_LICENSE.md.
           </p>
         </section>
 

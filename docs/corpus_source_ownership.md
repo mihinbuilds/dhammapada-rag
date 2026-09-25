@@ -23,13 +23,13 @@ it doesn't affect anything this project currently generates against.
 |---|---|---|---|---|
 | `pali_mahasangiti` | SuttaCentral `bilara-data`, `published` branch, Mahāsaṅgīti root text | JSON, segment-keyed | **CC0 1.0** (confirmed) | Already fetched: `sources/external/mahasangiti_pali/` |
 | `english_sujato` | SuttaCentral `bilara-data`, same branch, Bhikkhu Sujato's translation | JSON, segment-keyed | **CC0 1.0** (confirmed) | Already fetched: `sources/external/sujato_en/` |
-| `interlinear_pali` | Ānandajoti Bhikkhu, *Dhammapada* interlinear ed., 2nd ed., Nov 2017, ancient-buddhist-texts.net | HTML | **CC BY-SA 3.0 Unported**, attribution required (confirmed) | Already fetched: `sources/external/anandajoti_interlinear/` |
+| `interlinear_pali` | Ānandajoti Bhikkhu, *Dhammapada* interlinear ed., 2nd ed., Nov 2017, ancient-buddhist-texts.net | HTML | **CC BY-SA 4.0**, attribution required (confirmed in writing, `sources/PERMISSION.md`) | Already fetched: `sources/external/anandajoti_interlinear/` |
 | `interlinear_english` | same as above | HTML | same as above | same as above |
 | `interlinear_notes` | same as above | HTML | same as above | same as above |
 | `english_muller` (optional) | Müller, *Sacred Books of the East* vol. X, 1881 | text | Public domain (not verified this round) | Not fetched. Optional per design doc; not pursued further here |
 | `atthakatha_pali` | CST4 (Chaṭṭha Saṅgāyana Tipiṭaka 4.0) Dhammapada-aṭṭhakathā, tipitaka.org (Vipassana Research Institute) | HTML/text | **Unconfirmed -- checked directly, no license found** | Not fetched. See "CST4 licensing" below |
 | `atthakatha_english` | E.W. Burlingame, *Buddhist Legends*, Harvard Oriental Series vols. 28-30, 1921 | text, archive.org | **Public domain** (`NOT_IN_COPYRIGHT`, confirmed for vol. 1) | Not fetched. See "Burlingame original" below |
-| story titles, grouping (`title_en`, `title_pali`, `cst4_title`, `burlingame_title`, `dhp_verses`, `group_id`) | Ānandajoti Bhikkhu, *The Dhamma Verses Commentary*, August 2024 revision (`sources/Dhammapada-Attakatha.pdf`) | PDF | **CC BY-SA 3.0 Unported**, attribution required, high confidence by inference (see `docs/licensing.md`) | Already fetched and ingested |
+| story titles, grouping (`title_en`, `title_pali`, `cst4_title`, `burlingame_title`, `dhp_verses`, `group_id`) | Ānandajoti Bhikkhu, *The Dhamma Verses Commentary*, August 2024 revision (`sources/Dhammapada-Attakatha.pdf`) | PDF | **CC BY-SA 4.0**, attribution required (confirmed in writing, `sources/PERMISSION.md`) | Already fetched and ingested |
 
 ## Checked directly for this table, not carried over from the design doc's draft
 

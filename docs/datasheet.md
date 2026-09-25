@@ -28,7 +28,7 @@ One record per Dhammapada verse (1-423). Every verse has: `pali_mahasangiti`
 (Mahāsaṅgīti edition, CC0), `english_sujato` (Bhikkhu Sujato's translation,
 CC0), `interlinear_pali`/`interlinear_english`/`interlinear_notes`
 (Ānandajoti Bhikkhu's 2017 interlinear edition with phrase-level scholarly
-notes, CC BY-SA 3.0), and `story_group_ids` (which `stories.jsonl` entries
+notes, CC BY-SA 4.0), and `story_group_ids` (which `stories.jsonl` entries
 explain this verse). Where the narrative source itself quotes the verse in
 full, that's also kept separately as `narrative_pali`/`narrative_english`/
 `narrative_source_group_id` (present for 226/423 verses, 53.4% -- see below;
@@ -238,10 +238,10 @@ pipeline's parsing error rate.
 
 See `docs/licensing.md`. Summary: two of the four sources (Mahāsaṅgīti Pali,
 Sujato's English) are CC0; two (the narrative source's Ānandajoti Bhikkhu
-revision layer, and his separate interlinear edition) are CC BY-SA 3.0 by
-strong inference from the publisher's site-wide policy, not yet a
-document-specific written confirmation -- get that before any public/Zenodo
-release.
+revision layer, and his separate interlinear edition) are CC BY-SA 4.0,
+confirmed in writing by Ānandajoti Bhikkhu on 2026-09-25
+(`sources/PERMISSION.md`). Files derived from them are CC BY-SA 4.0 and must
+stay so; per-file terms are in `DATA_LICENSE.md`.
 
 ## Maintenance
 

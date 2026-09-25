@@ -121,7 +121,7 @@ export function VerseGroup({
                       {v.interlinear_english}
                     </p>
                     <p className="pt-1.5 font-sans text-[0.7rem] text-ink-faint">
-                      English · Ānandajoti interlinear (CC BY-SA 3.0)
+                      English · Ānandajoti interlinear (CC BY-SA 4.0)
                     </p>
                   </div>
                 )}

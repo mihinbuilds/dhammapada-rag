@@ -26,7 +26,7 @@ CC0/CC-BY-SA layers (see sources/external/PROVENANCE.md):
     verses -- also incidentally fulfilling DhammapadaRAG.txt's original
     "two English translations" ask.
   - Interlinear phrase-level gloss + notes: Anandajoti Bhikkhu's 2017
-    interlinear edition (CC BY-SA 3.0), all 423 verses -- the closest
+    interlinear edition (CC BY-SA 4.0), all 423 verses -- the closest
     available substitute for the pada-gloss layer the narrative source omits.
 
 The narrative source's own Pali/English quotations (where present) are kept

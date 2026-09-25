@@ -143,7 +143,7 @@ license evidence in `data/raw/PROVENANCE.md` and
    CC0, via SuttaCentral) — a second, independent English translation for
    all 423 verses.
 4. **Ānandajoti Bhikkhu's 2017 interlinear edition**
-   (`sources/external/anandajoti_interlinear/`, CC BY-SA 3.0, via
+   (`sources/external/anandajoti_interlinear/`, CC BY-SA 4.0, via
    ancient-buddhist-texts.net) — phrase-level Pali/English gloss with
    scholarly notes for all 423 verses; the closest available substitute for
    the pada-gloss layer, which source (1) explicitly omits.
