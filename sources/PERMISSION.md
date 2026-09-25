@@ -4,14 +4,19 @@ Written permission to use Ānandajoti Bhikkhu's texts in this project, and to
 release the data derived from them under an open licence.
 
 - **Received:** 2026-09-25
-- **From:** Ānandajoti Bhikkhu, email address **[not yet recorded — to be
-  copied from the original message]**
-- **In reply to:** subject line **[not yet recorded — to be copied from the
-  original enquiry]**
+- **From:** Ānandajoti Bhikkhu, <anandajoti@gmail.com>
+- **In reply to:** "Permission enquiry: Dhammapada Aṭṭhakathā (2024) in an
+  open research corpus"
 - **Works covered:** *The Dhamma Verses Commentary* (August 2024 revision of
   E.W. Burlingame's *Buddhist Legends*, `sources/Dhammapada-Attakatha.pdf`)
   and the *Dhammapada* interlinear edition, 2nd ed., 2017
   (`sources/external/anandajoti_interlinear/`)
+
+The project maintainer asked for and received the permission by email. The
+record was first written up by an AI coding assistant working from the reply
+text, with no access to the mailbox. The sender address and subject line were
+left blank rather than guessed. The maintainer added them from the original
+messages in a follow-up commit.
 
 ## Reply, verbatim
 
