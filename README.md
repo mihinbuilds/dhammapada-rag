@@ -148,6 +148,10 @@ license evidence in `data/raw/PROVENANCE.md` and
    scholarly notes for all 423 verses; the closest available substitute for
    the pada-gloss layer, which source (1) explicitly omits.
 
+The corpus reflects Ānandajoti Bhikkhu's editions as of 2026-07-30 (pinned by
+SHA-256 in `data/raw/PROVENANCE.md`); upstream corrections after that date are
+not incorporated.
+
 Sources (2)-(4) were added after the first Phase 1 pass, which used only
 source (1) and found real gaps: only ~74% of stories reprint the full Pali
 verse inline, no pada-gloss layer exists in source (1) at all, and its own

@@ -130,6 +130,30 @@ evaluation set is separate: `data/eval/gold_set.jsonl` (120 questions, see
 external sources fetched 2026-07-30 (same day, second pass after the first
 Phase 1 review flagged the coverage/licensing gaps below).
 
+### `source_version`
+
+The corpus is built from one snapshot of each Ānandajoti edition. He corrects
+his files when he finds mistakes, so the upstream versions may have changed
+since this snapshot. Corrections made after it are not in this corpus.
+
+```
+narrative_source:
+  edition:   The Dhamma Verses Commentary, Burlingame / Ānandajoti Bhikkhu,
+             revised translation, August 2024
+  file:      sources/Dhammapada-Attakatha.pdf
+  snapshot:  2026-07-30 (extraction date; download date not logged)
+  sha256:    ec4c81dbd31c5b22707353acaa0ab9879031d881aa5cdd4f5da015e46c06bc2c
+interlinear:
+  edition:   Dhammapada interlinear edition, Ānandajoti Bhikkhu, 2nd ed., Nov 2017
+  files:     sources/external/anandajoti_interlinear/ (27 HTML files)
+  snapshot:  2026-07-30 (fetch date, logged)
+  sha256:    per file in sources/SHA256SUMS
+upstream:    may have changed since the snapshot; not re-fetched
+verify:      sources/fetch.sh --verify
+```
+
+Details, source URLs and per-file checksums: `data/raw/PROVENANCE.md`.
+
 ## Preprocessing / cleaning / labeling
 
 **stories.jsonl (narrative source):**
