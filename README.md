@@ -177,7 +177,7 @@ data/index/
   chunks.jsonl                  5,909 indexable chunks (tracked; small)
   dense.npy, sparse.pkl,        BGE-M3 embeddings (gitignored; rebuild with embed.py)
   colbert.pkl, chunk_ids.json
-data/eval/                     gold set, evaluation results and metrics
+data/eval/                     gold sets, evaluation results and metrics (see data/eval/README.md)
 src/dhammapada_rag/
   vaggas.py, models.py          shared schema
   ingest/                        Phase 1 pipeline (PDF/HTML/JSON -> data/processed/)
@@ -195,7 +195,7 @@ docs/                          datasheet, licensing table, corpus audit, indexin
 
 ```
 python3 -m venv .venv && source .venv/bin/activate   # macOS/Linux
-pip install -e .
+pip install -e ".[dev]"   # [dev] adds pytest; plain `-e .` is enough to run the pipeline
 ```
 
 On Windows, the venv layout differs (`Scripts/` not `bin/`, `.ps1`/`.bat` not a
@@ -204,7 +204,7 @@ POSIX script):
 ```
 python -m venv .venv
 .venv\Scripts\Activate.ps1    # PowerShell
-pip install -e .
+pip install -e ".[dev]"
 ```
 
 Requires `poppler` (`pdftotext`) on PATH for PDF extraction. First run of the
