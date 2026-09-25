@@ -5,10 +5,11 @@ import { LAYER_META, LAYER_ORDER, SEVERITY_META } from "@/lib/layers";
 const GITHUB_HANDLE = "mihinbuilds";
 
 const CITATION = `@software{dhammapada_rag_2026,
-  title = {Dhammapada-RAG: Layer-Attributed Retrieval-Augmented Generation
-           over the Dhammapada and its Commentary},
-  year  = {2026},
-  url   = {https://github.com/${GITHUB_HANDLE}/dhammapada-rag}
+  title  = {Dhammapada-RAG: Layer-Attributed Retrieval-Augmented Generation
+            over the Dhammapada and its Commentary},
+  author = {Mihindupura, Sujeewa},
+  year   = {2026},
+  url    = {https://github.com/${GITHUB_HANDLE}/dhammapada-rag}
 }`;
 
 export default function MethodPage() {
