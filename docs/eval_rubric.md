@@ -38,6 +38,21 @@ Two different single annotators on two different claim sets are not an
 agreement measurement either: no claim was judged by both, so no IAA can
 be computed from them.
 
+**Materials for a second human pass exist but have not been used.**
+`src/dhammapada_rag/eval/annotation_sheet.py build` generates a blind CSV
+over the v2 gold set (`data/eval/annotation_v2_blank.csv`, currently 507
+rows / 72 questions): candidates are the gold stories, the named
+distractors, and each retrieval condition's top 3, shuffled per question
+with no column indicating which is gold. `docs/annotator_brief.md` is a
+one-page, no-context-assumed brief for whoever fills it in. Once it comes
+back, `annotation_sheet.py kappa <filled.csv>` compares it against
+annotator 1's labels (`gold_group_ids`) and reports Cohen's kappa overall
+and per subtype, plus every disagreement, to `data/eval/iaa_v2.json`. This
+covers retrieval relevance only (the judgment every number in
+`docs/evaluation.md`'s retrieval section rests on), not generation-claim
+judgments, which would need a separate blind pass. Until someone actually
+runs it, the paragraph above still holds: no IAA statistic exists yet.
+
 ## Construction method
 
 Each gold question was written by first selecting a specific verse-group
