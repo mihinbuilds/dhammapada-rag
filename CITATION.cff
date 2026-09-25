@@ -5,6 +5,7 @@ type: software
 authors:
   - given-names: Mihindupura
     family-names: Sujeewa
+repository-code: "https://github.com/mihinbuilds/dhammapada-rag"
 version: 0.1.0
 date-released: 2026-09-24
 license: MIT
