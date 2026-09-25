@@ -3,41 +3,44 @@ against docs/eval_rubric.md's layer-attribution-accuracy and anachronistic-
 conflation-rate criteria. See docs/eval_rubric.md "Annotator status" -- no
 IAA is claimed for these judgments.
 
-ROUND 8 RE-JUDGE, FROM SCRATCH. Re-made against the round-8 generation run
-(CLAUDE_CODE_BRIEF_ROUND8.md, Tasks Z/AA applied: source_disposition,
-the separate [ALIGNMENT] prompt block), same 27-question systematic sample,
-same seed. Retrieval is unchanged from round 7 (retrieved_group_ids are
-identical, question-by-question, confirmed directly) -- only generation
-changed, so claim content had to be re-read against source, not assumed
-comparable to round 7's judgments.
+POST-CLEANING RE-JUDGE (2026-09-23), FROM SCRATCH. Re-made against the
+generation run on the September 2026 cleaned corpus and re-embedded index
+(5,909 chunks), same 27-question systematic sample, same seed, same model
+(qwen2.5:7b-instruct, num_ctx 16384). Annotator for this pass: Claude Opus
+5.5 (the round-8 judgments this file replaces were made by Claude Sonnet 5;
+they remain in git history at 2a20bfd). Retrieval changed for exactly one
+sampled question: q019 lost its gold group 19.2 (rank 2 -> 27 in the
+retrieval eval), so its answer is about Dhp 259/103, not Dhp 258.
 
-ROUND 8, TASK AA -- ALIGNMENT RECALL MEASURED. Round 7 found alignment
-precision 1.000 / recall 0.500 (4/8 "explains X and Y together" claims
-tagged 'alignment', the other 4 still 'commentary'). This round: all 7 of
-the core verse-grouping/corpus-structure claims (q091, q093, q095, q097,
-q099, q119, q120) are tagged 'alignment' -- recall 1.000 on that set. Two
-NEW misses appeared instead, of a different shape: q095 and q097 each
-produce the SAME alignment fact a second time, once correctly (claim 0,
-tagged 'alignment') and once redundantly under the wrong tag (q095#1
-'synthesis', q097#1 'commentary') -- not a missed tag, a duplicated one.
-See docs/generation.md's Round 8 section for the full account, including
-why cross_recension title-only claims (q111-115) are NOT folded into the
-'alignment' gold label here despite Task AA's prompt block also carrying
-title data -- kept consistent with round 7's rubric so alignment recall
-means the same thing in both rounds; see the note on q111 below.
+Unlike earlier rounds, every claim was checked against the FULL stored
+nidana/synopsis/vatthu/desanavasane and the verse's interlinear notes in
+data/processed/, not the ~800-char excerpt -- several "faithful=True
+unverified" calls from round 8 (q049, q073) are now verified, and three
+claims (q037#1, q043#1, q055#0) are judged unfaithful on text that sits
+outside that excerpt.
 
-ROUND 8 FINDING -- A LIVE, UNPROMPTED CONFIRMATION OF SEMANTIC-NEIGHBOUR
-CONFLATION (Task AC). q099#1 names the discontented bhikkhu of story 14.5
-"Aggidatta" -- but 14.5's own source never names him, and "Aggidatta" is
-the protagonist of the ADJACENT retrieved story 14.6 (also in this
-question's own bundle, disposition 'not_relevant'). The name migrated from
-a retrieved-but-dismissed neighbor into a claim about a different,
-unnamed-in-source figure. This is the same failure class as q043's Māra's-
-daughters/Māgandiyā conflation (Round 7) and confirms Task AC's prediction
-that these errors cluster around structurally-or-lexically adjacent
-figures -- found in ordinary judging of this round's sample, not by the
-Task AC live probe (see docs/generation.md, which also reports that probe's
-own -- negative -- result on a deliberately constructed Tissa/Tissa pair).
+FINDINGS THIS PASS
+- Semantic-neighbour conflation recurred on q043#1: the verse is said to be
+  spoken "to Māgandiya's daughters", merging the daughters of MĀRA (the
+  original occasion) with the Brahmin MĀGANDIYA (to whom it was repeated) --
+  the same conflation as round 7's q043, absent in round 8, back again.
+  The q099 Aggidatta name-migration from round 8 did NOT recur.
+- Anachronistic conflation (commentary content tagged 'verse') on four
+  claims: q067#0 (recurring every round), q073#0, q079#0, and q019#1. The
+  q067/q073/q079 claims all attach a real, correct pali_support of the verse
+  to a sentence that narrates the story -- the Pali quote makes the claim
+  look verse-grounded while its text is vatthu. q019#1 presents the
+  commentary's gloss ("robbers that are his own pollutants", from the
+  Buddha's speech in the 8.3 vatthu) as what "the Dhammapada states".
+- Retrieval-failure answers (q119, q120) now assert the anomaly outright for
+  the wrong story ("the verse in question is Dhp 85, 86"; 26.21's header
+  "incorrectly titled 403") rather than describing the retrieved group
+  neutrally as in round 8 -- judged unfaithful. 26.21's header in
+  data/raw/dhammapada-attakatha.txt reads "Dhp 404" (l.41523); the real
+  typo is 26.17's "Dhp 40" (l.41344).
+- Source inconsistency, not a model error: story 6.11 is titled "Five
+  Hundred Visiting Bhikkhus" (CST4 Pañcasata-) but its nidana and synopsis
+  say "fifty". q093#1's "five hundred" is supported by the title.
 
 REQUIRED JUDGMENT SHAPE (per aggregate_generation.py):
     tag_correct: bool    predicted layer (the claim's own `layer` field)
@@ -57,13 +60,13 @@ content is actually sourced from, not by sentence form. A claim asserting a
 relationship the source text does not itself state ("story X explains
 verses Y and Z together", or a corpus-structure/anomaly fact) is
 'alignment'. A claim framed as explaining commentary content is judged
-'commentary' by form even where not independently verifiable against the
-~800-character vatthu excerpt available for judging (out of rubric scope,
-see eval_rubric.md). A claim that only restates the cited verse's own
+'commentary' by form. A claim that only restates the cited verse's own
 content, adding no narrative/occasion/philological fact beyond it, is
 judged 'verse' regardless of its "the commentary/Buddha taught..." framing
 -- sentence-wrapping alone does not make verse content commentary, the same
 principle the rubric already applies to alignment facts and CST4 titles.
+CST4 title restatements stay 'commentary' (round 8's rubric-continuity
+note), so alignment recall means the same thing across rounds.
 """
 
 from __future__ import annotations
@@ -83,145 +86,147 @@ class Verdict:
 JUDGMENTS: dict[tuple[str, int], Verdict] = {
     # q091 alignment -- gold 14.6, retrieved rank-1.
     ("q091", 0): Verdict(True, "alignment", False, True,
-        "Full range (Dhp 188-192) matches gold_verse_numbers exactly, correctly tagged 'alignment'."),
+        "Story of Aggidatta explains Dhp 188-192 together -- matches 14.6's dhp_verses, correctly tagged."),
     ("q091", 1): Verdict(True, "commentary", False, True,
-        "Occasion narrative (Aggidatta, chaplain to Pasenadi) matches vatthu; second half paraphrases the verses' own refuge teaching in the same sentence -- commentary by form, not flagged mechanically (same pattern as round 7)."),
+        "Matches nidana (Jetavana, Aggidatta, Brahmin chaplain of the King of Kosala) and vatthu (went forth as an ascetic), correctly tagged."),
 
-    # q093 alignment -- gold 6.11, retrieved rank-1. group_id leaked into
-    # claim 0's text (CITATION_IN_TEXT, structural, not a layer/fidelity issue).
+    # q093 alignment -- gold 6.11, retrieved rank-1.
     ("q093", 0): Verdict(True, "alignment", False, True,
-        "Full range (Dhp 87, 88, 89) matches gold_verse_numbers, correctly tagged 'alignment' -- a miss in round 7, a hit here."),
+        "Title and range (Dhp 87, 88, 89) match 6.11, correctly tagged."),
     ("q093", 1): Verdict(True, "commentary", False, True,
-        "Matches nidana/vatthu (Jetavana, fifty visiting bhikkhus who passed the rains in Kosala), correctly tagged."),
+        "Jetavana, bhikkhus who passed the Rains in Kosala -- matches nidana/synopsis. 'Five hundred' follows the story's own title (CST4 Pañcasata-); the nidana and synopsis say 'fifty'. A source inconsistency, not a model error."),
 
     # q095 alignment -- gold 22.9, retrieved rank-1.
     ("q095", 0): Verdict(True, "alignment", False, True,
-        "'group_id 22.9 covers Dhp 318, 319 (2 verses)' -- full range matches gold, correctly tagged."),
-    ("q095", 1): Verdict(False, "alignment", False, True,
-        "Restates the IDENTICAL fact as claim 0 ('The Story about the Sectarian Disciples explains both Dhp 318 and Dhp 319') -- same alignment content, produced a second time under a different (wrong) tag. Not a missed alignment claim; a duplicated one, tagged 'synthesis' instead of 'alignment'. Title matches gold_context ('The Story about the Sectarian Disciples'); the fact itself is correct."),
-    ("q095", 2): Verdict(True, "commentary", False, True,
-        "Matches nidana (sectarian disciples' children) plus a gloss of the verses' own right-view/wrong-view content in the same sentence -- commentary by form, correctly tagged."),
+        "Title and range (Dhp 318, 319) match 22.9, correctly tagged. The round-8 duplicate-under-wrong-tag claim did not recur."),
+    ("q095", 1): Verdict(True, "commentary", False, True,
+        "Children of sectarians forbidden to enter the monastery -- matches synopsis/vatthu, correctly tagged."),
 
-    # q097 alignment -- gold 25.5, retrieved rank-1.
+    # q097 alignment -- gold 25.5, retrieved rank-1. Claim 0 carries
+    # CITATION_IN_TEXT (structural, not a layer/fidelity issue).
     ("q097", 0): Verdict(True, "alignment", False, True,
-        "'group_id 25.5 covers Dhp 365, 366 (2 verses)' -- full range matches gold, correctly tagged."),
+        "'group_id 25.5 covers Dhp 365, 366 (2 verses)' -- prompt scaffolding copied verbatim (CITATION_IN_TEXT), but the fact is correct and correctly tagged."),
     ("q097", 1): Verdict(False, "alignment", False, True,
-        "'The Story about a Treacherous Bhikkhu explains both Dhp 365 and Dhp 366' -- the same alignment fact as claim 0, restated a second time under 'commentary' instead. Same duplicate-under-wrong-tag pattern as q095#1. Title and range both correct."),
+        "'The Story about a Treacherous Bhikkhu explains Dhp 365 and 366 together' -- the same alignment fact as claim 0, restated under 'commentary'. Same duplicate-under-wrong-tag pattern as round 8's q095#1/q097#1, recurring here."),
 
-    # q099 alignment -- gold 14.5, retrieved rank-1 (also retrieved 14.6,
-    # not_relevant per source_disposition). Claim 0 carries CITATION_IN_TEXT
-    # (structural).
+    # q099 alignment -- gold 14.5, retrieved rank-1 (14.6 also retrieved,
+    # not_relevant).
     ("q099", 0): Verdict(True, "alignment", False, True,
-        "Full range (Dhp 186, 187) matches gold_verse_numbers, correctly tagged 'alignment'."),
-    ("q099", 1): Verdict(True, "commentary", False, False,
-        "Names the discontented bhikkhu 'Aggidatta' -- but story 14.5's own source (nidana/vatthu) never names him ('a certain discontented bhikkhu'). 'Aggidatta' is the protagonist of the ADJACENT retrieved story 14.6 (also in this bundle, marked source_disposition='not_relevant'), retrieved because both stories are about verses 186-192's surrounding cluster. The name migrated from a retrieved-but-dismissed neighbor into a claim about a different, unnamed figure -- a live, unprompted instance of the semantic-neighbour conflation pattern named in docs/eval_rubric.md (Task AC), not the Task AC live probe's own (negative) result. Rest of the claim (inheritance, considering lay life) matches the actual vatthu."),
+        "Title and range (Dhp 186, 187) match 14.5, correctly tagged."),
+    ("q099", 1): Verdict(True, "commentary", False, True,
+        "Matches nidana/synopsis (Jetavana, discontented bhikkhu, inheritance, thought of returning to lay life). The round-8 'Aggidatta' name migration from neighbour 14.6 did NOT recur -- the bhikkhu is left unnamed, as in the source."),
 
     # q119 corpus_anomaly -- gold 26.34/verse 416; retrieval WRONG
-    # (6.10/11.8/14.1, none match) -- same retrieval failure as every prior round.
-    ("q119", 0): Verdict(True, "alignment", False, True,
-        "'group_id 6.10 covers Dhp 85, 86 (2 verses), titled...' -- accurate about the (wrongly) retrieved group 6.10, correctly tagged 'alignment'. Answers the wrong story due to retrieval failure, not a layer or fidelity error on its own terms."),
-    ("q119", 1): Verdict(True, "commentary", False, True,
-        "Opens with the literal prompt label 'Opening:' copied verbatim from the [COMMENTARY] block's own nidana rendering -- a new label-leak pattern _LABEL_PREFIXES does not yet cover (that list catches 'commentary:' etc., not the descriptive field labels 'Opening:'/'Narrative:'/'Close:' used inside the block). Content past the label matches group 6.10's actual nidana. Flagged as a finding for a future round, not scored as a layer error since the label doesn't name a layer or citation field."),
-    ("q119", 2): Verdict(True, "commentary", False, True,
-        "Same label-leak pattern ('Close:' copied from the desanavasane rendering); content matches group 6.10's actual close. Same finding as claim 1."),
+    # (6.10/11.8/3.5), as in every prior round.
+    ("q119", 0): Verdict(True, "alignment", False, False,
+        "'The verse in question is Dhp 85, 86' -- asserts the two-story anomaly for 6.10, which has one story (the answer is Dhp 416, stories 26.33/26.34). Title and range of 6.10 are accurate, but the claim answers the question with a false corpus-structure fact. Retrieval-failure-driven; round 8's version described 6.10 neutrally and was judged faithful."),
+    ("q119", 1): Verdict(True, "commentary", False, False,
+        "The residents-of-a-street narrative matches 6.10's synopsis, but framing it as 'the second story attached to Dhp 85, 86' invents a second story that does not exist."),
 
     # q120 corpus_anomaly -- gold 26.17/verse 400; retrieval WRONG
-    # (13.4/14.2/26.21, none match). Both claims carry CITATION_IN_TEXT (structural).
+    # (13.4/14.2/26.21).
     ("q120", 0): Verdict(True, "alignment", False, False,
-        "Asserts group 13.4's header misstates its verse number and the correct one is Dhp 171 -- a corpus-anomaly/parsing claim, correctly tagged 'alignment' under Task T's taxonomy (a fact about editorial/parsing structure). Not independently confirmed against parse_report.json, answers the wrong story (gold is 26.17/400, an unrelated anomaly) due to retrieval failure -- most plausibly a retrieval-failure-driven fabrication, same conclusion as round 7's analogous claim."),
+        "Claims 26.21's header misstates its verse as 403. The raw source header reads 'Dhp 404' (dhammapada-attakatha.txt l.41523) -- no typo there; the actual one is 26.17's 'Dhp 40' for 400. A fabricated anomaly, correctly tagged 'alignment' (corpus-structure fact)."),
     ("q120", 1): Verdict(True, "commentary", False, True,
-        "Matches group 13.4's nidana/synopsis (Veḷuvana, Prince Abhaya, dancing girl's death), correctly tagged even though it answers the wrong (retrieval-failure-driven) story."),
+        "Matches 26.21's nidana (Jetavana, Pabbhāravāsī Tissa, 'Tissa Who Dwelt in a Mountain Cave'), correctly tagged -- for the wrong story."),
 
-    # q111-q115 cross_recension (cst4_title_variant). NOTE ON RUBRIC
-    # CONTINUITY: Task AA's [ALIGNMENT] block now renders title variants
-    # alongside verse-range data, which could argue for reclassifying these
-    # as 'alignment' -- deliberately NOT done here, so that "alignment
-    # recall" measures the same thing in round 7 and round 8 (the original
-    # 7-8 verse-grouping/corpus-structure claims), rather than silently
-    # changing what the metric counts. q113's own claim below, which the
-    # MODEL tagged 'alignment' this round, is scored against that same
-    # unchanged rubric -- see its note.
-    ("q111", 0): Verdict(True, "commentary", False, True, "CST4 title restatement (Sāriputta), correctly tagged."),
-    ("q112", 0): Verdict(True, "commentary", False, True, "CST4 title restatement (Sāmāvatī), correctly tagged."),
-    ("q113", 0): Verdict(False, "commentary", False, True,
-        "CST4 title restatement (Magha) only -- no verse-range statement, so judged 'commentary' per this file's rubric-continuity note above, not 'alignment'. The model tagged it 'alignment' this round (round 7's analogous claim was tagged 'commentary') -- a minor over-generalization of the new tag to a bare title fact, worth watching but not counted as a hit for alignment recall. Title itself is accurate."),
-    ("q113", 1): Verdict(True, "commentary", False, True,
-        "Matches synopsis (Sakka was human Magha in a past life, good deeds led to his status), correctly tagged."),
-    ("q114", 0): Verdict(True, "commentary", False, True, "CST4 title restatement (Citta), correctly tagged."),
-    ("q115", 0): Verdict(True, "commentary", False, True, "CST4 title restatement (Āyuvaḍḍhana), correctly tagged."),
+    # q111-q115 cross_recension (cst4_title_variant). All five titles checked
+    # against stories.jsonl cst4_title; judged 'commentary' per the rubric-
+    # continuity note in the docstring.
+    ("q111", 0): Verdict(True, "commentary", False, True, "CST4 title 'Sāriputtattheravatthu' matches 1.8, correctly tagged."),
+    ("q112", 0): Verdict(True, "commentary", False, True, "CST4 title 'Sāmāvatīvatthu' matches 2.1, correctly tagged."),
+    ("q113", 0): Verdict(True, "commentary", False, True,
+        "CST4 title 'Maghavatthu, the Story about Magha' matches 2.7. Tagged 'commentary' this time (round 8 tagged the same fact 'alignment')."),
+    ("q114", 0): Verdict(True, "commentary", False, True, "CST4 title 'Cittagahapativatthu' matches 5.14, correctly tagged."),
+    ("q115", 0): Verdict(True, "commentary", False, True, "CST4 title 'Āyuvaḍḍhanakumāravatthu' matches 8.8, correctly tagged."),
 
     # q001 doctrinal -- gold 1.8, retrieved rank-1.
-    ("q001", 0): Verdict(True, "verse", False, True, "Matches Dhp 11 closely, correctly tagged, valid pali_support."),
-    ("q001", 1): Verdict(True, "commentary", False, True,
-        "'Chief Disciples of Sañjaya' -- accurate this round (Sāriputta/Moggallāna were literally Sañjaya's disciples before converting), unlike round 7's version of this claim which misattributed Sañjaya's own refusal to the Chief Disciples themselves. That specific inversion did not recur here."),
+    ("q001", 0): Verdict(True, "verse", False, True, "Paraphrases Dhp 11, exact pali_support, correctly tagged."),
+    ("q001", 1): Verdict(False, "alignment", False, True,
+        "'The story ... is titled The Story about the Chief Disciples and covers Dhp 11 and 12' -- a title-plus-verse-range fact, i.e. alignment content, tagged 'commentary'. Accurate."),
 
-    # q007 doctrinal -- gold 7.9, retrieved rank-1 (also 26.29, 7.10).
-    ("q007", 0): Verdict(True, "verse", False, True, "Matches Dhp 98 closely, correctly tagged."),
-    ("q007", 1): Verdict(True, "verse", False, True,
-        "Matches Dhp 99's content ('free of greed will delight there, not those who seek sensual pleasures'), correctly tagged. pali_support is corrupted ('Vītarāgāni' for 'Vītarāgā') -- PALI_QUOTE_NOT_IN_SOURCE already flags this structurally; the claim's English content is faithful regardless."),
-    ("q007", 2): Verdict(False, "verse", False, True,
-        "'The story of Dhp 98 explains that the place is delightful wherever Arahats live' restates the verse's own content, tagged 'commentary' -- VERSE_TEXT_AS_COMMENTARY fired on this claim. Content accurate; layer wrong. Wrong direction for is_conflation's narrow definition."),
+    # q007 doctrinal -- gold 7.9, retrieved rank-1.
+    ("q007", 0): Verdict(True, "verse", False, True,
+        "Dhp 98 near-verbatim, correctly tagged. pali_support is the interlinear edition's orthography (PALI_QUOTE_ORTHOGRAPHIC_VARIANT, warning) -- not a fabrication."),
+    ("q007", 1): Verdict(True, "commentary", False, True,
+        "Jetavana, Elder Khadiravaniya Revata -- matches nidana, correctly tagged. Round 8's VERSE_TEXT_AS_COMMENTARY on this question did not recur."),
 
     # q013 doctrinal -- gold 13.1, retrieved rank-1.
-    ("q013", 0): Verdict(True, "verse", False, True, "Matches Dhp 167, correctly tagged."),
-    ("q013", 1): Verdict(True, "commentary", False, True, "Matches vatthu (young bhikkhu, Visākhā's granddaughter's laugh), correctly tagged."),
+    ("q013", 0): Verdict(True, "verse", False, True, "Dhp 167's four things, exact pali_support, correctly tagged."),
+    ("q013", 1): Verdict(True, "commentary", False, True,
+        "Visākhā's granddaughter called the young bhikkhu a 'cut-head' -- matches vatthu/synopsis, correctly tagged."),
 
-    # q019 doctrinal -- gold 19.2, retrieved (rank-2, present).
-    ("q019", 0): Verdict(True, "verse", False, True, "Matches Dhp 258, correctly tagged."),
-    ("q019", 1): Verdict(False, "verse", False, True,
-        "'The Buddha taught that a wise person is patient and free from hatred and fear, not just someone who speaks much' restates the verse's own content with a 'the Buddha taught' frame, adding no occasion or narrative fact (contrast round 7's version of this claim, which correctly named the Group of Six) -- tagged 'commentary', judged 'verse'. Content accurate."),
+    # q019 doctrinal -- gold 19.2 NOT retrieved this run (retrieved
+    # 19.3/1.8/8.3); see docstring. The answer never reaches Dhp 258.
+    ("q019", 0): Verdict(True, "verse", False, True,
+        "Dhp 259 (Dhamma-bearer, not by speaking much) paraphrased accurately and correctly tagged -- but it is the neighbour verse; the question's 'astute' is Dhp 258, not retrieved."),
+    ("q019", 1): Verdict(False, "commentary", True, True,
+        "'The Dhammapada also states that one who defeats the robbers that are his own pollutants is the true victor' -- Dhp 103 speaks of conquering oneself; 'the robbers that are his own pollutants' is the Buddha's speech in the 8.3 vatthu, just before the verses. Commentary gloss presented as the verse's own statement -- anachronistic conflation. The content is in the source, so faithful=True."),
+    ("q019", 2): Verdict(True, "commentary", False, True,
+        "Kuṇḍalakesī killed her husband, joined the wanderers, converted by Sāriputta with a simple teaching -- matches 8.3's synopsis, correctly tagged."),
 
     # q025 doctrinal -- gold 25.6, retrieved rank-1.
-    ("q025", 0): Verdict(True, "verse", False, True, "Matches Dhp 367 verbatim, correctly tagged."),
-    ("q025", 1): Verdict(True, "commentary", False, True, "Matches synopsis (Brahmin Pañcaggadāyaka, first-fruits), correctly tagged."),
+    ("q025", 0): Verdict(True, "verse", False, True, "Dhp 367 closely paraphrased, exact pali_support, correctly tagged."),
+    ("q025", 1): Verdict(True, "commentary", False, True,
+        "Brahmin Pañcaggadāyaka, Jetavana -- matches nidana, correctly tagged."),
 
-    # q061 narrative -- gold 1.11, retrieved rank-1. Only one claim this
-    # round (down from 3) -- the recurring anachronistic-conflation instance
-    # for this exact question, present in every prior round's sample, did
-    # NOT reproduce this run (no verse claim at all was produced).
+    # q061 narrative -- gold 1.11, retrieved rank-1.
     ("q061", 0): Verdict(True, "commentary", False, True,
-        "Matches vatthu (Dhammika's request for bhikkhus, celestial chariots, 'Wait! Wait!'), correctly tagged. No verse claim in this answer at all -- the round-over-round-recurring conflation for this question is absent this run, not fixed by any Round 8 task and not evidence it won't recur."),
+        "Dhammika asked for the Mindfulness discourse; the bhikkhus took his 'Wait! Wait!' as meant for them -- matches vatthu/synopsis, correctly tagged. No verse claim this run either."),
 
-    # q067 narrative -- gold 7.4, retrieved rank-1. Same question_id and
-    # same specific conflation as every prior round, unchanged.
+    # q067 narrative -- gold 7.4, retrieved rank-1. PALI_QUOTE_TRUNCATED
+    # (32% of Dhp 93) on claim 0.
     ("q067", 0): Verdict(False, "commentary", True, True,
-        "'The Buddha and the bhikkhus gathered round to help make a robe for Elder Anuruddha' is vatthu/synopsis content, not Dhp 93's verse text (about ended defilements) -- tagged 'verse'. The same conflation instance documented in every prior round's write-up for this exact question, recurring unchanged again."),
-    ("q067", 1): Verdict(True, "commentary", False, True, "Matches vatthu (worn-out robes, refuse-heaps), correctly tagged."),
+        "Worn-out robes, refuse-heaps -- vatthu content, tagged 'verse' with a half-quote of Dhp 93 attached. The same conflation on this question as in every prior round; the Pali quote now makes the story sentence look verse-grounded."),
+    ("q067", 1): Verdict(True, "commentary", False, True,
+        "Robe-making for Anuruddha at Veḷuvana -- matches nidana/synopsis, correctly tagged."),
 
     # q073 narrative -- gold 13.10, retrieved rank-1.
-    ("q073", 0): Verdict(True, "commentary", False, True,
-        "Matches synopsis (king/citizens competing in generosity); 'once in a lifetime' framing not independently checkable against the 800-char excerpt -- faithful=True unverified."),
+    ("q073", 0): Verdict(False, "commentary", True, False,
+        "Vatthu content tagged 'verse' with Dhp 177's Pali attached -- conflation. '140 million of treasure in a single day' is verbatim, but 'no one could say this or that is lacking' describes the CITIZENS' competing offerings in the vatthu, not the king's gifts; what made the king's gifts 'beyond compare' is that no later donor could equal them. Partial misattribution -> faithful=False (borderline)."),
     ("q073", 1): Verdict(True, "commentary", False, True,
-        "Traditional detail (occurs once per Buddha, arranged by a woman) not checkable against the visible excerpt -- commentary-shaped by form, faithful=True unverified."),
+        "'Once to all the Buddhas, and a woman always manages this' -- verbatim from the vatthu (unverified in round 8, verified here). Correctly tagged."),
 
     # q079 narrative -- gold 19.4, retrieved rank-1.
-    ("q079", 0): Verdict(True, "commentary", False, True, "Matches vatthu (waiting on the Teacher, thirty forest bhikkhus), correctly tagged."),
+    ("q079", 0): Verdict(False, "commentary", True, True,
+        "Near-verbatim synopsis (young-looking dwarf, thirty bhikkhus, 'did you see an elder') tagged 'verse' with Dhp 260's Pali attached -- conflation. Content accurate."),
+    ("q079", 1): Verdict(True, "commentary", False, True,
+        "'We saw a certain novice' and the Buddha's reply -- matches vatthu; the eldership gloss is the Buddha's speech there. Correctly tagged."),
 
     # q085 narrative -- gold 25.11, retrieved rank-1.
-    ("q085", 0): Verdict(True, "synthesis", False, False,
-        "'The Dhammapada does not explicitly state why the Buddha sent Elder Vakkali away' -- directly contradicted by the model's own claim 1 in the same answer (which does state the reason, matching the corpus synopsis) and by the synopsis itself. Correctly tagged 'synthesis' as a framing-type claim, but false -- an internal-consistency failure structural checks cannot catch (nothing compares one claim's assertion against another's)."),
+    ("q085", 0): Verdict(True, "commentary", False, True,
+        "Obsessed with the Buddha's body, neglected meditation -- matches synopsis, correctly tagged. Round 8's self-contradicting 'not explicitly stated' synthesis claim did not recur."),
     ("q085", 1): Verdict(True, "commentary", False, True,
-        "Matches synopsis exactly (obsessed with the Buddha's body, gave up meditation), correctly tagged -- and directly contradicts claim 0's 'not stated' framing."),
+        "'Unless this bhikkhu receives a shock, he will never come to understand' -- the vatthu's own words, correctly tagged."),
+    ("q085", 2): Verdict(True, "commentary", False, True,
+        "Sent away at the Rains, the Buddha appeared to him, he attained Arahatship -- matches synopsis and vatthu, correctly tagged."),
 
-    # q031 philological -- gold 1.1, retrieved (present, not rank-1).
-    ("q031", 0): Verdict(True, "verse", False, True, "Paraphrases Dhp 1's content, correctly tagged per the paraphrase-as-verse rule."),
-    ("q031", 1): Verdict(True, "synthesis", False, True,
-        "'One should cultivate wholesome intentions to avoid suffering' -- actually engages the question's own ethical-reading framing this round (contrast round 7's version, which didn't), correctly tagged synthesis."),
-    ("q031", 2): Verdict(True, "commentary", False, True, "Matches nidana/synopsis (Cakkhupāla, at all costs even his eyes), correctly tagged."),
+    # q031 philological -- gold 1.1, retrieved (rank-2). PALI_QUOTE_TRUNCATED
+    # (34% of Dhp 1) on claim 0.
+    ("q031", 0): Verdict(True, "verse", False, True,
+        "Ethical paraphrase of Dhp 1 (intentions shape actions and consequences), correctly tagged. The pali_support is only the first two pādas -- a genuine partial quote, correctly flagged by PALI_QUOTE_TRUNCATED."),
+    ("q031", 1): Verdict(True, "commentary", False, True,
+        "Sāvatthī, Elder Cakkhupāla -- matches nidana, correctly tagged; the 'to emphasize intentions' clause is interpretive but not contradicted."),
 
-    # q037 philological -- gold 7.1, retrieved rank-1.
-    ("q037", 0): Verdict(False, "verse", False, True,
-        "Restates Dhp 90's own content ('abandoned all the knots... released on all sides') without the specific philological gloss the question asks for (the four ganthas: abhijjhā/byāpāda/sīlabbataparāmāsa/idaṃsaccābhinivesa, absent from the visible Jīvaka/Devadatta vatthu excerpt) -- tagged 'commentary', judged 'verse' since it adds no narrative or philological fact beyond the verse's own wording. Not contradictory, so faithful=True."),
+    # q037 philological -- gold 7.1, retrieved rank-1. CITATION_IN_TEXT on
+    # claim 1.
+    ("q037", 0): Verdict(False, "verse", False, False,
+        "Lists the knots as 'sorrow, the fetters ..., physical and emotional suffering' -- items lifted from Dhp 90's own wording (grieves not, released on all sides, no fever) and misread as the knot list. The verse's interlinear note gives the four ganthas (abhijjhā, byāpāda, sīlabbataparāmāsa, idaṁsaccābhinivesa); none is named. Content derives from the verse, tagged 'synthesis'; unfaithful."),
+    ("q037", 1): Verdict(True, "commentary", False, False,
+        "Jīvaka, the foot wound, returning late -- matches vatthu, but 'spoken by the Buddha to Elder Ānanda in response to a question from Jīvaka' is wrong: the Buddha only told Ānanda to remove the bandage; the verse answered Jīvaka's own question (nidana). Also leaks 'group_id 7.1' (CITATION_IN_TEXT)."),
 
-    # q043 philological -- gold 14.1, retrieved rank-1.
-    ("q043", 0): Verdict(True, "commentary", False, True,
-        "Word-gloss (apadaṁ = trackless, kena padena = by what track) matching Dhp 180's actual wordplay, commentary-shaped by form per round 7's identical precedent for this question. Notably, the Māra's-daughters/Māgandiyā conflation from round 7's version of this claim did NOT recur -- this run produced only this one claim, with no narrative/occasion content to conflate at all."),
+    # q043 philological -- gold 14.1, retrieved rank-1. PALI_QUOTE_TRUNCATED
+    # (26% of Dhp 180) on claim 0.
+    ("q043", 0): Verdict(True, "verse", False, True,
+        "'apadaṁ' = the pathless one, 'kena padena' = by what track -- restates the verse's own translation, so 'verse', correctly tagged. Does not reach the note's actual wordplay (padāni = the states of craving by which the one beyond them could be led), but does not contradict it."),
+    ("q043", 1): Verdict(True, "commentary", False, False,
+        "'Spoken by the Buddha to Māgandiya's daughters, who were trying to tempt the Buddha' -- the verse was originally spoken about the daughters of MĀRA and repeated to the Brahmin MĀGANDIYA (nidana). The two figures are merged -- the same semantic-neighbour conflation as round 7's q043, recurring after its absence in round 8."),
 
     # q049 philological -- gold 20.8, retrieved rank-1.
     ("q049", 0): Verdict(True, "commentary", False, True,
-        "'The forest of lust, hatred, and delusion' -- extremely terse (a sentence fragment, not a full claim), but matches the classic kilesa-vana commentarial gloss, same as every prior round for this question. faithful=True unverified (not checkable against the visible excerpt)."),
+        "'The forest of lust, hatred, and delusion' -- a sentence fragment, but verbatim from the 20.8 vatthu (and the note's 'rāgādikilesavanaṁ'). Verified this round (round 8: unverified)."),
 
     # q055 philological -- gold 26.1, retrieved rank-1.
     ("q055", 0): Verdict(True, "commentary", False, False,
-        "Discusses 'akataññūsi' (= 'ungrateful') again instead of 'akata' (= 'not made/unconditioned'), the term the question actually asks about -- the same term-substitution confusion as round 7's identical claim for this question, recurring unchanged."),
+        "Glosses 'akataññūsi' correctly ('know that which is not made') -- round 8's term substitution is fixed -- but says it refers to Arahatship. The verse note says 'What is not made is Nibbāna'; Arahatship appears in the vatthu as the goal of the exhortation, not as the referent of akata."),
 }

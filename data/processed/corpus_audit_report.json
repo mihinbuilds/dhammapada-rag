@@ -143,45 +143,17 @@
   },
   "inline_vs_canonical": {
     "n_comparable": 226,
-    "n_exact": 119,
-    "n_boundary_artifact": 16,
-    "n_distinct": 91,
-    "distinct_rate": 0.4027,
+    "n_exact": 123,
+    "n_boundary_artifact": 5,
+    "n_distinct": 98,
+    "distinct_rate": 0.4336,
     "worst_20_distinct": [
-      {
-        "group_id": "25.10",
-        "pali_verse_number": 379,
-        "similarity": 0.6,
-        "story_pali_verse": "Attanā codayattānaṁ, paṭimāsettam-attanā,",
-        "canonical_pali_mahasangiti": "Attanā codayattānaṁ, paṭimaṁsetha attanā; So attagutto satimā, sukhaṁ bhikkhu vihāhisi."
-      },
-      {
-        "group_id": "5.11",
-        "pali_verse_number": 70,
-        "similarity": 0.6207,
-        "story_pali_verse": "Māse māse kusaggena bālo bhuñjetha bhojanaṁ,",
-        "canonical_pali_mahasangiti": "Māse māse kusaggena, bālo bhuñjeyya bhojanaṁ; Na so saṅkhātadhammānaṁ, kalaṁ agghati soḷasiṁ."
-      },
-      {
-        "group_id": "12.6",
-        "pali_verse_number": 162,
-        "similarity": 0.65,
-        "story_pali_verse": "Yassa accantadussīlyaṁ māluvā Sālam-ivotataṁ",
-        "canonical_pali_mahasangiti": "Yassa accantadussilyaṁ, māluvā sālamivotthataṁ; Karoti so tathattānaṁ, yathā naṁ icchatī diso."
-      },
       {
         "group_id": "26.33",
         "pali_verse_number": 416,
         "similarity": 0.6512,
         "story_pali_verse": "Yodha taṇhaṁ pahatvāna, anāgāro paribbaje, taṇhābhavaparikkhīṇaṁ, tam-ahaṁ brūmi brāhmaṇaṁ. Whoever, giving up craving,",
         "canonical_pali_mahasangiti": "Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ. Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ."
-      },
-      {
-        "group_id": "8.7",
-        "pali_verse_number": 108,
-        "similarity": 0.6707,
-        "story_pali_verse": "Yaṁ kiñci yiṭṭhaṁ ca hutaṁ ca loke saṁvaccharaṁ yajetha puññapekkho,",
-        "canonical_pali_mahasangiti": "Yaṁ kiñci yiṭṭhaṁ va hutaṁ va loke, Saṁvaccharaṁ yajetha puññapekkho; Sabbampi taṁ na catubhāgameti, Abhivādanā ujjugatesu seyyo."
       },
       {
         "group_id": "1.7",
@@ -191,25 +163,11 @@
         "canonical_pali_mahasangiti": "Anikkasāvo kāsāvaṁ, yo vatthaṁ paridahissati; Apeto damasaccena, na so kāsāvamarahati."
       },
       {
-        "group_id": "18.8",
-        "pali_verse_number": 249,
-        "similarity": 0.7917,
-        "story_pali_verse": "Dadāti ve yathāsaddhaṁ, yathāpasādanaṁ jano, tattha yo maṅku bhavati paresaṁ pānabhojane",
-        "canonical_pali_mahasangiti": "Dadāti ve yathāsaddhaṁ, yathāpasādanaṁ jano; Tattha yo ca maṅku bhavati, paresaṁ pānabhojane; Na so divā vā rattiṁ vā, samādhimadhigacchati."
-      },
-      {
         "group_id": "1.14",
         "pali_verse_number": 19,
         "similarity": 0.8333,
         "story_pali_verse": "Bahum-pi ce sahitaṁ bhāsamāno, na takkaro hoti naro pamatto, gopo va gāvo gaṇayaṁ paresaṁ, na bhāgavā sāmaññassa hoti. Even though reciting abundant scriptures,",
         "canonical_pali_mahasangiti": "Bahumpi ce saṁhita bhāsamāno, Na takkaro hoti naro pamatto; Gopova gāvo gaṇayaṁ paresaṁ, Na bhāgavā sāmaññassa hoti."
-      },
-      {
-        "group_id": "17.2",
-        "pali_verse_number": 222,
-        "similarity": 0.8432,
-        "story_pali_verse": "Yo ve uppatitaṁ kodhaṁ rathaṁ bhantaṁ va dhāraye, tam-ahaṁ sārathiṁ brūmi rasmiggāho itaro jano. Whoever should hold back anger",
-        "canonical_pali_mahasangiti": "Yo ve uppatitaṁ kodhaṁ, rathaṁ bhantaṁva vāraye; Tamahaṁ sārathiṁ brūmi, rasmiggāho itaro jano."
       },
       {
         "group_id": "26.32",
@@ -238,6 +196,13 @@
         "similarity": 0.9529,
         "story_pali_verse": "Dhanapālakŏ nāma kuñjaro kaṭukappabhedano dunnivārayo, baddho kabalaṁ na bhuñjati, sumarati nāgavanassa kuñjaro.",
         "canonical_pali_mahasangiti": "Dhanapālo nāma kuñjaro, Kaṭukabhedano dunnivārayo; Baddho kabaḷaṁ na bhuñjati, Sumarati nāgavanassa kuñjaro."
+      },
+      {
+        "group_id": "25.10",
+        "pali_verse_number": 379,
+        "similarity": 0.9595,
+        "story_pali_verse": "Attanā codayattānaṁ, paṭimāsettam-attanā, so attagutto satimā sukhaṁ bhikkhu vihāhisi.",
+        "canonical_pali_mahasangiti": "Attanā codayattānaṁ, paṭimaṁsetha attanā; So attagutto satimā, sukhaṁ bhikkhu vihāhisi."
       },
       {
         "group_id": "3.4",
@@ -287,6 +252,41 @@
         "similarity": 0.9681,
         "story_pali_verse": "Hatthasaṁyatŏ pādasaṁyato, vācāya saṁyatŏ saṁyatuttamo, ajjhattarato samāhito, eko santusito: tam-āhu bhikkhuṁ.",
         "canonical_pali_mahasangiti": "Hatthasaṁyato pādasaṁyato, Vācāsaṁyato saṁyatuttamo; Ajjhattarato samāhito, Eko santusito tamāhu bhikkhuṁ."
+      },
+      {
+        "group_id": "9.3",
+        "pali_verse_number": 118,
+        "similarity": 0.9689,
+        "story_pali_verse": "Puññañ-ce puriso kayirā, kayirāthetaṁ punappunaṁ, tamhi chandaṁ kayirātha, sukho puññassa uccayo.",
+        "canonical_pali_mahasangiti": "Puññañce puriso kayirā, kayirā naṁ punappunaṁ; Tamhi chandaṁ kayirātha, sukho puññassa uccayo."
+      },
+      {
+        "group_id": "10.5",
+        "pali_verse_number": 135,
+        "similarity": 0.9714,
+        "story_pali_verse": "Yathā daṇḍena gopālo gāvo pāceti gocaraṁ, evaṁ jarā ca maccu ca āyuṁ pācenti pāṇinaṁ.",
+        "canonical_pali_mahasangiti": "Yathā daṇḍena gopālo, gāvo pājeti gocaraṁ; Evaṁ jarā ca maccu ca, āyuṁ pājenti pāṇinaṁ."
+      },
+      {
+        "group_id": "12.4",
+        "pali_verse_number": 160,
+        "similarity": 0.9726,
+        "story_pali_verse": "Attā hi attano nātho, ko hi nātho paro siyā? Attanā va sudantena nāthaṁ labhati dullabhaṁ.",
+        "canonical_pali_mahasangiti": "Attā hi attano nātho, ko hi nātho paro siyā; Attanā hi sudantena, nāthaṁ labhati dullabhaṁ."
+      },
+      {
+        "group_id": "20.12",
+        "pali_verse_number": 288,
+        "similarity": 0.9726,
+        "story_pali_verse": "Na santi puttā tāṇāya, na pitā na pi bandhavā, Antakenādhipannassa natthi ñātisu tāṇatā.",
+        "canonical_pali_mahasangiti": "Na santi puttā tāṇāya, na pitā nāpi bandhavā; Antakenādhipannassa, natthi ñātīsu tāṇatā."
+      },
+      {
+        "group_id": "4.5",
+        "pali_verse_number": 49,
+        "similarity": 0.973,
+        "story_pali_verse": "Yathā pi bhamaro pupphaṁ vaṇṇagandhaṁ aheṭhayaṁ paḷeti rasam-ādāya, evaṁ gāme munī care.",
+        "canonical_pali_mahasangiti": "Yathāpi bhamaro pupphaṁ, vaṇṇagandhamaheṭhayaṁ; Paleti rasamādāya, evaṁ gāme munī care."
       }
     ]
   },

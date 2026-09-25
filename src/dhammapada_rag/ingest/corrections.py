@@ -118,3 +118,54 @@ def apply_corrections(stories: list[dict]) -> list[dict]:
         s["parse_flags"] = s.get("parse_flags", []) + ["dhp_verses_hand_corrected"]
         applied.append(c.group_id)
     return applied
+
+
+# Misspellings in the source PDF's English text, found by checking every
+# word used once in the corpus against the corpus's own vocabulary (a word
+# one edit away from a form used 8+ times elsewhere) and then read in
+# context. British spellings, archaisms ("nimbs"), and Pali forms are left
+# as the translator wrote them; only unambiguous typos are listed. Applied
+# with word boundaries to every text field and footnote.
+TEXT_CORRECTIONS: dict[str, str] = {
+    "milllion": "million",        # 1.1   "at a cost of 270 milllion"
+    "defilments": "defilements",  # 1.1   "the baseness of the defilments" (18 correct uses)
+    "apellation": "appellation",  # 1.1   footnote 5
+    "hersdman": "herdsman",       # 2.1   next sentence spells it "herdsman"
+    "mortor": "mortar",           # 4.8   "plastered with cement and mortor"
+    "plaintain": "plantain",      # 4.12  "plaintain-leaves"
+    "spirtual": "spiritual",      # 24.2  "moved by spirtual urgency" (72 correct uses)
+    "worhipped": "worshipped",    # 24.6  (200 correct uses)
+    "requsite": "requisite",      # 26.31 "the faculties requsite for"
+}
+
+_TEXT_FIELDS = (
+    "title_en", "cst4_title", "burlingame_title", "synopsis", "cast",
+    "english_verse", "nidana", "vatthu", "desanavasane",
+)
+
+
+def apply_text_corrections(stories: list[dict]) -> dict[str, int]:
+    """Fix TEXT_CORRECTIONS in place; returns {typo: occurrences fixed},
+    counted over the segmented fields and footnotes (body_raw, which repeats
+    the body text, is corrected too but not counted twice)."""
+    import re
+
+    pattern = re.compile(r"\b(" + "|".join(TEXT_CORRECTIONS) + r")\b")
+    counts: dict[str, int] = {}
+
+    def fix(text: str, count: bool = True) -> str:
+        def repl(m: re.Match) -> str:
+            if count:
+                counts[m.group(1)] = counts.get(m.group(1), 0) + 1
+            return TEXT_CORRECTIONS[m.group(1)]
+        return pattern.sub(repl, text)
+
+    for s in stories:
+        for key in _TEXT_FIELDS:
+            if s.get(key):
+                s[key] = fix(s[key])
+        if s.get("body_raw"):
+            s["body_raw"] = fix(s["body_raw"], count=False)
+        for fn in s.get("footnotes", []):
+            fn["text"] = fix(fn["text"])
+    return counts

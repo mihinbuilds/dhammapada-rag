@@ -2,17 +2,15 @@
   "n_stories": 305,
   "n_dhp_verses_total": 418,
   "flag_counts": {
-    "nidana_not_detected": 48,
     "pali_verse_not_in_source": 79,
-    "desanavasane_not_detected": 7,
-    "english_verse_not_detected": 4,
+    "desanavasane_not_detected": 8,
+    "nidana_not_detected": 4,
     "no_stars_line_found": 1
   },
   "flag_rates": {
-    "nidana_not_detected": 0.1574,
     "pali_verse_not_in_source": 0.259,
-    "desanavasane_not_detected": 0.023,
-    "english_verse_not_detected": 0.0131,
+    "desanavasane_not_detected": 0.0262,
+    "nidana_not_detected": 0.0131,
     "no_stars_line_found": 0.0033
   },
   "hand_corrections_applied": [
@@ -23,5 +21,16 @@
     "26.17",
     "26.34"
   ],
-  "n_hand_corrections_applied": 6
+  "n_hand_corrections_applied": 6,
+  "typo_corrections_applied": {
+    "milllion": 1,
+    "defilments": 1,
+    "apellation": 1,
+    "hersdman": 1,
+    "mortor": 1,
+    "plaintain": 1,
+    "spirtual": 1,
+    "worhipped": 1,
+    "requsite": 1
+  }
 }

@@ -9,11 +9,10 @@ dependencies = [
     "torch>=2.0",
     "FlagEmbedding>=1.2",
     "transformers<5",  # FlagEmbedding's reranker calls a tokenizer API transformers 5.x removed
+    "huggingface-hub<1.0",  # transformers 4.x requires huggingface-hub<1.0 -- pin explicitly, pip can otherwise resolve a newer one that breaks the reranker import
     "fastapi>=0.110",
     "uvicorn[standard]>=0.29",
     "requests>=2.31",
-    "streamlit>=1.35",
-    "plotly>=5.20",
 ]
 
 [tool.setuptools.packages.find]

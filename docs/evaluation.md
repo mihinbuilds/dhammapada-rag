@@ -13,6 +13,36 @@ numbers side by side so the effect of each fix is visible, not asserted.
 single AI-assisted annotation pass (Claude, one sitting), no
 Krippendorff's α or Cohen's κ computed or claimed anywhere here.
 
+> **Current numbers (2026-09-23).** Every table further down this document
+> is a dated record of the round that produced it, computed on an index of
+> at most 5,876 chunks built *before* the September 2026 text-cleaning
+> pass. The index now shipped (5,909 chunks) was re-embedded and both
+> evaluations re-run against it on 2026-09-23. **These are the numbers that
+> describe the current system:**
+>
+> | Retrieval (114 q) | R@1 | R@10 | nDCG@10 | MRR |
+> |---|---|---|---|---|
+> | baseline | 0.912 | 0.982 | **0.954** | 0.944 |
+> | verse_only | 0.500 | 0.553 | 0.526 | 0.523 |
+> | dense_only | 0.921 | 0.974 | 0.953 | 0.946 |
+> | no_rerank | 0.886 | 0.974 | 0.937 | 0.926 |
+> | flat | 0.912 | 0.982 | 0.951 | 0.941 |
+>
+> | Generation (27 q, 48 claims) | Value |
+> |---|---|
+> | Layer accuracy | 0.854 |
+> | Macro-F1, 3 supported classes (4-class as printed) | 0.837 (0.628) |
+> | Anachronistic conflation | 0.100 (4/40) |
+> | Source fidelity (all claims) | 0.833 (40/48) |
+> | Source fidelity, non-synthesis, 95% CI | 0.851 [0.717, 0.957] |
+> | Pali quotes: exact / variant / fabricated | 8 / 3 / 0 of 11 |
+> | Quote coverage rate | 0.807 |
+> | Provenance errors | 2/48 claims |
+>
+> What changed, and why the generation numbers are not a like-for-like
+> comparison with August, is in
+> [Post-cleaning re-run (2026-09-23)](#post-cleaning-re-run-2026-09-23).
+
 ## The headline finding: fluent, cited, schema-valid, and hollow
 
 Before this fix pass, two independent truncation bugs compounded silently:
@@ -55,6 +85,9 @@ unchanged). 114/120 are chunk-retrievable; 6 colophon questions remain
 intentionally not chunk-indexed (documented, not a bug).
 
 ## Retrieval metrics
+
+*Historical (post-fix pass, August 2026, pre-cleaning index). For current
+numbers see the top of this document.*
 
 114 questions, full pipeline (hybrid RRF → cross-encoder rerank →
 parent-group assembly).
@@ -277,6 +310,9 @@ patched corpus; see the design doc's own verdict, reproduced there, for
 why a full Stages 1–4 rebuild was not warranted by this pass.
 
 ## Generation metrics
+
+*Historical (post-fix pass, August 2026). For current numbers see the top
+of this document.*
 
 27-question stratified sample, 53 claims total, judged against a
 **gold layer tag per claim** (`verse` / `commentary` / `synthesis`) rather
@@ -715,6 +751,11 @@ contained.
 
 ### Task R: unescaped claim text in the UI card (fixed before it was observed here)
 
+> **Note (2026-09-23).** The Streamlit UI (`src/dhammapada_rag/ui/app.py`) that
+> this section refers to has since been removed. The frontend is now the
+> Next.js app in `web/`, served by `api/main.py`. References to `ui/app.py` are
+> kept as the record of what that round changed.
+
 `ui/app.py`'s `render_claim()` builds one complete f-string per card and
 gates the Pali line on field presence, not layer -- both already correct.
 `claim["text"]` and the citation string were not `html.escape()`d before
@@ -1054,6 +1095,115 @@ precision the history doesn't actually have. This is a real limitation,
 not a preference: any future round's work is committed as its own commit
 from this point forward, so this gap does not recur.
 
+## Post-cleaning re-run (2026-09-23)
+
+`docs/status_report.md` found that every result in `data/eval/` predated
+the September 2026 cleaning pass (`stories.jsonl` rewritten on all 305
+lines, `chunks.jsonl` 5,876 → 5,909 rows), and that `chunks.jsonl` had been
+rewritten nine minutes after the embeddings were built. This re-run closes
+both gaps: `index/embed.py` re-embedded all 5,909 chunks (embeddings now
+newer than `chunks.jsonl`; a spot check of 12 chunks re-encoded fresh gives
+self-cosine ≥ 0.9997 on every one), then `retrieval_eval.py` +
+`aggregate_retrieval.py` and `generation_metrics.py` +
+`aggregate_generation.py` were re-run unchanged.
+
+### Retrieval: one question moved
+
+| Condition | nDCG@10 Aug → Sep | R@10 Aug → Sep |
+|---|---|---|
+| baseline | 0.9592 → 0.9537 | 0.9912 → 0.9825 |
+| verse_only | 0.5227 → 0.5263 | 0.5526 → 0.5526 |
+| dense_only | 0.9577 → 0.9525 | 0.9825 → 0.9737 |
+| no_rerank | 0.9429 → 0.9374 | 0.9825 → 0.9737 |
+| flat | 0.9563 → 0.9508 | 0.9912 → 0.9825 |
+
+Exactly one of 114 questions changed its baseline rank: **q019** (doctrinal,
+"what actually makes someone 'astute'…", gold 19.2 / Dhp 258), rank 2 → 27.
+The whole overall drop is this one question. It is not index drift: 19.2's
+chunks and Dhp 258's four verse chunks differ from the August text only in
+whitespace, and their stored dense and sparse vectors match fresh encodings.
+The mechanism is lexical. In the query, `'astute,'` (quoted, with a trailing
+comma) tokenises as `ast` + `ute`; in `verse:258:en_sujato` "astute"
+tokenises as `astu` + `te`. The query's highest-weighted term therefore
+matches nothing in the verse, and the chunk sits at sparse rank 1,005 and
+dense rank 31. What held it at rank 2 in August cannot be reconstructed,
+because the August embeddings were overwritten. The finding that stands:
+q019 was always passing on a thin margin, and a punctuation-sensitive
+tokenisation split can decide it.
+
+Ablation deltas (baseline − condition, nDCG@10) are unchanged in
+substance: verse_only 0.427 [0.338, 0.522]; dense_only 0.001 [−0.008,
+0.010]; no_rerank 0.016 [−0.010, 0.043]; flat 0.003 [0.000, 0.008]. The
+saturation reading in `docs/status_report.md` §8 holds on the rebuilt
+index: only removing the story chunks produces a measurable difference.
+
+### Generation: re-judged from scratch
+
+Same 27-question systematic sample, seed, model (`qwen2.5:7b-instruct`) and
+`num_ctx` (16384). All 48 new claims were re-judged in
+`data/eval/generation_judgments.py` by Claude Opus 5.5. The August
+judgments were by Claude Sonnet 5 and are in git at `2a20bfd`. This pass
+also checked each claim against the *full* stored nidāna, synopsis, vatthu
+and desanāvasāna and the verse's interlinear notes, not only the ~800-char
+excerpt that earlier rounds judged from. That makes it stricter, and part
+of the fidelity movement below is the stricter check rather than a worse
+model.
+
+| | Aug (round 8) | Sep 23 |
+|---|---|---|
+| Accuracy | 0.854 | 0.854 |
+| Macro-F1 | 0.824 | 0.837 over verse/commentary/alignment; 0.628 printed* |
+| Conflation (commentary tagged `verse`) | 0.027 | **0.100** (4/40) |
+| Source fidelity | 0.917 | **0.833** (40/48) |
+| Fidelity, non-synthesis, 95% CI | 0.933 [0.851, 1.0] | 0.851 [0.717, 0.957] |
+| Alignment recall | 0.778 | 0.778 |
+| Pali exact / variant / fabricated | 6 / 0 / 1 of 7 | 8 / 3 / **0** of 11 |
+| Quote coverage rate | 0.85 (n=6) | 0.807 (n=11) |
+| Provenance errors | 6/48 | 2/48 |
+
+\* No claim in this sample is gold `synthesis`, but one (q037#0) is
+*tagged* synthesis. That gives the class F1 = 0 with support 0, which
+`aggregate_generation.py` averages into macro-F1. The three-class figure is
+the one comparable with August.
+
+**What the judging found:**
+
+- **Verse quotes attached to story sentences.** q067#0, q073#0 and q079#0
+  each carry a real, correct `pali_support` of the verse (exact or variant)
+  on a sentence that narrates the vatthu. The Pali makes the claim look
+  verse-grounded while its text is commentary. That is anachronistic
+  conflation with a quote attached as cover, and it accounts for three of
+  the four conflations. A fourth, q019#1, presents the 8.3 vatthu's "robbers
+  that are his own pollutants" as what "the Dhammapada also states" of
+  Dhp 103.
+- **Semantic-neighbour conflation came back on q043.** The model says the
+  verse was spoken "to Māgandiya's daughters" who tried to tempt the
+  Buddha. The nidāna says it was spoken about the daughters of *Māra* and
+  repeated to the Brahmin *Māgandiya*. This is round 7's q043 error,
+  absent in round 8 and present again. Round 8's q099 "Aggidatta" name
+  migration did not recur.
+- **Retrieval failures now produce confident false anomalies.** q119
+  names "Dhp 85, 86" as the verse with two stories (the answer is Dhp 416:
+  26.33 and 26.34). q120 claims 26.21's header misstates its verse as 403,
+  but the raw header reads "Dhp 404"
+  (`data/raw/dhammapada-attakatha.txt` l.41523). The real typo is 26.17's
+  "Dhp 40" for 400 (l.41344). Round 8's answers to the same two questions
+  described the wrongly retrieved story neutrally.
+- **Philological glosses fail on text outside the excerpt.** q037 lists
+  the four knots as "sorrow, the fetters…, suffering", words lifted from
+  Dhp 90 itself, while the verse note names the actual four ganthas.
+  q055 glosses *akata* as Arahatship where the note says Nibbāna.
+- **Fixed or not recurring:** no fabricated Pali (0/11), the round-8
+  q085 self-contradiction is gone, q055's term substitution is fixed (the
+  gloss is right and the referent wrong), and `CITATION_IN_TEXT` fell from 4
+  to 2 claims. The two remaining (q097#0, q037#1) are the space-separated
+  `group_id 25.5` form that Round 9 Task AG widened the check to catch.
+- **A source inconsistency, not a model error:** 6.11's title says "Five
+  Hundred Visiting Bhikkhus" (CST4 *Pañcasata-*), while its nidāna and
+  synopsis say "fifty".
+- The round-9 truncation warning fires on three genuine half-quotes
+  (q031 34%, q043 26%, q067 32% of the verse).
+
 ## Summary
 
 **What the evidence in this document supports:**
@@ -1210,7 +1360,8 @@ from this point forward, so this gap does not recur.
    `rerank.py` both confirmed running `device='cuda' fp16=True` during the
    2026-08-06 corpus-audit re-index and eval re-run below, not just
    selectable in principle.
-10. (Round 6) Run a fresh `generation_metrics.py` pass and re-judge it under
+10. (Done 2026-09-23: 11 Pali claims measured, 8 exact / 3 variant / 0
+   fabricated; see "Post-cleaning re-run" above.) (Round 6) Run a fresh `generation_metrics.py` pass and re-judge it under
    the Round 6 schema so `aggregate_generation.py`'s three Pali rates
    (exact/variant/fabrication) get a real sampled measurement instead of
    this round's live-but-unsampled confirmation. The existing

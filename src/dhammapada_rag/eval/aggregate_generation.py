@@ -83,7 +83,7 @@ sys.path.insert(0, str(ROOT / "data" / "eval"))
 sys.path.insert(0, str(ROOT / "src"))
 
 from generation_judgments import JUDGMENTS  # noqa: E402
-from dhammapada_rag.generate.schemas import normalize_group_id  # noqa: E402
+from dhammapada_rag.generate.schemas import _pali_orthographic, normalize_group_id  # noqa: E402
 
 # Round 7, Task T: "alignment" is a fourth layer (facts about the corpus's
 # own editorial structure -- which story explains which verse group -- as
@@ -408,6 +408,47 @@ def main():
         }
     else:
         print("  no VerseClaim in this run carries pali_support -- nothing to report")
+
+    # ---------------------------------------------- Pali quote coverage (Task AF)
+    # A fourth rate alongside the three tiers above: exact/variant/fabrication
+    # all ask "are the quoted words real," never "how much of the verse did
+    # the model actually quote." A half-quoted verse passes the substring
+    # check cleanly (a truncation is a valid substring) and reads as a full
+    # exact match in the tiers above -- this is what that number hides.
+    # Measured against the verse's own canonical pali_mahasangiti (not
+    # whichever field schemas.py's audit() happened to match against, which
+    # this script doesn't have -- generation_raw.jsonl carries claims, not
+    # bundles) on the orthographically folded forms, same fold audit() uses,
+    # so hyphenation/niggahita/case differences don't register as missing
+    # text. Fabricated quotes (tier "fabrication") are excluded -- there is
+    # no verse text they actually quote to measure coverage of.
+    verses_path = ROOT / "data" / "processed" / "verses.jsonl"
+    verse_pali = {
+        v["verse"]: v.get("pali_mahasangiti")
+        for v in (json.loads(l) for l in verses_path.read_text(encoding="utf-8").splitlines())
+    }
+    quote_coverages = []
+    for r in raw:
+        warn_by_idx = {
+            w["claim_index"]: w["code"]
+            for w in r["structural_warnings"]
+            if w["code"] in ("PALI_QUOTE_NOT_IN_SOURCE",)
+        }
+        for i, c in enumerate(r["claims"]):
+            if not c.get("pali_support") or i in warn_by_idx:
+                continue
+            source = verse_pali.get(c.get("verse_number"))
+            if not source:
+                continue
+            coverage = len(_pali_orthographic(c["pali_support"])) / len(_pali_orthographic(source))
+            quote_coverages.append(min(coverage, 1.0))
+
+    if quote_coverages:
+        mean_coverage = sum(quote_coverages) / len(quote_coverages)
+        print(f"  quote coverage rate: {mean_coverage:.3f}  (n={len(quote_coverages)})   <- mean fraction of the cited verse actually quoted")
+        if pali_report is not None:
+            pali_report["quote_coverage_rate"] = round(mean_coverage, 4)
+            pali_report["n_quote_coverage"] = len(quote_coverages)
 
     # ---------------------------------------------------------------- by type
     print("\n=== By query type ===")

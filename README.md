@@ -10,6 +10,42 @@ it came from.
 See `DhammapadaRAG.txt` for the full project plan (5 phases: corpus
 construction, indexing, retrieval architecture, generation, evaluation).
 
+## Quick start
+
+The processed corpus (`data/processed/`) and the chunk list
+(`data/index/chunks.jsonl`) are checked in, so you only need to build the
+embeddings once, then start the API and the web app.
+
+```
+# 1. Python environment (Python 3.11+)
+python3 -m venv .venv && source .venv/bin/activate
+pip install -e .
+
+# 2. Build the search index (first run downloads BGE-M3, ~2.3GB; ~4 min on Apple Silicon)
+python src/dhammapada_rag/index/embed.py
+
+# 3. Optional, for generated answers: Ollama with the model pulled
+ollama pull qwen2.5:7b-instruct
+ollama serve                       # skip if the Ollama app is already running
+
+# 4. Terminal 1 -- the API (http://127.0.0.1:8000, docs at /docs)
+uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
+
+# 5. Terminal 2 -- the web app (http://localhost:3000; needs Node.js 20.9+)
+cd web && npm install && npm run dev
+```
+
+Without Ollama, everything except generated answers still works: search,
+corpus browsing, and the evaluation dashboard. The Ask page falls back to
+retrieval-only results. To try it from the command line instead:
+
+```
+python src/dhammapada_rag/index/assemble.py "the woman whose child died"
+python src/dhammapada_rag/generate/generate.py "why did the Buddha teach Kisa Gotami about mustard seeds?"
+```
+
+Run the tests with `python -m pytest -q`.
+
 ## Status
 
 **Phase 1 (corpus construction)** complete: 305 narrative stories covering
@@ -17,7 +53,23 @@ all 423 verses / 26 vaggas (hard validation passes), plus a fully-covering
 423/423 verse layer (Pali + two English translations + interlinear gloss).
 See `docs/datasheet.md` and `docs/licensing.md`.
 
-**Phase 2 (indexing)** complete: 5,667 chunks (see `docs/indexing.md`;
+**Corpus text cleaning (September 2026):** a corpus-wide scan of the story
+text found PDF-extraction defects that earlier checks never looked for, now
+fixed in the parser itself and pinned by `tests/test_parse_stories.py`.
+Verse quotations were cut in half at page breaks (~30 stories, e.g. Dhp
+388's English translation). Footnote numbers were left in the prose
+(`Dhamma,5`, ~500 of them), and 26 footnotes were missing or filed under
+the wrong story. Chapter title pages were glued onto the end of 24 stories,
+and the book's closing colophon onto the last one. Pali and English lines of
+11 verse quotes were mixed up. The "opening setting" and "closing section"
+boundaries were missed or placed mid-sentence in 47 stories, and the text
+had hard line-wraps and double spaces. Nine source typos were corrected, and
+SuttaCentral `<j>` markup was stripped from 12 of Sujato's verses. Every
+count, and what was deliberately left alone, is in `docs/datasheet.md`
+("Text cleaning pass"). The whole downstream pipeline, chunks, and
+embeddings were rebuilt from the cleaned text.
+
+**Phase 2 (indexing)** complete: 5,909 chunks (see `docs/indexing.md`;
 originally 2,769 -- narrative text is now windowed rather than emitted as one
 oversized chunk per story, see `docs/evaluation.md`'s headline finding)
 embedded with BGE-M3 (dense + sparse + ColBERT multi-vector), fused with
@@ -65,7 +117,14 @@ latency cost, while retrying a failed generation does not reliably help and
 can make a small model's clean rate worse. **No inter-annotator agreement
 statistic is computed or claimed anywhere** -- see `docs/eval_rubric.md`'s
 "Annotator status" for why and what would be needed to add one. Pre-fix
-numbers are kept, not deleted, at `docs/evaluation_pre_fix.md`.
+numbers are kept, not deleted, at `docs/evaluation_pre_fix.md`. The
+retrieval and generation outputs in `data/eval/` were re-run on 2026-09-23
+against the re-embedded 5,909-chunk index built from the September 2026
+cleaned corpus (baseline nDCG@10 0.954; generation layer accuracy 0.854,
+source fidelity 0.833, zero fabricated Pali quotes). See the top of
+`docs/evaluation.md`. The other files in `data/eval/` (model sweep, RRF
+k-sweep, arm diagnosis, research validation, tag stability) have not been
+re-run and still describe the pre-cleaning index.
 
 ## Sources
 
@@ -102,23 +161,30 @@ sources/                     source PDF, unmodified
 sources/external/            fetched CC0/CC-BY-SA sources (Pali, 2nd translation, gloss)
 data/raw/                    text extracted from sources/, unmodified beyond format conversion
 data/interim/                intermediate parsing artifacts (gitignored)
+data/normalized/             one cleaned, validated file per source (sc_pali, sc_sujato,
+                             aj_interlinear, aj_stories) plus the alignment table and joins
 data/processed/
-  stories.jsonl                narrative/commentary layer, 305 stories
+  stories.jsonl                narrative/commentary layer, 305 stories, 408 footnotes
   verses.jsonl                 canonical verse layer, 423/423 verses, all sources joined
   alignment_table.json         verse -> story group_id(s)
   interlinear_gloss.jsonl      parsed interlinear edition, 423/423 verses
   *_report.json                coverage/validation reports per pipeline stage
 data/index/
-  chunks.jsonl                  5,667 indexable chunks (tracked; small)
+  chunks.jsonl                  5,909 indexable chunks (tracked; small)
   dense.npy, sparse.pkl,        BGE-M3 embeddings (gitignored; rebuild with embed.py)
   colbert.pkl, chunk_ids.json
+data/eval/                     gold set, evaluation results and metrics
 src/dhammapada_rag/
   vaggas.py, models.py          shared schema
   ingest/                        Phase 1 pipeline (PDF/HTML/JSON -> data/processed/)
+    corrections.py                 logged hand-corrections: verse numbers and source typos
   index/                         Phase 2-3 pipeline (chunks -> embeddings -> search -> assembly)
   generate/                      Phase 4: layer-attributed generation (schema, prompt, Ollama call)
   api/                           Phase 3-4 service: FastAPI wrapper over index/ and generate/
-docs/                          datasheet, licensing table, indexing/generation design notes
+  eval/                          Phase 5: retrieval/generation evaluation scripts
+tests/                         pytest suite (provenance audit, story-text cleaning)
+web/                            Next.js UI against the FastAPI service (see "UI" below)
+docs/                          datasheet, licensing table, corpus audit, indexing/generation design notes
 ```
 
 ## Setup
@@ -141,18 +207,37 @@ Requires `poppler` (`pdftotext`) on PATH for PDF extraction. First run of the
 indexing pipeline downloads BAAI/bge-m3 (~2.3GB) and BAAI/bge-reranker-v2-m3
 (~1.1GB) from HuggingFace. Generation requires
 [Ollama](https://ollama.com) running locally with a model pulled:
-`ollama pull qwen2.5:7b-instruct` (~4.7GB).
+`ollama pull qwen2.5:7b-instruct` (~4.7GB). The web app needs Node.js 20.9+
+(required by Next.js 16).
+
+`pyproject.toml` pins `huggingface-hub<1.0`: `transformers<5` (needed by
+`FlagEmbedding`'s reranker) requires `huggingface-hub<1.0`, but a plain `pip
+install -e .` can otherwise resolve a newer `huggingface-hub` that breaks the
+reranker import outright. If you see `ImportError: huggingface-hub>=0.34.0,
+<1.0 is required...`, run `pip install "huggingface-hub<1.0,>=0.34.0"` to fix
+it in an existing venv.
 
 ## Running the pipeline
 
+You only need this after changing a source file or the parsing code. The
+outputs are checked in. Run the steps in this order, since each reads the
+previous one's output:
+
 ```
 # Phase 1: corpus construction
-python src/dhammapada_rag/ingest/parse_stories.py      # PDF -> stories.jsonl
-python src/dhammapada_rag/ingest/validate.py            # -> validation_report.json
-python src/dhammapada_rag/ingest/parse_interlinear.py   # HTML -> interlinear_gloss.jsonl
-python src/dhammapada_rag/ingest/build_verses.py        # merge -> verses.jsonl
+python src/dhammapada_rag/ingest/parse_stories.py        # PDF text -> stories.jsonl (cleaning + corrections)
+python -m dhammapada_rag.ingest.validate                  # -> validation_report.json (423 verses, 26 vaggas)
+python -m dhammapada_rag.ingest.normalize_sc_pali         # -> data/normalized/sc_pali.jsonl
+python -m dhammapada_rag.ingest.normalize_sc_sujato       # -> data/normalized/sc_sujato.jsonl
+python -m dhammapada_rag.ingest.normalize_aj_interlinear  # -> data/normalized/aj_interlinear.jsonl
+python -m dhammapada_rag.ingest.normalize_aj_stories      # -> data/normalized/aj_stories.jsonl
+python -m dhammapada_rag.ingest.build_verses              # merge -> verses.jsonl
+python -m dhammapada_rag.ingest.build_alignment_table     # -> alignment_table.json
+python -m dhammapada_rag.ingest.join_verses               # -> data/normalized/verses_joined.json
+python -m dhammapada_rag.ingest.validation_gates          # 7 gates, all must PASS
+python -m dhammapada_rag.ingest.audit_corpus              # -> docs/corpus_audit.md
 
-# Phase 2: indexing
+# Phase 2: indexing (re-run both whenever stories.jsonl or verses.jsonl change)
 python src/dhammapada_rag/index/chunks.py               # -> data/index/chunks.jsonl
 python src/dhammapada_rag/index/embed.py                # BGE-M3 -> dense/sparse/colbert
 
@@ -194,6 +279,12 @@ Interactive docs at `http://127.0.0.1:8000/docs` (auto-generated from
 | `/answer` | POST | `{"question": str, "top_k"?: 1-10, "candidates"?: 5-100, "model"?: str}` -> retrieval + Qwen2.5-7B generation, every claim tagged `verse`/`commentary`/`alignment`/`synthesis` with a citation, plus a `warnings` list from the provenance audit (see `docs/generation.md`) and the `sources` actually used |
 | `/verses/{verse_number}` | GET | Direct verse lookup (1-423) |
 | `/stories/{group_id}` | GET | Direct story lookup, e.g. `/stories/8.13` |
+| `/vaggas` | GET | The 26-vagga table (number, names, verse range) |
+| `/eval/summary` | GET | Passthrough of `data/eval/retrieval_metrics.json` + `generation_metrics.json` + a summarized model-size sweep, for the web app's Evaluation dashboard |
+
+CORS is open to `http://localhost:3000` by default (the Next.js dev server);
+override with a comma-separated `DHAMMAPADA_CORS_ORIGINS` env var for other
+origins.
 
 `/answer` requires Ollama running locally (`ollama serve`) with the model
 pulled; ~3-20s per call depending on answer length.
@@ -227,19 +318,26 @@ caveats (read this before trusting any number): `docs/eval_rubric.md`.
 
 ## UI
 
-A Streamlit front end (`src/dhammapada_rag/ui/app.py`) for demoing the
-system and presenting Phase 5 results -- three tabs: **Ask a question**
-(query + optional layer-attributed generation, color-coded verse/commentary/
-synthesis claim badges, provenance warnings, expandable sources with Pali/
-translations/story), **Browse corpus** (direct verse or story lookup), and
-**Evaluation results** (retrieval metrics, ablations, generation metrics,
-model-size sweep, all pulled live from `data/eval/`).
+A web front end (`web/`) against the FastAPI service above -- four routes:
+**Ask** (query + optional layer-attributed generation, animated claim cards,
+provenance warnings, expandable sources), **Corpus** (vagga browser +
+verse/story lookup), **Evaluation** (retrieval metrics, ablations, generation
+metrics, model-size sweep, pulled live from `data/eval/` via `/eval/summary`),
+and **Method & notes**. Built with Next.js (App Router) + TypeScript +
+Tailwind, with a paper/ink design language, layer color-coding, and dark mode.
 
 ```
-./.venv/bin/streamlit run src/dhammapada_rag/ui/app.py   # macOS/Linux
-.venv\Scripts\streamlit.exe run src/dhammapada_rag/ui/app.py   # Windows
+# Terminal 1 -- API, with the Next dev server's origin allowed via CORS
+uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
+
+# Terminal 2 -- web app
+cd web
+npm install    # first time only
+npm run dev
 ```
 
-Opens at `http://localhost:8501`. Calls the pipeline directly (no need for
-the FastAPI server to be running separately); models load once on first use
-and are cached for the session.
+Opens at `http://localhost:3000`. `web/.env.local` points it at the API
+(`NEXT_PUBLIC_API_BASE_URL`, default `http://localhost:8000`). `/answer`
+(the Ask page's "Generate layer-attributed answer" option) requires Ollama
+running locally, same as the API section above; with it off, or if
+generation fails, the page falls back to showing retrieval-only results.

@@ -676,7 +676,9 @@ def render_markdown(report: dict) -> str:
         f"tier of check 4 ({cross['n_boundary_artifact']} cases) -- the same class of vagga-boundary "
         "contamination -- is already fixed at the source (`build_verses.py`'s Stage 2 cutover); "
         f"check 5's {inline['n_boundary_artifact']} boundary-artifact cases are expected partial-"
-        "quote \"teasers\" (`verse_teaser`), not a bug.",
+        "quote \"teasers\" (`verse_teaser`), not a bug. (That tier was 16 before the story "
+        "parser stopped splitting verse quotations at page breaks: 11 of the 16 were full "
+        "quotations cut off mid-verse by a page break, not teasers.)",
         "- **One check's own premise didn't hold**: check 3's 22 \"violations\" were all legitimate "
         "typographic punctuation, not OCR residue -- the character-set gate now allows them (see "
         "check 3 above) rather than needing the corpus changed.",
@@ -685,7 +687,8 @@ def render_markdown(report: dict) -> str:
         "pluralization mismatch, a name that lives in `nidana` rather than `vatthu`, and a "
         "paraphrased doctrinal title with no real proper noun), not corpus errors. The checker "
         "itself, not the corpus, was narrow; see check 1's function docstring for the fix.",
-        "- **The large \"distinct\" numbers in checks 4/5 (42% and 40%) are the one finding that "
+        f"- **The large \"distinct\" numbers in checks 4/5 ({cross['distinct_rate']:.0%} and "
+        f"{inline['distinct_rate']:.0%}) are the one finding that "
         "looked, before inspection, like it might justify a rebuild -- and mostly doesn't.** "
         "Spot-checking shows most are genuine word-level variance between two real, already-"
         "correctly-distinguishable editions (Mahāsaṅgīti vs. Ānandajoti), which is what "

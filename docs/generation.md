@@ -6,6 +6,11 @@ every claim carries a layer tag (verse / commentary / synthesis) and a
 group_id. Conflating the two layers is the failure mode; make the output
 format make it visible."
 
+> **Note (2026-09-23).** The Streamlit UI (`src/dhammapada_rag/ui/app.py`) that
+> earlier rounds below refer to has since been removed. The frontend is now the
+> Next.js app in `web/`, served by `api/main.py`. References to `ui/app.py` are
+> kept as the record of what that round changed.
+
 ## Model
 
 **Qwen2.5-7B-Instruct**, served locally via Ollama (`qwen2.5:7b-instruct`,
@@ -711,3 +716,97 @@ penalize single-arm discoveries is arithmetically sound and independently
 verified, but does not translate into a practical win for the fusion
 alternative on this corpus. No k or fusion method was adopted; per the
 brief, `rrf_fuse()`'s default `k=60` is unchanged.
+
+## Round 9: quote fidelity
+
+**Task AE -- corpus checked before any code changed.** Both flagged quotes
+were checked against `data/processed/verses.jsonl` directly: Dhp 194's
+`pali_mahasangiti` (93 chars) and `interlinear_pali` (94 chars) both carry
+all four pādas, as does Dhp 273's (94 chars each). The corpus is complete;
+the truncation observed in the brief's example answer was the model's, not
+an extraction gap -- Task AF applies, not a `docs/corpus_audit.md` addition.
+The suspected cross-verse attribution of `saccānaṁ caturo padā` was also
+checked directly: it is genuinely the first line of Dhp 273's own text
+(`Maggānaṭṭhaṅgiko seṭṭho, saccānaṁ caturo padā; Virāgo seṭṭho dhammānaṁ,
+dvipadānañca cakkhumā.`), not a neighbouring verse's words -- not cross-verse
+contamination in this instance.
+
+Inspecting `audit()`'s Pali matching per the brief's instruction found a
+real, distinct instance of the *class* of bug asked about, though not the
+one first suspected: a story's `pali_verse` field quotes only one verse of
+its (possibly multi-verse) group -- `pali_verse_number` records which -- but
+`audit()` was attaching it as a valid candidate to *every* verse in
+`dhp_verses`. Live example: group 20.1 covers Dhp 273-276 with
+`pali_verse_number=273`; before the fix, a claim citing Dhp 274 with
+`pali_support` actually equal to Dhp 273's text would validate cleanly --
+real Pali from the retrieved group, attached to the wrong verse within it,
+exactly the failure mode the brief named. Fixed to match per cited verse
+only (`pali_candidates_by_number` keyed by `pali_verse_number`, not every
+verse in the group), falling back to the group union only when
+`pali_verse_number` is absent, per the brief's own instruction. Regression
+tests: `test_pali_verse_not_attributed_to_sibling_verse_in_multi_verse_group`,
+`test_pali_verse_still_validates_against_its_own_verse_number`,
+`test_pali_verse_falls_back_to_group_union_when_verse_number_absent`.
+
+**Task AF -- `PALI_QUOTE_TRUNCATED`.** Added at `PALI_COVERAGE_THRESHOLD =
+0.6`, computed on the orthographically folded forms, checked against
+whichever field the quote actually matched at exact/variant tier (fabricated
+quotes are excluded -- there is no verse text to measure coverage against).
+The brief's own two examples, checked against the live coverage formula:
+Dhp 194 truncated to its first two pādas measures 0.500 coverage; Dhp 273
+truncated to its first line measures 0.494 -- both below threshold,
+confirming 0.6 catches the observed failure without needing to be tuned
+tighter. `aggregate_generation.py` now reports `quote_coverage_rate`
+alongside the existing exact/variant/fabrication tiers, computed against
+each cited verse's own `pali_mahasangiti` (the canonical field, regardless
+of which field `audit()` matched at generation time, since the aggregation
+script works from `generation_raw.jsonl`'s claims alone and has no bundle to
+re-derive the matched field from). On the existing 27-question
+`generation_raw.jsonl`: 6/7 pali_support quotes resolve (1 fabrication,
+excluded), mean coverage 0.850 -- no quote in that run is anywhere near the
+0.6 floor, so this run's Pali quotes, where genuine, are substantially
+complete, not merely non-fabricated.
+
+**Task AG -- widened `CITATION_IN_TEXT`.** The colon-suffixed markers
+(`"group_id:"`, `"verse_number:"`) never matched the observed leak shape,
+`"(group_id 14.8)"` -- a space and a parenthesis, not a colon. Widened to
+bare field names (`group_id`, `verse_number`, `pali_support`,
+`citation_fields`) matched case-insensitively anywhere in the text,
+regardless of what follows. `pali_support` was added to the marker set on
+the same reasoning: the field name itself, not its punctuation context, is
+what makes prose unusable. Live-confirmed on a fresh run of the exact
+question from the brief ("what is the best thing in life according to the
+Dhammapada"): two commentary claims read `"The story about the five hundred
+bhikkhus (group_id 20.1) explains..."` and `"The story about Sakka
+(group_id 24.10) explains..."` -- both now caught (`CITATION_IN_TEXT`,
+error); neither would have tripped the pre-Round-9 marker set.
+
+**Task AH -- scope-widening, prompt fix, and an honest partial result.**
+VERSE CLAIM SPECIFICITY extended per the brief's instruction (comparatives/
+conditionals/negations must survive the paraphrase). Re-running the exact
+question live (qwen2.5:7b-instruct, same retrieval): the Dhp 103 probe
+("who is the supreme conqueror?") produced a claim that correctly keeps the
+comparative's bound -- "conquers a million men in battle, but... a single
+man: himself" -- with zero warnings. The Dhp 273 claim's fourth clause also
+now correctly keeps its bound ("the Visionary as the best of **humans**",
+i.e. *dvipadānaṁ*, two-footed beings). But the same claim's first three
+clauses did not: *"the best thing in life is the eightfold path, the four
+noble truths, dispassion, and the Visionary as the best of humans"* still
+frames path/truths/dispassion under the unqualified "best thing in life"
+container, only now listing all four parallel items instead of one. The
+Dhp 354 probe (`sabbadānaṁ dhammadānaṁ jināti`) fared better: "the ending of
+craving... overcomes all suffering" keeps the verse's actual bound (*all
+suffering*, not *everything*). **Net: the prompt fix measurably reduces but
+does not eliminate scope-widening in this run** -- it succeeds cleanly on
+single-comparative verses (103, 354) and on the last clause of a
+four-part-parallel verse (273's cakkhumā line), but a claim compressing all
+four parallel members of Dhp 273 into one sentence still drops three of the
+four qualifiers. This is consistent with the rubric's characterization
+(`docs/eval_rubric.md`'s new Scope-widening subtype) as a paraphrase failure
+requiring semantic judgment, not a mechanically closable gap -- a single
+LLM-authored prompt sentence narrowed the failure surface without closing
+it, and a claim compressing several parallel comparatives into one sentence
+remains the harder case. Not escalated to a structural check in this round:
+unlike `source_disposition` or citation completeness, "did this claim keep
+every category qualifier its source verse states" has no schema-level
+representation to constrain against.

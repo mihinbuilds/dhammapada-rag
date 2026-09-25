@@ -187,6 +187,10 @@ def _truncate_at_page_break(text: str) -> str:
     to fix one large leak and 21 small ones with the same rule.
     data/processed/stories.jsonl itself is left untouched (out of scope per
     the brief); this runs at chunk-build time only.
+
+    Since the September 2026 text-cleaning pass, parse_stories.py cuts every
+    story at the next vagga title page and at the colophon itself, so on the
+    current corpus this is a no-op; kept as a guard for a regression there.
     """
     candidates = [i for i in (text.find("\x0c"), text.find(_COLOPHON_MARKER)) if i != -1]
     if not candidates:

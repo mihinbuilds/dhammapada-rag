@@ -16,7 +16,44 @@ format drift (severity="warning") without parsing message strings.
 
 from __future__ import annotations
 
+from typing import Any
+
 from pydantic import BaseModel, Field
+
+
+class VaggaOut(BaseModel):
+    number: int
+    name_pali: str
+    name_en: str
+    first_verse: int
+    last_verse: int
+    verse_count: int
+
+
+class EvalSummaryOut(BaseModel):
+    """Passthrough wrapper over the eval JSON files
+    (data/eval/retrieval_metrics.json, generation_metrics.json) plus a
+    summarized model-size sweep. Each metrics file has its own large, evolving
+    nested shape (see docs/eval_rubric.md / docs/evaluation.md); typing every
+    field here would duplicate that shape and drift from it. `dict[str, Any] |
+    None` lets a client render "not available" when a results file hasn't
+    been generated yet.
+
+    `retrieval_written_at` / `generation_written_at` / `index_built_at` are
+    file modification times (ISO 8601, UTC) of the two metrics files and of
+    data/index/dense.npy. A metrics file older than the index describes an
+    index that is no longer the one being served -- the staleness
+    docs/status_report.md found by hand; exposing the times lets a client
+    flag it mechanically. Modification times, not provenance: a fresh
+    checkout resets them.
+    """
+
+    retrieval: dict[str, Any] | None = None
+    generation: dict[str, Any] | None = None
+    sweep: list[dict[str, Any]] = Field(default_factory=list)
+    retrieval_written_at: str | None = None
+    generation_written_at: str | None = None
+    index_built_at: str | None = None
 
 
 class VerseOut(BaseModel):

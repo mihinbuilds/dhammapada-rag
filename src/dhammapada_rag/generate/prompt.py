@@ -186,15 +186,41 @@ answers as fully accounting for their retrieved sources because it could
 only recognize a dismissal shaped like prose naming the group. SOURCE
 DISPOSITION below tells the model what the three values mean; the schema
 constraint (not this paragraph) is what actually guarantees coverage.
+
+ROUND 9, TASK AH -- SCOPE-WIDENING. Observed: "The Dhammapada also states
+that the best thing in life is the eightfold path," tagged "verse", citing
+Dhp 273. The verse says the eightfold path is best AMONG PATHS (maggānaṁ) --
+one line of a four-part parallel (best of paths, of truths, of states, of
+beings) -- not that it is the best thing in life. This passes VERSE CLAIM
+SPECIFICITY as written: the claim is checkable against Dhp 273 and reads as
+a paraphrase of it, but drops the qualifier that makes it a claim about
+paths rather than about life in general. Same class as the earlier Dhp 135
+error (docs/eval_rubric.md): correct layer, resolvable citation, and a
+statement the verse does not make -- not mechanically catchable (no
+group_id/verse_number is wrong, no field is missing), so the fix is a prompt
+instruction, not a new audit() check. VERSE CLAIM SPECIFICITY now names the
+failure explicitly, generalized beyond this one verse to comparatives,
+conditionals, and negations, so the model does not need to be told about
+each new instance a probe happens to find.
 """
 
 from __future__ import annotations
 
 import re
 
-# Characters of narrative text per bundle before truncation. ~4 chars/token,
-# so 6000 chars ~= 1700 tokens; three bundles ~= 5k tokens of narrative plus
-# verses and system prompt. Raise this once num_ctx is set appropriately.
+from dhammapada_rag.index.chunks import OVERLAP_WORDS, WINDOW_WORDS
+
+# Fallback characters of narrative text per bundle, used only by callers that
+# render a prompt without knowing num_ctx (direct format_verse_group/
+# build_context/build_messages calls, e.g. tests or the CLI's one-off usage).
+# generate.py's Generator.generate() does not use this constant: it computes
+# an actual per-request budget from the real leftover num_ctx headroom via
+# _fit_narrative_budget(), since a flat cap either wastes context that was
+# available (short questions, few bundles) or cuts a long vatthu off before
+# it reaches its point regardless of how much room was actually left. See
+# generate.py's _fit_narrative_budget() docstring for the observed case that
+# prompted this (Dhp 1 / Cakkhupala: a 31k-character vatthu truncated to its
+# scene-setting opening while ~6k of the 16k-token budget went unused).
 NARRATIVE_BUDGET_CHARS = 6000
 
 # Round 6, Task Q: a literal control byte (observed: `\x01`) was seen
@@ -224,7 +250,7 @@ ROLE AND SOURCES. The source has two layers, roughly eight centuries apart, and 
 
 TAGGING. Every claim carries exactly one layer tag: "verse" for what the verse itself literally says; "commentary" for anything drawn from the aṭṭhakathā -- occasion, persons, narrative, outcome, or interpretation beyond the verse's own words; "alignment" for a fact about the corpus's own editorial structure -- which story explains which verse(s), how many verses a group covers -- stated by neither the verse nor the commentary itself; "synthesis" for your own inference or generalization, drawn from neither text directly.
 
-VERSE CLAIM SPECIFICITY. A "verse" claim must state what that specific verse says, closely enough that a reader could check it against the verse text given below -- not a summary of the Dhammapada's general position. "The Dhammapada advises patience" is a "synthesis" claim, not a "verse" claim: it is not checkable against any one verse. Reserve "verse" for a claim that paraphrases or quotes one specific verse's own content.
+VERSE CLAIM SPECIFICITY. A "verse" claim must state what that specific verse says, closely enough that a reader could check it against the verse text given below -- not a summary of the Dhammapada's general position. "The Dhammapada advises patience" is a "synthesis" claim, not a "verse" claim: it is not checkable against any one verse. Reserve "verse" for a claim that paraphrases or quotes one specific verse's own content. A verse claim must also preserve the verse's own scope. If the verse says something is best OF a category ("of paths", "of truths"), the claim must keep that category. Widening "best of paths" to "the best thing in life" states something the verse does not. Comparatives, conditionals, and negations must survive the paraphrase intact.
 
 THE FAILURE TO AVOID. Presenting the commentary's narrative gloss as the plain sense of the verse is the central failure this system exists to prevent -- tag it "commentary," not "verse," however naturally it reads as one continuous explanation. The mirror failure is just as serious: relabelling the verse's own words as "commentary" to appear thorough. Never do either.
 
@@ -260,7 +286,60 @@ def _budget(text: str, remaining: int) -> tuple[str, int]:
     return text[:remaining].rstrip() + " [... narrative truncated ...]", 0
 
 
-def format_verse_group(bundle: dict) -> str:
+_WORD_RE = re.compile(r"\S+")
+
+
+def _matched_word_char_offset(text: str, window_index: int) -> int:
+    """Approximate character offset in `text` where retrieval's matched
+    window begins, replicating index/chunks.py's _split_windows() word-
+    boundary math (WINDOW_WORDS/OVERLAP_WORDS, imported rather than
+    duplicated so the two cannot silently drift apart). Regex-based word
+    offsets, not `len(" ".join(words[:n]))`, so the result lines up with
+    this exact string's own whitespace rather than a whitespace-normalized
+    reconstruction of it.
+    """
+    if window_index <= 0:
+        return 0
+    step = WINDOW_WORDS - OVERLAP_WORDS
+    start_word = window_index * step
+    offsets = [m.start() for m in _WORD_RE.finditer(text)]
+    return offsets[start_word] if start_word < len(offsets) else max(0, len(text) - 1)
+
+
+def _budget_around(text: str, remaining: int, char_offset: int) -> tuple[str, int]:
+    """Like _budget(), but for a story retrieval matched partway through
+    (char_offset > 0): keeps an excerpt centered near that point instead of
+    always keeping the opening.
+
+    Observed failure this fixes: asked "who is the chakkhupala?", retrieval
+    correctly matched a passage deep in Dhp 1's story (naming Cakkhupala and
+    his blindness) -- but format_verse_group always rendered from character
+    0 regardless of where the match was, so a flat per-bundle budget cut the
+    31k-character vatthu off during its scene-setting backstory, well before
+    reaching the passage that caused the match in the first place. A quarter
+    of the budget is spent on lead-in before the match, for narrative
+    continuity; the rest runs forward from there, since what happens AFTER
+    the identifying passage (the outcome) is usually what a question naming
+    a character or event is actually asking about.
+    """
+    if remaining <= 0:
+        return "[omitted: narrative budget exhausted]", 0
+    if len(text) <= remaining:
+        return text, remaining - len(text)
+    lead_in = remaining // 4
+    start = max(0, char_offset - lead_in)
+    end = min(len(text), start + remaining)
+    prefix = (
+        "[... narrative truncated; excerpt resumes near the passage that matched this "
+        "question ...] "
+        if start > 0
+        else ""
+    )
+    suffix = " [... narrative truncated ...]" if end < len(text) else ""
+    return prefix + text[start:end].strip() + suffix, 0
+
+
+def format_verse_group(bundle: dict, narrative_budget_chars: int = NARRATIVE_BUDGET_CHARS) -> str:
     verse_numbers = bundle["verse_numbers"]
     printed = ", ".join(str(n) for n in verse_numbers)
     stories = bundle["stories"]
@@ -287,7 +366,17 @@ def format_verse_group(bundle: dict) -> str:
         if v.get("interlinear_english"):
             lines.append(f"Dhp {v['verse']} -- English (Anandajoti interlinear): {v['interlinear_english']}")
 
-    remaining = NARRATIVE_BUDGET_CHARS
+    # Which story (if any) retrieval's own match landed in, and where -- so a
+    # long vatthu that must be truncated is truncated around the passage
+    # that actually caused the match, not always from its start. Only a
+    # story_vatthu-type match gives a window_index that means anything for
+    # this story's vatthu text specifically; a match on its synopsis or
+    # title chunk carries a window_index into a different field entirely.
+    matched = bundle.get("matched_chunk") or {}
+    matched_group_id = matched.get("group_id") if matched.get("chunk_type") == "story_vatthu" else None
+    matched_window_index = matched.get("window_index", 0)
+
+    remaining = narrative_budget_chars
     for s in bundle["stories"]:
         dhp_verses = sorted(s["dhp_verses"]) if s.get("dhp_verses") else list(verse_numbers)
         first_verse = dhp_verses[0] if dhp_verses else None
@@ -362,7 +451,11 @@ def format_verse_group(bundle: dict) -> str:
         if s.get("nidana"):
             lines.append(f"Opening: {s['nidana']}")
         if s.get("vatthu"):
-            body, remaining = _budget(s["vatthu"], remaining)
+            if s["group_id"] == matched_group_id and matched_window_index > 0:
+                offset = _matched_word_char_offset(s["vatthu"], matched_window_index)
+                body, remaining = _budget_around(s["vatthu"], remaining, offset)
+            else:
+                body, remaining = _budget(s["vatthu"], remaining)
             lines.append(f"Narrative: {body}")
         if s.get("desanavasane"):
             lines.append(f"Close: {s['desanavasane']}")
@@ -370,12 +463,14 @@ def format_verse_group(bundle: dict) -> str:
     return "\n".join(lines)
 
 
-def build_context(bundles: list[dict]) -> str:
-    return "\n\n".join(format_verse_group(b) for b in bundles)
+def build_context(bundles: list[dict], narrative_budget_chars: int = NARRATIVE_BUDGET_CHARS) -> str:
+    return "\n\n".join(format_verse_group(b, narrative_budget_chars) for b in bundles)
 
 
-def build_messages(question: str, bundles: list[dict]) -> list[dict]:
-    context = build_context(bundles)
+def build_messages(
+    question: str, bundles: list[dict], narrative_budget_chars: int = NARRATIVE_BUDGET_CHARS
+) -> list[dict]:
+    context = build_context(bundles, narrative_budget_chars)
     user_message = f"""SOURCE MATERIAL:
 
 {context}
