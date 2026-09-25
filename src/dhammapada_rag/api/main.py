@@ -266,9 +266,11 @@ def _sweep_summary() -> list[dict]:
 def eval_summary() -> EvalSummaryOut:
     return EvalSummaryOut(
         retrieval=_read_eval_json("retrieval_metrics.json"),
+        retrieval_v2=_read_eval_json("retrieval_metrics_v2.json"),
         generation=_read_eval_json("generation_metrics.json"),
         sweep=_sweep_summary(),
         retrieval_written_at=_mtime_iso(ROOT / "data" / "eval" / "retrieval_metrics.json"),
+        retrieval_v2_written_at=_mtime_iso(ROOT / "data" / "eval" / "retrieval_metrics_v2.json"),
         generation_written_at=_mtime_iso(ROOT / "data" / "eval" / "generation_metrics.json"),
         index_built_at=_mtime_iso(ROOT / "data" / "index" / "dense.npy"),
     )
