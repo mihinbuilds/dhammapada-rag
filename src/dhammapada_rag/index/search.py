@@ -1,6 +1,6 @@
 """Hybrid retrieval over the BGE-M3 index: dense + sparse + ColBERT
 multi-vector, fused with Reciprocal Rank Fusion (RRF) instead of hand-tuned
-weights, per DhammapadaRAG.txt Phase 2.
+weights, per docs/project_plan.md Phase 2.
 
 RRF is rank-based and tuning-free: for each candidate, sum 1/(k + rank) across
 however many ranked lists it appears in (k=60 is the standard default from the

@@ -8,13 +8,13 @@ Governs `data/eval/gold_set.jsonl` and the generation-metrics judging in
 ## Annotator status -- read this first
 
 **This gold set has exactly one annotator: Claude (Sonnet 5), assisting the
-project owner, in a single pass.** `DhammapadaRAG.txt` calls for two
+project owner, in a single pass.** `docs/project_plan.md` calls for two
 annotators with Pali competence and a reported Krippendorff's α or Cohen's κ.
 That is **not what this document represents** and no IAA statistic is
 computed or claimed anywhere in this repository -- computing one from a
 single annotator would be meaningless, and presenting single-pass AI labels
 as if they carried the credibility of human inter-annotator agreement would
-be exactly the kind of unaudited, inflated number `DhammapadaRAG.txt` itself
+be exactly the kind of unaudited, inflated number `docs/project_plan.md` itself
 warns against.
 
 What this pass *is* good for: gold relevance judgments built by
@@ -153,7 +153,7 @@ each retrieval condition's top 3 are shuffled together, with no gold column.
 `... kappa <filled.csv>` then reports Cohen's κ against annotator 1 per
 subtype and lists every disagreement. This is the IAA statistic this
 document has so far declined to claim. It is not computed until a second
-person (ideally with Pali competence, per `DhammapadaRAG.txt`) fills the
+person (ideally with Pali competence, per `docs/project_plan.md`) fills the
 sheet.
 
 ## Layer attribution accuracy (generation metric)
@@ -184,12 +184,12 @@ For each claim in a generated `LayeredAnswer`:
 Reported as: (correct claims) / (total claims), and separately as
 tag-confusion counts (e.g. how many `verse`-tagged claims actually contained
 commentary content) -- the confusion breakdown is more informative than the
-single accuracy number, per `DhammapadaRAG.txt`'s own preference for
+single accuracy number, per `docs/project_plan.md`'s own preference for
 per-stratum results over aggregates that hide the interesting failure.
 
 ## Anachronistic conflation rate (generation metric)
 
-Defined narrowly, per `DhammapadaRAG.txt`: **a claim tagged `verse` whose
+Defined narrowly, per `docs/project_plan.md`: **a claim tagged `verse` whose
 content is actually derived from the commentary** (i.e., presents
 Buddhaghosa's narrative gloss, dated centuries after the verse, as if it were
 the verse's own plain sense). This is a strict subset of "layer attribution

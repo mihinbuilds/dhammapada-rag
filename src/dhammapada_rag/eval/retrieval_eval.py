@@ -1,5 +1,5 @@
 """Retrieval metrics (Recall@k, nDCG@10, MRR) per query type, plus the four
-required ablations, per DhammapadaRAG.txt Phase 5.
+required ablations, per docs/project_plan.md Phase 5.
 
 --------------------------------------------------------------------------
 CRITICAL FIXES over the previous revision. Any ablation delta reported from

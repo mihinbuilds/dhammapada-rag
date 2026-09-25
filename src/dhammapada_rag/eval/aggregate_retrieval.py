@@ -1,5 +1,5 @@
 """Aggregate data/eval/retrieval_results.jsonl into per-query-type metrics and
-ablation deltas. DhammapadaRAG.txt Phase 5: "broken out per query type.
+ablation deltas. docs/project_plan.md Phase 5: "broken out per query type.
 Aggregate numbers hide the interesting result."
 
 --------------------------------------------------------------------------

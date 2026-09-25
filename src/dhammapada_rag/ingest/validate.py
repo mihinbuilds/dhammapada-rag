@@ -1,6 +1,6 @@
 """Build the verse<->story alignment table and validate corpus completeness.
 
-DhammapadaRAG.txt Phase 1 items 1 and 3:
+docs/project_plan.md Phase 1 items 1 and 3:
   - "Validate hard: 423 verses, 26 vaggas, no gaps."
   - "Build the verse<->story alignment table by hand and have it checked...
      Record edition-numbering variants explicitly."

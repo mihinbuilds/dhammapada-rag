@@ -1,6 +1,6 @@
 # Generation with enforced layer attribution (Phase 4) -- design notes and findings
 
-Implements `DhammapadaRAG.txt` Phase 4: "The prompt must force the
+Implements `docs/project_plan.md` Phase 4: "The prompt must force the
 distinction your project exists to make... Require structured output where
 every claim carries a layer tag (verse / commentary / synthesis) and a
 group_id. Conflating the two layers is the failure mode; make the output

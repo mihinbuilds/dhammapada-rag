@@ -2,7 +2,7 @@
 
 This is fixed, well-established structure of the Pali canon, independent of any
 particular edition's PDF pagination or headers. Used as ground truth to
-validate parsed output against, per DhammapadaRAG.txt Phase 1 item 1:
+validate parsed output against, per docs/project_plan.md Phase 1 item 1:
 "423 verses, 26 vaggas, no gaps."
 """
 

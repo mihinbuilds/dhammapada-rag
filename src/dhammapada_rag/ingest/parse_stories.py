@@ -24,7 +24,7 @@ from the PDF and are stripped. Footnotes (numbered, indented, prefixed BG:
 Burlingame's own notes or AJ: Anandajoti Bhikkhu's) are pulled out into a
 separate list per story.
 
-This is a best-effort regex segmentation, per DhammapadaRAG.txt Phase 1 item 4
+This is a best-effort regex segmentation, per docs/project_plan.md Phase 1 item 4
 ("Regex on the tattha ... ti marker gets you most of the way; hand-correct the
 rest and log your correction rate"). It does NOT attempt pada-gloss
 (word-commentary) segmentation: this source explicitly omits that layer (see

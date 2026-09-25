@@ -1,5 +1,5 @@
 """Build the indexable chunk corpus: the "tightest possible unit" to match on,
-per DhammapadaRAG.txt Phase 3 ("retrieve small, return whole").
+per docs/project_plan.md Phase 3 ("retrieve small, return whole").
 
 Each chunk is a small, single-topic span tagged with enough metadata
 (dhp_verses, group_id) to resolve back to its parent verse-group at assembly
@@ -216,7 +216,7 @@ def _strip_closing_verse_quote(text: str, dhp_verses: list[int]) -> str:
     other stories' more diffuse commentary) on any query naming words from
     that verse, because it scores as *both* layers on a single dense passage.
     Found via a research-validation cross-layer failure (Q16/Q26,
-    dhammapada_research_validation_results.md): a "mustard seed" query
+    docs/dhammapada_research_validation_results.md): a "mustard seed" query
     matched two short single-verse stories (Dhp 401, 407) ahead of Kisā
     Gotamī's story (Dhp 114), even though 114's own commentary discusses
     mustard seed at length -- because 401/407's vatthu chunk *is* their own

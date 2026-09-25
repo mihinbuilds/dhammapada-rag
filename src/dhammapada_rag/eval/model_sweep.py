@@ -1,5 +1,5 @@
 """Model-size sweep ablation: same retrieval, vary the generator size, per
-DhammapadaRAG.txt Phase 4 ("run the size sweep as an ablation -- 1B vs 7B vs
+docs/project_plan.md Phase 4 ("run the size sweep as an ablation -- 1B vs 7B vs
 14B on the same retrieval -- and report it").
 
 WHAT THIS MEASURES, PRECISELY: structural citation validity -- whether the

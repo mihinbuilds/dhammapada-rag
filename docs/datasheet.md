@@ -12,7 +12,7 @@ before trusting a stale copy of this file.
 **For what purpose was the dataset created?** To support a RAG system over
 the Dhammapada that keeps three layers distinct -- verse, aṭṭhakathā
 commentary/narrative, and model synthesis -- rather than flattening them, per
-`DhammapadaRAG.txt`.
+`docs/project_plan.md`.
 
 **Who created it, and on whose behalf?** Four independently-published sources
 feed this corpus (see "Collection process" below); the structured corpus in
@@ -99,7 +99,7 @@ stories in the narrative source, all 423 canonical verses; no sampling.
   covering all 423 verses -- but this is honestly a *different kind of
   resource* than traditional pada-vibhaṅga (which glosses each word against
   the Abhidhamma/grammatical tradition), not a stand-in that should be cited
-  as equivalent. `DhammapadaRAG.txt`'s original nidāna/vatthu/pada-gloss/
+  as equivalent. `docs/project_plan.md`'s original nidāna/vatthu/pada-gloss/
   desanāvasāne four-way split is representable now as nidāna/vatthu/
   desanāvasāne (from `stories.jsonl`) plus `interlinear_*` (from
   `verses.jsonl`) rather than a true fourth vatthu-internal segment.
@@ -253,7 +253,7 @@ Details, source URLs and per-file checksums: `data/raw/PROVENANCE.md`.
 ## Uses
 
 Intended for the retrieval/generation phases of this project (Phases 2-4 of
-`DhammapadaRAG.txt`). Not intended as a scholarly critical edition -- for
+`docs/project_plan.md`). Not intended as a scholarly critical edition -- for
 that, consult the PTS edition, SuttaCentral, or Ānandajoti Bhikkhu's site
 directly; this corpus inherits whatever accuracy its sources have, plus this
 pipeline's parsing error rate.

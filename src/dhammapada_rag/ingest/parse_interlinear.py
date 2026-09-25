@@ -2,7 +2,7 @@
 into a per-verse phrase/word-level gloss layer.
 
 This is the closest available public resource to the pada-gloss layer that
-DhammapadaRAG.txt's Phase 1 item 4 calls for, and that the main narrative
+docs/project_plan.md's Phase 1 item 4 calls for, and that the main narrative
 source (sources/Dhammapada-Attakatha.pdf) explicitly omits (see
 docs/datasheet.md). Being honest about what it is: it's a line-by-line
 interlinear translation with inline scholarly notes on specific word/phrase

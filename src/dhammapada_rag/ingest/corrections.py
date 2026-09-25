@@ -1,6 +1,6 @@
 """Hand-corrections to this source's own "Dhp N" story-header lines.
 
-DhammapadaRAG.txt Phase 1 item 4: "hand-correct the rest and log your
+docs/project_plan.md Phase 1 item 4: "hand-correct the rest and log your
 correction rate -- that number belongs in the paper." These are exactly that:
 each was found by validate.py flagging a missing/duplicated/out-of-range verse
 number, then confirmed by reading the story's body text, which quotes the full
@@ -36,7 +36,7 @@ CORRECTIONS: dict[str, Correction] = {
                 "in full ('23. Te jhāyino sātatikā...') as part of the same "
                 "'he pronounced the following verses' passage. Dhp 21-23 is "
                 "also the canonical grouping named explicitly in "
-                "DhammapadaRAG.txt's own Phase 1 example."
+                "docs/project_plan.md's own Phase 1 example."
             ),
         ),
         Correction(
