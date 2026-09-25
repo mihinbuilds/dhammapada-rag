@@ -39,8 +39,15 @@ class EvalSummaryOut(BaseModel):
     None` lets a client render "not available" when a results file hasn't
     been generated yet.
 
-    `retrieval_written_at` / `generation_written_at` / `index_built_at` are
-    file modification times (ISO 8601, UTC) of the two metrics files and of
+    `retrieval` is gold set v1 (114 questions, one gold verse-group each);
+    `retrieval_v2` is gold set v2 (72 harder questions, some with several
+    gold groups; retrieval_metrics_v2.json). Both have the same shape. v2
+    reports alongside v1 and does not replace it (docs/evaluation.md,
+    Round 10).
+
+    `retrieval_written_at` / `retrieval_v2_written_at` /
+    `generation_written_at` / `index_built_at` are
+    file modification times (ISO 8601, UTC) of the metrics files and of
     data/index/dense.npy. A metrics file older than the index describes an
     index that is no longer the one being served -- the staleness
     docs/status_report.md found by hand; exposing the times lets a client
@@ -49,9 +56,11 @@ class EvalSummaryOut(BaseModel):
     """
 
     retrieval: dict[str, Any] | None = None
+    retrieval_v2: dict[str, Any] | None = None
     generation: dict[str, Any] | None = None
     sweep: list[dict[str, Any]] = Field(default_factory=list)
     retrieval_written_at: str | None = None
+    retrieval_v2_written_at: str | None = None
     generation_written_at: str | None = None
     index_built_at: str | None = None
 

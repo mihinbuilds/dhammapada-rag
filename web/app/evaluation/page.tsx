@@ -21,6 +21,13 @@ function fmtDate(iso: string | null | undefined): string {
   return new Date(iso).toLocaleDateString(undefined, { year: "numeric", month: "short", day: "numeric" });
 }
 
+/** "+0.116 [+0.056, +0.179]" -- an ablation's nDCG@10 delta with its bootstrap CI. */
+function fmtDelta(d: { delta: number; ci: [number, number] } | undefined): string {
+  if (!d) return "n/a";
+  const s = (x: number) => `${x >= 0 ? "+" : "−"}${Math.abs(x).toFixed(3)}`;
+  return `${s(d.delta)} [${s(d.ci[0])}, ${s(d.ci[1])}]`;
+}
+
 /** A results file written before the index was last built describes an index that is no
  *  longer the one being served. */
 function predatesIndex(written: string | null | undefined, index: string | null | undefined): boolean {
@@ -46,8 +53,20 @@ const ABLATION_LABELS: Record<string, string> = {
   flat: "Flat chunking",
 };
 
+type GoldSet = "v1" | "v2";
+
+const GOLD_SET_LABELS: Record<GoldSet, string> = { v1: "v1 · original", v2: "v2 · harder" };
+
 export default function EvaluationPage() {
-  const [retrieval, setRetrieval] = useState<RetrievalMetrics | null>(null);
+  const [retrievalBySet, setRetrievalBySet] = useState<Record<GoldSet, RetrievalMetrics | null>>({
+    v1: null,
+    v2: null,
+  });
+  const [retrievalTimes, setRetrievalTimes] = useState<Record<GoldSet, string | null | undefined>>({
+    v1: null,
+    v2: null,
+  });
+  const [goldSet, setGoldSet] = useState<GoldSet>("v2");
   const [generation, setGeneration] = useState<GenerationMetrics | null>(null);
   const [sweep, setSweep] = useState<
     { model: string; max_retries: number; n: number; clean_rate: number; avg_latency_s: number | null }[]
@@ -60,9 +79,14 @@ export default function EvaluationPage() {
     api
       .evalSummary()
       .then((d) => {
-        setRetrieval((d.retrieval as RetrievalMetrics) ?? null);
+        const v1 = (d.retrieval as RetrievalMetrics) ?? null;
+        const v2 = (d.retrieval_v2 as RetrievalMetrics) ?? null;
+        setRetrievalBySet({ v1, v2 });
+        setRetrievalTimes({ v1: d.retrieval_written_at, v2: d.retrieval_v2_written_at });
+        // v2 carries the Round 10 reranker result, so it opens first when present.
+        setGoldSet(v2 ? "v2" : "v1");
         setGeneration((d.generation as GenerationMetrics) ?? null);
-        setTimes({ retrieval: d.retrieval_written_at, generation: d.generation_written_at, index: d.index_built_at });
+        setTimes({ generation: d.generation_written_at, index: d.index_built_at });
         setSweep(
           d.sweep as {
             model: string;
@@ -76,6 +100,10 @@ export default function EvaluationPage() {
       .catch((e) => setError(e instanceof ApiError ? e.detail : "Could not load evaluation data."))
       .finally(() => setLoading(false));
   }, []);
+
+  const retrieval = retrievalBySet[goldSet];
+  const availableSets = (["v2", "v1"] as GoldSet[]).filter((s) => retrievalBySet[s]);
+  const shown: EvalTimes = { ...times, retrieval: retrievalTimes[goldSet] };
 
   const byTypeRows = retrieval?.by_type
     ? Object.entries(retrieval.by_type)
@@ -94,10 +122,19 @@ export default function EvaluationPage() {
         })
     : [];
   const substantial = byTypeRows.filter((r) => r.n >= 5);
-  const worst =
-    substantial.length > 0
-      ? [...substantial].sort((a, b) => a["ndcg@10"] - b["ndcg@10"])[0].type
-      : null;
+  const worstRow =
+    substantial.length > 0 ? [...substantial].sort((a, b) => a["ndcg@10"] - b["ndcg@10"])[0] : null;
+  const worst = worstRow?.type ?? null;
+  // Types left out by the n>=5 filter that nonetheless score below the named one: the table
+  // shows them, so the caption has to account for them.
+  const smallerAndLower = worstRow
+    ? byTypeRows.filter((r) => r.n < 5 && r["ndcg@10"] < worstRow["ndcg@10"])
+    : [];
+
+  // In v2 every question's subtype is its type, so a subtype table would repeat the one above.
+  const subtypeAddsRows =
+    !!retrieval?.by_subtype &&
+    Object.keys(retrieval.by_subtype).some((s) => !(retrieval.by_type && s in retrieval.by_type));
 
   const ablationRows = retrieval?.ablation_deltas_ndcg10
     ? Object.entries(retrieval.ablation_deltas_ndcg10)
@@ -130,17 +167,17 @@ export default function EvaluationPage() {
           Single-annotator evaluation pass — no inter-annotator agreement is computed or claimed.
           See docs/eval_rubric.md for methodology and this caveat&apos;s justification.
         </p>
-        {(times.retrieval || times.generation) && (
+        {(shown.retrieval || shown.generation) && (
           <p className="mt-2 max-w-2xl font-sans text-[0.8rem] text-ink-faint">
-            Retrieval measured {fmtDate(times.retrieval)}, generation {fmtDate(times.generation)}, on the
-            index built {fmtDate(times.index)}.
+            Retrieval measured {fmtDate(shown.retrieval)}, generation {fmtDate(shown.generation)}, on the
+            index built {fmtDate(shown.index)}.
           </p>
         )}
-        {(predatesIndex(times.retrieval, times.index) || predatesIndex(times.generation, times.index)) && (
+        {(predatesIndex(shown.retrieval, shown.index) || predatesIndex(shown.generation, shown.index)) && (
           <div className="mt-3 max-w-2xl rounded-lg border border-warning/25 bg-warning-bg px-4 py-3 font-sans text-sm text-warning-text">
-            {predatesIndex(times.retrieval, times.index) && predatesIndex(times.generation, times.index)
+            {predatesIndex(shown.retrieval, shown.index) && predatesIndex(shown.generation, shown.index)
               ? "These results"
-              : predatesIndex(times.retrieval, times.index)
+              : predatesIndex(shown.retrieval, shown.index)
                 ? "The retrieval results"
                 : "The generation results"}{" "}
             predate the index currently served, so they describe an earlier build. Re-run the evaluation
@@ -173,12 +210,46 @@ export default function EvaluationPage() {
           {retrieval && (
             <section className="space-y-5">
               <div>
-                <p className="font-mono text-[0.66rem] font-bold uppercase tracking-wide text-ink-faint mb-1">
-                  1 · Retrieval
-                </p>
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-1">
+                  <p className="font-mono text-[0.66rem] font-bold uppercase tracking-wide text-ink-faint">
+                    1 · Retrieval
+                  </p>
+                  {availableSets.length > 1 && (
+                    <div
+                      role="group"
+                      aria-label="Gold set"
+                      className="inline-flex rounded-lg border border-line bg-surface p-1"
+                    >
+                      {availableSets.map((s) => (
+                        <button
+                          key={s}
+                          type="button"
+                          aria-pressed={goldSet === s}
+                          onClick={() => setGoldSet(s)}
+                          className={`rounded-md px-3 py-1.5 font-sans text-[0.78rem] font-semibold transition-colors ${
+                            goldSet === s ? "bg-ink text-paper" : "text-ink-faint hover:text-ink"
+                          }`}
+                        >
+                          {GOLD_SET_LABELS[s]} ({retrievalBySet[s]?.n_questions ?? "?"})
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
                 <p className="font-sans text-[0.8rem] text-ink-faint">
-                  {retrieval.n_questions ?? "?"} gold questions, single relevant verse-group each
-                  (construction-from-known-answer — see rubric).
+                  {goldSet === "v1" ? (
+                    <>
+                      Gold set v1: {retrieval.n_questions ?? "?"} questions, single relevant
+                      verse-group each (construction-from-known-answer — see rubric). Near ceiling, so
+                      small ablation effects cannot be told apart from zero.
+                    </>
+                  ) : (
+                    <>
+                      Gold set v2: {retrieval.n_questions ?? "?"} questions in six categories built to
+                      be harder than v1; multi_gold questions have several relevant groups. Reported
+                      alongside v1, not replacing it.
+                    </>
+                  )}
                 </p>
               </div>
 
@@ -215,9 +286,21 @@ export default function EvaluationPage() {
                   />
                   {worst && (
                     <p className="font-sans text-[0.78rem] text-ink-faint">
-                      &lsquo;{worst}&rsquo; scores worst among types with a meaningful sample size —
-                      an aggregate-hides-the-result finding (docs/evaluation.md). Types with n&lt;5
-                      are too small to conclude from.
+                      Of the query types with n&nbsp;≥&nbsp;5, &lsquo;{worst}&rsquo; scores lowest on
+                      nDCG@10 (docs/evaluation.md).
+                      {smallerAndLower.length > 0 && (
+                        <>
+                          {" "}
+                          {smallerAndLower.map((r, i) => (
+                            <span key={r.type}>
+                              {i > 0 && ", "}&lsquo;{r.type}&rsquo; (n={r.n})
+                            </span>
+                          ))}{" "}
+                          {smallerAndLower.length === 1 ? "scores" : "score"} lower in the table but{" "}
+                          {smallerAndLower.length === 1 ? "is" : "are"} too small a sample to
+                          conclude from.
+                        </>
+                      )}
                     </p>
                   )}
                   <RetrievalByTypeChart rows={byTypeRows} worst={worst} />
@@ -230,18 +313,36 @@ export default function EvaluationPage() {
                     Ablations — delta from baseline, bootstrap 95% CI
                   </p>
                   <AblationChart rows={ablationRows} />
-                  <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
-                    Verse-only chunking causes by far the largest drop — the strongest evidence for
-                    the core architectural claim. Flat-vs-assembled shows ~no difference (a genuine
-                    null result, not oversold). <strong>Read with care</strong>: this overall number
-                    is pulled down by alignment questions that verse-only retrieval structurally
-                    cannot answer; the doctrinal row alone does <em>not</em> show the same drop — see
-                    docs/evaluation.md.
-                  </p>
+                  {goldSet === "v1" ? (
+                    <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
+                      Verse-only chunking causes by far the largest drop — the strongest evidence for
+                      the core architectural claim. Flat-vs-assembled shows ~no difference (a genuine
+                      null result, not oversold). <strong>Read with care</strong>: this overall number
+                      is pulled down by alignment questions that verse-only retrieval structurally
+                      cannot answer; the doctrinal row alone does <em>not</em> show the same drop — see
+                      docs/evaluation.md.
+                    </p>
+                  ) : (
+                    <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
+                      <strong>The reranker is the Round 10 result.</strong> Removing the cross-encoder
+                      costs {fmtDelta(retrieval.ablation_deltas_ndcg10?.no_rerank)} nDCG@10 here, an
+                      interval clear of zero
+                      {retrievalBySet.v1?.ablation_deltas_ndcg10?.no_rerank && (
+                        <>
+                          ; on v1 the same code and model gave{" "}
+                          {fmtDelta(retrievalBySet.v1.ablation_deltas_ndcg10.no_rerank)}, spanning zero
+                        </>
+                      )}
+                      . v1&apos;s null was the question set being too easy, not the component being
+                      inert. Dense-only and flat stay null on both sets, so the extra fusion arms and
+                      parent-group assembly show no measurable return yet. See docs/evaluation.md,
+                      Round 10.
+                    </p>
+                  )}
                 </div>
               )}
 
-              {retrieval.by_subtype && (
+              {retrieval.by_subtype && subtypeAddsRows && (
                 <div className="space-y-2">
                   <p className="font-serif text-[0.9rem] font-semibold text-ink">By subtype</p>
                   <EvalTable

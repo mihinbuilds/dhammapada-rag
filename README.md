@@ -284,7 +284,7 @@ Interactive docs at `http://127.0.0.1:8000/docs` (auto-generated from
 | `/verses/{verse_number}` | GET | Direct verse lookup (1-423) |
 | `/stories/{group_id}` | GET | Direct story lookup, e.g. `/stories/8.13` |
 | `/vaggas` | GET | The 26-vagga table (number, names, verse range) |
-| `/eval/summary` | GET | Passthrough of `data/eval/retrieval_metrics.json` + `generation_metrics.json` + a summarized model-size sweep, for the web app's Evaluation dashboard |
+| `/eval/summary` | GET | Passthrough of `data/eval/retrieval_metrics.json` (gold set v1) + `retrieval_metrics_v2.json` (gold set v2) + `generation_metrics.json` + a summarized model-size sweep, for the web app's Evaluation dashboard |
 
 CORS is open to `http://localhost:3000` by default (the Next.js dev server);
 override with a comma-separated `DHAMMAPADA_CORS_ORIGINS` env var for other
@@ -325,7 +325,7 @@ caveats (read this before trusting any number): `docs/eval_rubric.md`.
 A web front end (`web/`) against the FastAPI service above -- four routes:
 **Ask** (query + optional layer-attributed generation, animated claim cards,
 provenance warnings, expandable sources), **Corpus** (vagga browser +
-verse/story lookup), **Evaluation** (retrieval metrics, ablations, generation
+verse/story lookup), **Evaluation** (retrieval metrics and ablations on either gold set, generation
 metrics, model-size sweep, pulled live from `data/eval/` via `/eval/summary`),
 and **Method & notes**. Built with Next.js (App Router) + TypeScript +
 Tailwind, with a paper/ink design language, layer color-coding, and dark mode.

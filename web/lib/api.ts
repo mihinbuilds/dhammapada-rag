@@ -132,9 +132,11 @@ export interface VaggaOut {
 
 export interface EvalSummaryOut {
   retrieval: Record<string, unknown> | null;
+  retrieval_v2?: Record<string, unknown> | null;
   generation: Record<string, unknown> | null;
   sweep: Record<string, unknown>[];
   retrieval_written_at?: string | null;
+  retrieval_v2_written_at?: string | null;
   generation_written_at?: string | null;
   index_built_at?: string | null;
 }
