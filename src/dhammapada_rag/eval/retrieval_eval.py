@@ -317,13 +317,24 @@ def main() -> None:
         for row in per_question:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")
     print(f"Wrote {out_path}")
-    print(
-        "\nREADING THE verse_only ABLATION: for narrative-type questions the collapse is\n"
-        "near-mechanical (their gold is reachable only via story chunks, which this\n"
-        "condition deletes) and is not evidence for the architecture. The load-bearing\n"
-        "cell is the doctrinal row, whose gold is verse-anchored and therefore still\n"
-        "reachable without commentary chunks. Report that one as the finding."
-    )
+    types_present = {q["type"] for q in retrievable}
+    if "doctrinal" in types_present:
+        print(
+            "\nREADING THE verse_only ABLATION: for narrative-type questions the collapse is\n"
+            "near-mechanical (their gold is reachable only via story chunks, which this\n"
+            "condition deletes) and is not evidence for the architecture. The load-bearing\n"
+            "cell is the doctrinal row, whose gold is verse-anchored and therefore still\n"
+            "reachable without commentary chunks. Report that one as the finding."
+        )
+    elif "paraphrase" in types_present:
+        print(
+            "\nREADING THE verse_only ABLATION: this gold set has no doctrinal stratum, so\n"
+            "that note doesn't apply -- most collapses here are still near-mechanical\n"
+            "(gold reachable only via story/title chunks). The load-bearing row is\n"
+            "paraphrase: its gold stays reachable without commentary, so its baseline gap\n"
+            "is a lexical-surface retrieval failure, not a commentary-layer one. Report\n"
+            "that one as the finding."
+        )
 
 
 if __name__ == "__main__":

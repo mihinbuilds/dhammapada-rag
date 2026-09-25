@@ -16,14 +16,18 @@ FIXES over the previous revision:
 
 3. AN EXPLICIT NOTE ON verse_only. For narrative questions its collapse is
    near-mechanical: their gold is reachable only through story chunks, which
-   the condition deletes. The load-bearing cell is doctrinal, whose gold is
-   verse-anchored and stays reachable. The printout says so, so the headline
-   number cannot be quoted without its caveat.
+   the condition deletes. On the v1 gold set the load-bearing cell is
+   doctrinal, whose gold is verse-anchored and stays reachable; v2 has no
+   doctrinal stratum, so the printout switches to naming paraphrase instead
+   (see the `by_type` note below) -- keyed off which stratum is actually
+   present, not hardcoded, so it can't mislead a reader of the other set's
+   output.
 """
 
 from __future__ import annotations
 
 import json
+import platform
 import random
 from pathlib import Path
 
@@ -32,6 +36,22 @@ CONDITIONS = ["baseline", "verse_only", "dense_only", "no_rerank", "flat"]
 METRICS = ["recall@1", "recall@3", "recall@5", "recall@10", "ndcg@10", "mrr"]
 SEED = 20260731
 BOOTSTRAP_N = 2000
+
+
+def machine_info() -> str:
+    """Best-effort device/GPU identifier, so a metrics file explains its own
+    provenance later -- v1 and v2 numbers differ slightly run to run partly
+    because of a Mac (MPS) -> RTX 5080 (CUDA) migration mid-project."""
+    try:
+        import torch
+
+        if torch.cuda.is_available():
+            return f"cuda ({torch.cuda.get_device_name(0)})"
+        if torch.backends.mps.is_available():
+            return "mps (Apple Silicon)"
+    except Exception:
+        pass
+    return f"cpu ({platform.processor() or platform.machine()})"
 
 
 def mean(xs):
@@ -80,7 +100,7 @@ def main():
     rows = [json.loads(l) for l in (ROOT / args.results).read_text(encoding="utf-8").splitlines()]
     has_subtype = all("subtype" in r for r in rows)
 
-    report = {"n_questions": len(rows), "overall": aggregate(rows), "by_type": {}, "by_subtype": {}}
+    report = {"n_questions": len(rows), "machine": machine_info(), "overall": aggregate(rows), "by_type": {}, "by_subtype": {}}
     for qtype in sorted({r["type"] for r in rows}):
         subset = [r for r in rows if r["type"] == qtype]
         report["by_type"][qtype] = {"n": len(subset), **aggregate(subset)}
@@ -128,13 +148,24 @@ def main():
     for qtype, d in report["by_type"].items():
         b, v = d["baseline"]["ndcg@10"], d["verse_only"]["ndcg@10"]
         print(f"  {qtype:16s} n={d['n']:3d}  baseline={b:.3f} -> verse_only={v:.3f}  (delta {b - v:+.3f})")
-    print(
-        "  READ WITH CARE: for narrative questions this collapse is near-mechanical --\n"
-        "  their gold is reachable only via story chunks, which the condition removes.\n"
-        "  The informative cell is DOCTRINAL: its gold is verse-anchored and remains\n"
-        "  reachable without commentary chunks, so any drop there is real evidence that\n"
-        "  commentary retrieval improves verse-anchored answers. Report that one."
-    )
+    if "doctrinal" in report["by_type"]:
+        print(
+            "  READ WITH CARE: for narrative questions this collapse is near-mechanical --\n"
+            "  their gold is reachable only via story chunks, which the condition removes.\n"
+            "  The informative cell is DOCTRINAL: its gold is verse-anchored and remains\n"
+            "  reachable without commentary chunks, so any drop there is real evidence that\n"
+            "  commentary retrieval improves verse-anchored answers. Report that one."
+        )
+    elif "paraphrase" in report["by_type"]:
+        print(
+            "  READ WITH CARE: this gold set has no doctrinal stratum (that note doesn't\n"
+            "  apply here). Most of the collapse above is still near-mechanical -- gold\n"
+            "  reachable only via story/title chunks, which verse_only removes. PARAPHRASE\n"
+            "  is the informative cell instead: its gold stays reachable without commentary\n"
+            "  (smallest verse_only delta of the six strata), so its baseline nDCG gap is\n"
+            "  not a commentary-retrieval story -- it's the retriever failing to match\n"
+            "  reworded questions to verse content. Report that one."
+        )
 
     report["ablation_deltas_ndcg10"] = deltas
     if "gold_recall@10" in metrics_present(rows):
