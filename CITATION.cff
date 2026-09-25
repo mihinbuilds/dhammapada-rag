@@ -1,0 +1,38 @@
+cff-version: 1.2.0
+message: "If you use this software or its derived corpus, please cite it as below. The derived data also carries upstream attribution requirements; see DATA_LICENSE.md."
+title: "DhammapadaRAG: layer-attributed retrieval-augmented generation over the Dhammapada and its commentary"
+type: software
+authors:
+  - given-names: Mihindupura
+    family-names: Sujeewa
+version: 0.1.0
+date-released: 2026-09-24
+license: MIT
+keywords:
+  - retrieval-augmented generation
+  - Dhammapada
+  - Pali
+  - Buddhist texts
+  - provenance
+  - evaluation
+references:
+  - type: book
+    title: "The Dhamma Verses Commentary"
+    authors:
+      - name: "E. W. Burlingame"
+      - name: "Ānandajoti Bhikkhu"
+    year: 2024
+    notes: "Revision of Burlingame, Buddhist Legends (Harvard University Press, 1921). CC BY-SA 3.0 (by inference; see docs/licensing.md)."
+  - type: data
+    title: "bilara-data: Mahāsaṅgīti Pāli text and Bhikkhu Sujato's English translation of the Dhammapada"
+    authors:
+      - name: "SuttaCentral"
+    repository-code: "https://github.com/suttacentral/bilara-data"
+    license: CC0-1.0
+  - type: book
+    title: "Dhammapada (interlinear edition), 2nd ed."
+    authors:
+      - name: "Ānandajoti Bhikkhu"
+    year: 2017
+    url: "https://ancient-buddhist-texts.net/"
+    notes: "CC BY-SA 3.0 Unported."
