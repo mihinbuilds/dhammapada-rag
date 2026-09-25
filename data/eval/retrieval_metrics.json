@@ -7,7 +7,8 @@
       "recall@5": 0.9737,
       "recall@10": 0.9825,
       "ndcg@10": 0.9537,
-      "mrr": 0.9443
+      "mrr": 0.9443,
+      "gold_recall@10": 0.9825
     },
     "verse_only": {
       "recall@1": 0.5,
@@ -15,23 +16,26 @@
       "recall@5": 0.5351,
       "recall@10": 0.5526,
       "ndcg@10": 0.5263,
-      "mrr": 0.5232
+      "mrr": 0.5232,
+      "gold_recall@10": 0.5526
     },
     "dense_only": {
       "recall@1": 0.9211,
       "recall@3": 0.9649,
       "recall@5": 0.9737,
       "recall@10": 0.9737,
-      "ndcg@10": 0.9525,
-      "mrr": 0.9458
+      "ndcg@10": 0.9521,
+      "mrr": 0.9453,
+      "gold_recall@10": 0.9737
     },
     "no_rerank": {
-      "recall@1": 0.886,
+      "recall@1": 0.8772,
       "recall@3": 0.9649,
       "recall@5": 0.9649,
       "recall@10": 0.9737,
-      "ndcg@10": 0.9374,
-      "mrr": 0.9261
+      "ndcg@10": 0.9342,
+      "mrr": 0.9217,
+      "gold_recall@10": 0.9737
     },
     "flat": {
       "recall@1": 0.9123,
@@ -39,7 +43,8 @@
       "recall@5": 0.9737,
       "recall@10": 0.9825,
       "ndcg@10": 0.9508,
-      "mrr": 0.9405
+      "mrr": 0.9405,
+      "gold_recall@10": 0.9825
     }
   },
   "by_type": {
@@ -51,7 +56,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -59,7 +65,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0714,
         "ndcg@10": 0.0254,
-        "mrr": 0.0194
+        "mrr": 0.0194,
+        "gold_recall@10": 0.0714
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -67,7 +74,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 1.0,
@@ -75,7 +83,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 1.0,
@@ -83,7 +92,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     },
     "corpus_anomaly": {
@@ -94,7 +104,8 @@
         "recall@5": 0.0,
         "recall@10": 0.5,
         "ndcg@10": 0.1505,
-        "mrr": 0.0556
+        "mrr": 0.0556,
+        "gold_recall@10": 0.5
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -102,7 +113,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.006
+        "mrr": 0.006,
+        "gold_recall@10": 0.0
       },
       "dense_only": {
         "recall@1": 0.0,
@@ -110,7 +122,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.0114
+        "mrr": 0.0111,
+        "gold_recall@10": 0.0
       },
       "no_rerank": {
         "recall@1": 0.0,
@@ -118,7 +131,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.0417
+        "mrr": 0.0417,
+        "gold_recall@10": 0.0
       },
       "flat": {
         "recall@1": 0.0,
@@ -126,7 +140,8 @@
         "recall@5": 0.0,
         "recall@10": 0.5,
         "ndcg@10": 0.1505,
-        "mrr": 0.0556
+        "mrr": 0.0556,
+        "gold_recall@10": 0.5
       }
     },
     "cross_recension": {
@@ -137,7 +152,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.125,
@@ -145,7 +161,8 @@
         "recall@5": 0.125,
         "recall@10": 0.125,
         "ndcg@10": 0.125,
-        "mrr": 0.1359
+        "mrr": 0.1357,
+        "gold_recall@10": 0.125
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -153,7 +170,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.75,
@@ -161,7 +179,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9077,
-        "mrr": 0.875
+        "mrr": 0.875,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 1.0,
@@ -169,7 +188,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     },
     "doctrinal": {
@@ -180,7 +200,8 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9421,
-        "mrr": 0.9346
+        "mrr": 0.9346,
+        "gold_recall@10": 0.9667
       },
       "verse_only": {
         "recall@1": 0.9667,
@@ -188,7 +209,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9877,
-        "mrr": 0.9833
+        "mrr": 0.9833,
+        "gold_recall@10": 1.0
       },
       "dense_only": {
         "recall@1": 0.9,
@@ -196,15 +218,17 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9421,
-        "mrr": 0.9348
+        "mrr": 0.9348,
+        "gold_recall@10": 0.9667
       },
       "no_rerank": {
-        "recall@1": 0.7667,
+        "recall@1": 0.7333,
         "recall@3": 0.9333,
         "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.8823,
-        "mrr": 0.8554
+        "ndcg@10": 0.87,
+        "mrr": 0.8387,
+        "gold_recall@10": 0.9667
       },
       "flat": {
         "recall@1": 0.9,
@@ -212,7 +236,8 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9354,
-        "mrr": 0.9259
+        "mrr": 0.9259,
+        "gold_recall@10": 0.9667
       }
     },
     "narrative": {
@@ -223,7 +248,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0333,
@@ -231,7 +257,8 @@
         "recall@5": 0.0667,
         "recall@10": 0.1,
         "ndcg@10": 0.0582,
-        "mrr": 0.0542
+        "mrr": 0.0542,
+        "gold_recall@10": 0.1
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -239,7 +266,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.9333,
@@ -247,7 +275,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.971,
-        "mrr": 0.9611
+        "mrr": 0.9611,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 0.9333,
@@ -255,7 +284,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       }
     },
     "philological": {
@@ -266,7 +296,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9631,
-        "mrr": 0.95
+        "mrr": 0.95,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.8667,
@@ -274,15 +305,17 @@
         "recall@5": 0.9333,
         "recall@10": 0.9333,
         "ndcg@10": 0.9087,
-        "mrr": 0.905
+        "mrr": 0.905,
+        "gold_recall@10": 0.9333
       },
       "dense_only": {
         "recall@1": 0.9333,
         "recall@3": 0.9667,
         "recall@5": 1.0,
         "recall@10": 1.0,
-        "ndcg@10": 0.9687,
-        "mrr": 0.9583
+        "ndcg@10": 0.9673,
+        "mrr": 0.9567,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 1.0,
@@ -290,7 +323,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 0.9,
@@ -298,7 +332,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9587,
-        "mrr": 0.9444
+        "mrr": 0.9444,
+        "gold_recall@10": 1.0
       }
     }
   },
@@ -311,7 +346,8 @@
         "recall@5": 0.0,
         "recall@10": 0.5,
         "ndcg@10": 0.1505,
-        "mrr": 0.0556
+        "mrr": 0.0556,
+        "gold_recall@10": 0.5
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -319,7 +355,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.006
+        "mrr": 0.006,
+        "gold_recall@10": 0.0
       },
       "dense_only": {
         "recall@1": 0.0,
@@ -327,7 +364,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.0114
+        "mrr": 0.0111,
+        "gold_recall@10": 0.0
       },
       "no_rerank": {
         "recall@1": 0.0,
@@ -335,7 +373,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.0417
+        "mrr": 0.0417,
+        "gold_recall@10": 0.0
       },
       "flat": {
         "recall@1": 0.0,
@@ -343,7 +382,8 @@
         "recall@5": 0.0,
         "recall@10": 0.5,
         "ndcg@10": 0.1505,
-        "mrr": 0.0556
+        "mrr": 0.0556,
+        "gold_recall@10": 0.5
       }
     },
     "cst4_title_variant": {
@@ -354,7 +394,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.125,
@@ -362,7 +403,8 @@
         "recall@5": 0.125,
         "recall@10": 0.125,
         "ndcg@10": 0.125,
-        "mrr": 0.1359
+        "mrr": 0.1357,
+        "gold_recall@10": 0.125
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -370,7 +412,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.75,
@@ -378,7 +421,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9077,
-        "mrr": 0.875
+        "mrr": 0.875,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 1.0,
@@ -386,7 +430,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     },
     "doctrinal": {
@@ -397,7 +442,8 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9421,
-        "mrr": 0.9346
+        "mrr": 0.9346,
+        "gold_recall@10": 0.9667
       },
       "verse_only": {
         "recall@1": 0.9667,
@@ -405,7 +451,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9877,
-        "mrr": 0.9833
+        "mrr": 0.9833,
+        "gold_recall@10": 1.0
       },
       "dense_only": {
         "recall@1": 0.9,
@@ -413,15 +460,17 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9421,
-        "mrr": 0.9348
+        "mrr": 0.9348,
+        "gold_recall@10": 0.9667
       },
       "no_rerank": {
-        "recall@1": 0.7667,
+        "recall@1": 0.7333,
         "recall@3": 0.9333,
         "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.8823,
-        "mrr": 0.8554
+        "ndcg@10": 0.87,
+        "mrr": 0.8387,
+        "gold_recall@10": 0.9667
       },
       "flat": {
         "recall@1": 0.9,
@@ -429,7 +478,8 @@
         "recall@5": 0.9667,
         "recall@10": 0.9667,
         "ndcg@10": 0.9354,
-        "mrr": 0.9259
+        "mrr": 0.9259,
+        "gold_recall@10": 0.9667
       }
     },
     "narrative": {
@@ -440,7 +490,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0333,
@@ -448,7 +499,8 @@
         "recall@5": 0.0667,
         "recall@10": 0.1,
         "ndcg@10": 0.0582,
-        "mrr": 0.0542
+        "mrr": 0.0542,
+        "gold_recall@10": 0.1
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -456,7 +508,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.9333,
@@ -464,7 +517,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.971,
-        "mrr": 0.9611
+        "mrr": 0.9611,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 0.9333,
@@ -472,7 +526,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9754,
-        "mrr": 0.9667
+        "mrr": 0.9667,
+        "gold_recall@10": 1.0
       }
     },
     "philological": {
@@ -483,7 +538,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9631,
-        "mrr": 0.95
+        "mrr": 0.95,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.8667,
@@ -491,15 +547,17 @@
         "recall@5": 0.9333,
         "recall@10": 0.9333,
         "ndcg@10": 0.9087,
-        "mrr": 0.905
+        "mrr": 0.905,
+        "gold_recall@10": 0.9333
       },
       "dense_only": {
         "recall@1": 0.9333,
         "recall@3": 0.9667,
         "recall@5": 1.0,
         "recall@10": 1.0,
-        "ndcg@10": 0.9687,
-        "mrr": 0.9583
+        "ndcg@10": 0.9673,
+        "mrr": 0.9567,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 1.0,
@@ -507,7 +565,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 0.9,
@@ -515,7 +574,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 0.9587,
-        "mrr": 0.9444
+        "mrr": 0.9444,
+        "gold_recall@10": 1.0
       }
     },
     "verse_grouping": {
@@ -526,7 +586,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -534,7 +595,8 @@
         "recall@5": 0.0,
         "recall@10": 0.0714,
         "ndcg@10": 0.0254,
-        "mrr": 0.0194
+        "mrr": 0.0194,
+        "gold_recall@10": 0.0714
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -542,7 +604,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 1.0,
@@ -550,7 +613,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "flat": {
         "recall@1": 1.0,
@@ -558,7 +622,8 @@
         "recall@5": 1.0,
         "recall@10": 1.0,
         "ndcg@10": 1.0,
-        "mrr": 1.0
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     }
   },
@@ -571,17 +636,17 @@
       ]
     },
     "dense_only": {
-      "delta": 0.0012,
+      "delta": 0.0016,
       "ci": [
-        -0.0077,
-        0.0097
+        -0.0076,
+        0.0101
       ]
     },
     "no_rerank": {
-      "delta": 0.0163,
+      "delta": 0.0195,
       "ci": [
-        -0.0101,
-        0.0434
+        -0.0071,
+        0.0468
       ]
     },
     "flat": {
@@ -589,6 +654,36 @@
       "ci": [
         0.0,
         0.0076
+      ]
+    }
+  },
+  "ablation_deltas_gold_recall10": {
+    "verse_only": {
+      "delta": 0.4299,
+      "ci": [
+        0.3333,
+        0.5263
+      ]
+    },
+    "dense_only": {
+      "delta": 0.0088,
+      "ci": [
+        0.0,
+        0.0263
+      ]
+    },
+    "no_rerank": {
+      "delta": 0.0088,
+      "ci": [
+        0.0,
+        0.0263
+      ]
+    },
+    "flat": {
+      "delta": 0.0,
+      "ci": [
+        0.0,
+        0.0
       ]
     }
   }
