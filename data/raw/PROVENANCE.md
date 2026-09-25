@@ -14,6 +14,9 @@ pdftotext -layout sources/Dhammapada-Attakatha.pdf data/raw/dhammapada-attakatha
   Bhikkhu, August 2024 revision. Title/Author/Subject per PDF metadata:
   Title="Dhamma Verses Commentary", Author="E.W. Burlingame;Anandajoti
   Bhikkhu", Subject="Translation of the Dhammapada Commentary". 1156 pages.
+- Permission: written permission from Ānandajoti Bhikkhu, 2026-09-25, to use
+  the text and release derived data under CC BY-SA 4.0. Recorded verbatim in
+  [`sources/PERMISSION.md`](../../sources/PERMISSION.md).
 - `-layout` was used (not plain reading order) to preserve indentation, which
   distinguishes body text from indented footnotes and sub-story blocks, and
   keeps page running-headers/footers on their own lines for reliable removal

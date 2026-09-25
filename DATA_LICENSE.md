@@ -37,11 +37,11 @@ The CC0 layers (the Pāli verse text and Sujato's translation) can still be
 used on their own without restriction. The share-alike condition comes from
 the Ānandajoti layers.
 
-## Open caveat
+## Permission
 
-The narrative-source PDF does not state a licence in the document itself.
-CC BY-SA 3.0 is inferred from the publisher's site-wide copyright notice,
-which covers his translations and notes and does not list this work as an
-exception. That is well supported, but it is an inference. Before any
-public dataset release (Zenodo, Hugging Face), get written confirmation from
-Ānandajoti Bhikkhu that names this specific PDF.
+Ānandajoti Bhikkhu gave written permission on 2026-09-25 to use his texts and
+to release the derived data under his licence, which he asked not to be
+changed. His reply is recorded verbatim in
+[`sources/PERMISSION.md`](sources/PERMISSION.md). It replaces the earlier
+licence-by-inference for the narrative PDF, which states no licence in the
+document itself.
