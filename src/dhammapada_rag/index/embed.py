@@ -34,6 +34,7 @@ from pathlib import Path
 
 import numpy as np
 from FlagEmbedding import BGEM3FlagModel
+from dhammapada_rag.index.rerank import best_device
 
 MAX_LENGTH = 512
 
