@@ -1095,6 +1095,44 @@ precision the history doesn't actually have. This is a real limitation,
 not a preference: any future round's work is committed as its own commit
 from this point forward, so this gap does not recur.
 
+## Round 9: quote fidelity
+
+Task-by-task detail (AE-AH) is in `docs/generation.md`'s Round 9 section;
+the measured effect is in the post-cleaning re-run below (quote coverage
+rate 0.807 over 11 Pali quotes; three genuine half-quotes caught by the new
+`PALI_QUOTE_TRUNCATED` warning). In brief: the corpus carried all four pādas
+of Dhp 194 and 273, so the observed truncation was the model's; `audit()`
+was attaching a story's `pali_verse` to every verse in a multi-verse group,
+a real cross-verse contamination blind spot, now matched per cited verse;
+`CITATION_IN_TEXT` now catches bare field names such as `(group_id 14.8)`;
+and the scope-widening prompt rule holds on single-comparative verses
+(Dhp 103, 354) but not on a claim that compresses Dhp 273's four parallel
+superlatives into one sentence.
+
+### The error profile moves once each class is fixed
+
+The failures found per round have moved in one direction:
+
+1. Rounds 1-3: the commentary layer was absent (context window, chunk
+   truncation).
+2. Rounds 4-6: attribution errors -- verse tagged as commentary, citations
+   malformed or missing.
+3. Rounds 7-8: utilization -- retrieved material going unused.
+4. Round 9: quote fidelity -- truncated Pali, scope-widened paraphrase,
+   cross-verse Pali attribution.
+
+Each class became visible only after the previous one was fixed. Until the
+commentary reached the model, there was nothing to misattribute. Until
+citations were well-formed, whether the model used what it retrieved could
+not be measured. And until quotes were real, how much of the verse they
+covered did not matter. This is a property of evaluating layered RAG, not
+of this system alone: the failure modes are stacked, and a metric that
+works at an early stage cannot see errors from a later one. It also cuts
+the other way: a system reporting high citation accuracy may simply not yet
+have working retrieval. Which errors you can measure depends on which ones
+you have already eliminated, so a clean score at one layer is evidence
+about that layer only.
+
 ## Post-cleaning re-run (2026-09-23)
 
 `docs/status_report.md` found that every result in `data/eval/` predated
@@ -1288,6 +1326,13 @@ the one comparable with August.
   a dismissed neighbor) and refined by a designed test that did NOT
   reproduce it: the trigger is adjacency combined with an under-specified
   distinguishing detail, not name-or-role adjacency by itself.
+- (Round 9) Substring matching said whether a Pali quote was real, not
+  whether it was the verse: a half-verse passed clean. Measured coverage
+  (0.807 mean over 11 quotes, 2026-09-23 run) now distinguishes the two.
+  Scope-widening is reduced by the prompt rule but not eliminated, and has
+  no structural check. Across rounds, each error class became measurable
+  only once the one before it was fixed (see "The error profile moves once
+  each class is fixed").
 
 **What it does not support, and where the honest gaps are:**
 - The brief's specific prediction that the doctrinal row would show the
