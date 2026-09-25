@@ -364,7 +364,7 @@ licensing.md                 Jul 30    40
 Verified as still outstanding:
 
 1. **Second annotator / IAA statistic: not done.** `eval_rubric.md:10`: "This gold set has exactly one annotator: Claude (Sonnet 5)…" and "no IAA statistic is computed or claimed anywhere". No kappa or Krippendorff code exists in `src/` or `data/eval/`.
-2. **Ānandajoti PDF licence: resolved by inference only.** No `PROVENANCE.md` states a licence for the PDF itself: `data/raw/PROVENANCE.md` records its metadata but no licence. `docs/licensing.md` gives CC BY-SA 3.0 "High, by inference" from the site-wide notice, and keeps a "Remaining action item, unchanged: … get written confirmation from Ānandajoti Bhikkhu naming this specific PDF". Meanwhile the PDF is committed to git history (§1).
+2. **Ānandajoti PDF licence: resolved by inference only.** No `PROVENANCE.md` states a licence for the PDF itself: `data/raw/PROVENANCE.md` records its metadata but no licence. `docs/licensing.md` gives CC BY-SA 3.0 "High, by inference" from the site-wide notice, and keeps a "Remaining action item, unchanged: … get written confirmation from Ānandajoti Bhikkhu naming this specific PDF". Meanwhile the PDF is committed to git history (§1). *Resolved 2026-09-25, after this report: written permission from Ānandajoti Bhikkhu, licence CC BY-SA 4.0; see `sources/PERMISSION.md`.*
 3. **Story 23.1 nidāna: open.** The stored text says Jetavana, the quoted episode is set at Kosambī, and the corpus has no annotation or correction (§2).
 4. **Cross-edition variance: unclassified.** 177/423 are still one "distinct" bucket (§2).
 5. **Eval artifacts: not re-run after the cleaning pass.** Every file predates Sep 22 (§5), and `evaluation.md` predates even those (§7).

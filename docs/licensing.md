@@ -3,29 +3,35 @@
 | Layer | Source | Stated status | Confidence | Notes |
 |---|---|---|---|---|
 | Burlingame's 1921 translation/narrative content (underlies `Dhammapada-Attakatha.pdf`) | E.W. Burlingame, *Buddhist Legends*, Harvard University Press, 1921 | Public domain | High | PDF title page states "Now Public Domain." US copyright on an unrenewed 1921 work has expired. |
-| Ānandajoti Bhikkhu's 2024 revision layer in `Dhammapada-Attakatha.pdf` (retranslated verses, restored Pāli titles, AJ notes, italicized completed stories, CST4 titles) | *The Dhamma Verses Commentary*, Ānandajoti Bhikkhu, August 2024 | **CC BY-SA 3.0 Unported** (attribution required) | High, by inference | The PDF itself states no license. Resolved by checking the publishing site's copyright notice directly: `https://ancient-buddhist-texts.net/Miscellaneous/Copyright-Notice.htm` states the CC BY-SA 3.0 Unported license covers "everything except for those works covered in the [PTS-copyright / already-public-domain exception] listings... including the introductions, translations, studies, and notes." This work isn't in either exception list, so it falls under the general CC BY-SA 3.0 grant. This is inference from the site's blanket policy, not a statement naming this exact PDF by title -- for a public/Zenodo release, get written confirmation from Ānandajoti Bhikkhu directly rather than relying on this inference alone. |
-| Pāli verse text as reprinted in `Dhammapada-Attakatha.pdf` | Same PDF | Same as above (editor's transcription) | High, by inference | Same basis as the row above. |
+| Ānandajoti Bhikkhu's 2024 revision layer in `Dhammapada-Attakatha.pdf` (retranslated verses, restored Pāli titles, AJ notes, italicized completed stories, CST4 titles) | *The Dhamma Verses Commentary*, Ānandajoti Bhikkhu, August 2024 | **CC BY-SA 4.0** (attribution required) | Confirmed | The PDF itself states no license. Confirmed in writing by Ānandajoti Bhikkhu on 2026-09-25 (`sources/PERMISSION.md`): permission to use the texts, licence CC BY-SA 4.0 as stated on `https://ancient-buddhist-texts.net/tt/Dhammapada/index.htm` ("previously 3.0"), not to be changed. Before that reply this row gave version 3.0 Unported, "high confidence by inference", from the site-wide notice at `https://ancient-buddhist-texts.net/Miscellaneous/Copyright-Notice.htm`, which covers his "introductions, translations, studies, and notes" and does not list this work as an exception. |
+| Pāli verse text as reprinted in `Dhammapada-Attakatha.pdf` | Same PDF | Same as above (editor's transcription) | Confirmed | Same basis as the row above. |
 | **Pāli root text, all 423 verses** (`sources/external/mahasangiti_pali/`) | Mahāsaṅgīti edition (Dhamma Society, 2005) via `suttacentral/bilara-data`, `published` branch | **CC0 1.0 Universal** | Confirmed | `LICENSE.md` in the source repo, fetched directly: "All translations created in Bilara and supported by SuttaCentral are dedicated to the Public Domain by means of the Creative Commons Public Domain (CC0) license." See `sources/external/PROVENANCE.md`. |
 | **English translation, all 423 verses** (`sources/external/sujato_en/`) | Bhikkhu Sujato, via the same `bilara-data` repo | **CC0 1.0 Universal** | Confirmed | Same license file, same repo. |
-| **Interlinear Pāli-English gloss, all 423 verses** (`sources/external/anandajoti_interlinear/`) | Ānandajoti Bhikkhu, *Dhammapada* interlinear edition, 2nd ed., Nov 2017, `ancient-buddhist-texts.net` | **CC BY-SA 3.0 Unported** (attribution required) | High | Same copyright notice as row 2, fetched and read directly (not inferred by absence this time -- the notice explicitly covers "translations... and notes," which is exactly what this is). Note this is a *different, earlier* work by the same translator than the narrative-source PDF. |
+| **Interlinear Pāli-English gloss, all 423 verses** (`sources/external/anandajoti_interlinear/`) | Ānandajoti Bhikkhu, *Dhammapada* interlinear edition, 2nd ed., Nov 2017, `ancient-buddhist-texts.net` | **CC BY-SA 4.0** (attribution required) | Confirmed | Confirmed by the same 2026-09-25 reply (`sources/PERMISSION.md`). This project's records gave version 3.0 Unported until then: that was the version on the site when the edition was fetched (2026-07-30), and he has since moved to 4.0. Note this is a *different, earlier* work by the same translator than the narrative-source PDF. |
 
 ## Resolution of the "licensing unconfirmed" flag
 
 The original flag (Phase 1, first pass) was that the narrative source PDF has
 no in-document license statement for Ānandajoti Bhikkhu's own contribution.
-That's still technically true of the PDF file itself, but checking his
-publishing site's copyright notice directly resolves it with high confidence:
-his standard license for translation/commentary/notes work is CC BY-SA 3.0,
-attribution to him, and nothing in the PDF suggests this particular work is
-an exception (the notice's exception lists are for PTS-copyrighted material
-and already-public-domain material, and this is Ānandajoti Bhikkhu's own
-authored revision, not either of those).
+Until September 2026 this was resolved only by inference from his publishing
+site's copyright notice, which covered his translations and notes under
+version 3.0 of the licence and listed no exception for this work.
 
-**Remaining action item, unchanged:** before any public dataset release
-(Zenodo DOI, HuggingFace dataset, etc.), get written confirmation from
-Ānandajoti Bhikkhu naming this specific PDF, since the inference above -- while
-well-supported -- is still an inference from a general site policy rather
-than a statement about this exact document.
+**Resolved in writing, 2026-09-25.** Ānandajoti Bhikkhu replied to a direct
+enquiry: "yes, you may use the texts", under CC BY-SA 4.0 ("previously 3.0"),
+and "You should not change that." The reply is kept verbatim in
+`sources/PERMISSION.md`. Two consequences:
+
+- **Version.** Every statement of version 3.0 in this project was out of date
+  and now reads 4.0. The derived data was already CC BY-SA 4.0 and stays so.
+  Under his condition, no Ānandajoti-derived file may be relicensed to MIT,
+  CC0 or anything else.
+- **Upstream corrections.** He updates his files when he finds mistakes, so
+  the pinned snapshot matters. Its date and checksums are in
+  `data/raw/PROVENANCE.md`.
+
+Permission to use the editions does not verify them. Story grouping still has
+a single witness.
 
 ## What this means for the corpus now
 

@@ -39,9 +39,9 @@ The `>>` line quotes a question from the enquiry.
 - **Licence:** CC BY-SA 4.0,
   <https://creativecommons.org/licenses/by-sa/4.0/deed.en>
 - **Stated on:** <https://ancient-buddhist-texts.net/tt/Dhammapada/index.htm>
-- The texts were previously under CC BY-SA 3.0. This project's documentation
-  recorded 3.0 until this reply, because that was the version on the 2017
-  edition's page when it was fetched.
+- The texts were previously under version 3.0 of the same licence. This
+  project's documentation recorded version 3.0 until this reply, because
+  that was the version on the site when the texts were fetched.
 
 ## What this covers
 

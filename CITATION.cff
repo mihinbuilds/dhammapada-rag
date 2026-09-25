@@ -22,7 +22,8 @@ references:
       - name: "E. W. Burlingame"
       - name: "Ānandajoti Bhikkhu"
     year: 2024
-    notes: "Revision of Burlingame, Buddhist Legends (Harvard University Press, 1921). CC BY-SA 3.0 (by inference; see docs/licensing.md)."
+    notes: "Revision of Burlingame, Buddhist Legends (Harvard University Press, 1921). CC BY-SA 4.0, confirmed in writing by the author (sources/PERMISSION.md)."
+    license: CC-BY-SA-4.0
   - type: data
     title: "bilara-data: Mahāsaṅgīti Pāli text and Bhikkhu Sujato's English translation of the Dhammapada"
     authors:
@@ -35,4 +36,4 @@ references:
       - name: "Ānandajoti Bhikkhu"
     year: 2017
     url: "https://ancient-buddhist-texts.net/"
-    notes: "CC BY-SA 3.0 Unported."
+    license: CC-BY-SA-4.0

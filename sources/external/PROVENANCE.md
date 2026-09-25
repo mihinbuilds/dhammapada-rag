@@ -45,13 +45,15 @@ layer, and unconfirmed licensing on the narrative source's revision layer.
   translator** than `sources/Dhammapada-Attakatha.pdf` (which is his 2024
   revision of Burlingame's commentary/story translation). Not the source
   PDF's own text.
-- License: site-wide **Creative Commons Attribution-ShareAlike 3.0
-  Unported**, per `https://ancient-buddhist-texts.net/Miscellaneous/Copyright-Notice.htm`
-  ("everything except for those works covered in the [PTS-copyright /
-  public-domain exception] listings... including the introductions,
-  translations, studies, and notes" -- this interlinear translation and its
-  notes fall in the general CC BY-SA 3.0 bucket, not either exception list).
-  Attribution required: Ānandajoti Bhikkhu.
+- License: **Creative Commons Attribution-ShareAlike 4.0**
+  (<https://creativecommons.org/licenses/by-sa/4.0/>), confirmed in writing by
+  Ānandajoti Bhikkhu on 2026-09-25 and stated on
+  `https://ancient-buddhist-texts.net/tt/Dhammapada/index.htm`; see
+  [`sources/PERMISSION.md`](../PERMISSION.md). Attribution required:
+  Ānandajoti Bhikkhu. At fetch time this file recorded version 3.0 Unported,
+  from the site-wide notice at
+  `https://ancient-buddhist-texts.net/Miscellaneous/Copyright-Notice.htm`. He
+  has since moved to 4.0 ("previously 3.0").
 - What it actually is: not a traditional pada-vibhaṅga (word-by-word
   commentarial gloss in the Abhidhamma-commentary sense). It's a line-by-line
   interlinear Pali/English rendering with inline scholarly notes on specific
