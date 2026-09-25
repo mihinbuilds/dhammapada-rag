@@ -1,356 +1,310 @@
+<div align="center">
+
 # Dhammapada RAG
 
-A retrieval-augmented generation system over the Dhammapada that keeps three
-layers distinct instead of flattening them: the **verse** (Pāli + translation),
-Buddhaghosa's **commentary** (aṭṭhakathā), and the **narrative story** (vatthu)
-behind each verse — retrieving on the tightest matching unit but always
-returning the full verse-group, with every generated claim tagged to the layer
-it came from.
+**Retrieval-augmented answering that keeps the verse, the commentary, and the editorial apparatus as separately attributed layers.**
 
-See `DhammapadaRAG.txt` for the full project plan (5 phases: corpus
-construction, indexing, retrieval architecture, generation, evaluation).
+[![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
+[![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
+[![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
+[![Tests](https://img.shields.io/badge/tests-200%20passing-brightgreen.svg)](tests/)
+[![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
+
+</div>
+
+---
+
+Ask a question about the Dhammapada and most systems answer in one voice. But the
+answer to *"what did the Buddha ask Kisā Gotamī to bring him?"* is not in the
+Dhammapada. The mustard seed is Buddhaghosa's, written eight centuries after the
+verse it explains. A system that does not mark that difference is not summarising
+the text — it is quietly rewriting it.
+
+This project keeps four kinds of statement apart, tags every generated claim with
+which kind it is, and refuses to emit a citation it cannot resolve against
+something actually retrieved.
+
+![The Ask page](docs/img/ask.png)
+
+## Findings
+
+The engineering is in the repository. These are the things it turned up.
+
+### A default silently deleted the commentary layer
+
+Ollama defaults `num_ctx` to 2048 tokens. The prompt carried three full
+commentarial narratives. The commentary was truncated away before the model saw
+it — so every answer came back tagged `verse`, and **nothing in the pipeline
+reported a problem**: the index built cleanly, retrieval returned results,
+generation produced schema-valid cited output.
+
+A second, independent truncation compounded it. `chunks.py` emitted each
+narrative as one chunk; `embed.py` encoded at `max_length=512`. Roughly 84% of
+all narrative text was never embedded and was unretrievable at any *k*.
+
+Both bugs produced output that looked entirely correct. The repository now
+raises rather than truncates in both places, and
+[`test_source_snapshot.py`](tests/test_source_snapshot.py) fails if the pinned
+source files drift from their recorded checksums.
+
+### Prompting fails for structural behaviour; grammar constraints do not
+
+Three interventions, escalating, with measured effect:
+
+| Intervention | Kind | Result |
+|---|---|---|
+| Prompt instruction | declarative | **Negligible** — told to "explicitly dismiss irrelevant sources", the model dismissed none in 27 answers |
+| Context **layout** | structural, in-context | **Substantial** — giving the alignment layer its own prompt block raised its recall 0.50 → 0.78 |
+| **Schema** constraint | grammar-level | **Absolute** — citation fields as per-request enums; four classes of citation error became unrepresentable, and source disposition went 0/27 → 27/27 |
+
+Telling a model a taxonomy has weak effect. Arranging the context to mirror the
+taxonomy has moderate effect. Encoding it in the decoding grammar is
+deterministic. This generalises to any RAG system where provenance matters.
+
+### A saturated gold set cannot see its own components
+
+Gold set v1 (114 scored questions) reported baseline Recall@10 = 0.983. Two of
+four ablations returned confidence intervals spanning zero and a third's lower
+bound sat at exactly zero — the cross-encoder reranker looked useless.
+
+Gold set v2 (72 deliberately harder questions) was built and the same ablations
+re-run on the same code:
+
+| Ablation | v1 Δ nDCG@10 [95% CI] | v2 Δ nDCG@10 [95% CI] |
+|---|---|---|
+| `verse_only` (no commentary chunks) | +0.427 [+0.338, +0.522] ✱ | +0.618 [+0.502, +0.726] ✱ |
+| `no_rerank` (no cross-encoder) | +0.019 [−0.007, +0.047] | **+0.116 [+0.056, +0.179] ✱** |
+| `dense_only` (no sparse/ColBERT/RRF) | +0.002 [−0.008, +0.010] | +0.022 [−0.011, +0.062] |
+| `flat` (no parent-group assembly) | +0.003 [+0.000, +0.008] | +0.000 [+0.000, +0.000] |
+
+<sub>✱ interval excludes zero. Both runs: same index, same code, RTX 5080.</sub>
+
+The reranker's effect grew sixfold and crossed significance. It was always
+working; v1 simply could not measure it. **`dense_only` and `flat` remain null
+on both sets** — sparse and ColBERT add nothing over dense alone, and
+parent-group assembly barely moves the ranking (exactly zero on v2). Reported as
+null results rather than omitted, and they argue that fusion beyond dense, and
+the assembly step, are complexity without a measurable retrieval-quality return.
+
+### Commentary retrieval does not help verse-anchored questions
+
+The architectural claim, tested where it can fail. Removing commentary chunks
+destroys narrative and alignment queries — but that is near-tautological, since
+their gold answer lives in the commentary. The informative cell is doctrinal:
+
+| Query type | baseline | verse_only | Δ |
+|---|---|---|---|
+| narrative | 0.975 | 0.058 | +0.917 |
+| alignment | 1.000 | 0.025 | +0.975 |
+| philological | 0.963 | 0.909 | +0.054 |
+| **doctrinal** | **0.942** | **0.988** | **−0.046** |
+
+Verse-only *beats* the full system on doctrinal queries. Reproduced on separate
+hardware. Commentary retrieval does not help verse-anchored questions and may
+slightly hurt them.
+
+### Correct citations, false content
+
+Six documented cases where a claim carried the right layer tag, a resolvable
+citation, and traceable provenance — and was wrong. The clearest:
+
+> Kisā Gotamī found no mustard seed *"because no household had ever seen a
+> death."*
+
+The commentary's point is the exact reverse: **every** household had. Structural
+provenance checking cannot reach this class of error, which is why the rubric
+now scores source fidelity separately from layer attribution. Two recurring
+subtypes are named and tracked: *semantic-neighbour conflation* (details
+migrating between narratives that share a structural role) and *scope widening*
+(a verse's "best of paths" becoming "the best thing in life").
+
+---
+
+## How it works
+
+```mermaid
+flowchart LR
+    Q[Question] --> R
+    subgraph R[1 · Hybrid retrieval]
+        direction TB
+        D[dense] --- S[sparse] --- C[ColBERT]
+    end
+    R -->|RRF| RR[2 · Cross-encoder rerank]
+    RR --> A[3 · Parent-group assembly]
+    A --> G[4 · Constrained generation]
+    G --> AU[5 · Provenance audit]
+    AU --> OUT[Layer-tagged answer]
+```
+
+Retrieval matches on the **tightest** unit — one verse, one pāda gloss, one
+window of narrative — then returns the **whole** verse-group, so the reader
+always sees every layer regardless of which one matched.
+
+### The four layers
+
+```mermaid
+flowchart TB
+    V["<b>VERSE</b><br/>canonical Dhammapada<br/><i>c. 3rd century BCE</i>"]
+    C["<b>COMMENTARY</b><br/>Buddhaghosa's aṭṭhakathā<br/><i>c. 5th century CE</i>"]
+    AL["<b>ALIGNMENT</b><br/>which story explains which verses<br/><i>modern editorial apparatus</i>"]
+    SY["<b>SYNTHESIS</b><br/>inference across sources<br/><i>stated in neither</i>"]
+    V -.explained by.-> C
+    C -.indexed by.-> AL
+    V --> SY
+    C --> SY
+```
+
+`alignment` exists because *"story 1.3 explains Dhp 3–4"* is true of neither the
+verse nor the commentary — it is a modern editorial fact, and filing it under
+`commentary` attributes to Buddhaghosa a claim he never made.
+
+The answer schema has **no free-text summary field**, deliberately: an untagged
+paragraph is the escape hatch a conflated claim slips through. Readable prose is
+composed client-side from tagged claims, so *"The verse states…"* and *"The
+commentary relates…"* survive being copied out.
+
+---
+
+## Corpus
+
+| Layer | Source | Licence |
+|---|---|---|
+| Pali verse | Mahāsaṅgīti, via SuttaCentral | CC0 |
+| English verse | Bhikkhu Sujato, via SuttaCentral | CC0 |
+| Interlinear gloss + notes | Ānandajoti Bhikkhu, 2017 | CC BY-SA 4.0 |
+| Commentary, titles, verse grouping | Ānandajoti's revision of Burlingame, 2024 | CC BY-SA 4.0 |
+
+**423** verses · **26** vaggas · **305** commentarial stories · **5,909**
+indexed chunks. Full coverage, no gaps, validated on every build.
+
+Use of the Ānandajoti editions is by written permission
+([`sources/PERMISSION.md`](sources/PERMISSION.md)). Share-alike propagates:
+derived data files are CC BY-SA 4.0, the code is MIT, stated per file in
+[`DATA_LICENSE.md`](DATA_LICENSE.md).
+
+The Ānandajoti sources are **pinned by SHA-256** ([`sources/SHA256SUMS`](sources/SHA256SUMS),
+[`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md)) because the upstream editor
+corrects files when he finds mistakes — without a
+pin, a future discrepancy could not be told apart from our own parsing error.
+`sources/fetch.sh --verify` checks the pin; a test fails if it drifts.
+
+![Corpus browser](docs/img/corpus.png)
+
+---
 
 ## Quick start
 
-The processed corpus (`data/processed/`) and the chunk list
-(`data/index/chunks.jsonl`) are checked in, so you only need to build the
-embeddings once, then start the API and the web app.
-
-```
-# 1. Python environment (Python 3.11+)
-python3 -m venv .venv && source .venv/bin/activate
+```bash
+git clone https://github.com/mihinbuilds/dhammapada-rag.git
+cd dhammapada-rag
+python -m venv .venv && source .venv/bin/activate    # Windows: .venv\Scripts\Activate.ps1
 pip install -e .
 
-# 2. Build the search index (first run downloads BGE-M3, ~2.3GB; ~4 min on Apple Silicon)
-python src/dhammapada_rag/index/embed.py
-
-# 3. Optional, for generated answers: Ollama with the model pulled
-ollama pull qwen2.5:7b-instruct
-ollama serve                       # skip if the Ollama app is already running
-
-# 4. Terminal 1 -- the API (http://127.0.0.1:8000, docs at /docs)
-uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
-
-# 5. Terminal 2 -- the web app (http://localhost:3000; needs Node.js 20.9+)
-cd web && npm install && npm run dev
+python src/dhammapada_rag/index/embed.py             # first run downloads BGE-M3 (~2.3 GB)
 ```
 
-Without Ollama, everything except generated answers still works: search,
-corpus browsing, and the evaluation dashboard. The Ask page falls back to
-retrieval-only results. To try it from the command line instead:
+Then, in two terminals:
 
-```
-python src/dhammapada_rag/index/assemble.py "the woman whose child died"
-python src/dhammapada_rag/generate/generate.py "why did the Buddha teach Kisa Gotami about mustard seeds?"
+```bash
+uvicorn dhammapada_rag.api.main:app --app-dir src --port 8000
+cd web && npm install && npm run dev                 # http://localhost:3000
 ```
 
-Run the tests with `python -m pytest -q`.
+Generated answers additionally need [Ollama](https://ollama.com):
+`ollama pull qwen2.5:7b-instruct && ollama serve`. Without it, retrieval-only
+mode works and the UI falls back to it.
 
-## Status
+<details>
+<summary><b>Windows note</b></summary>
 
-**Phase 1 (corpus construction)** complete: 305 narrative stories covering
-all 423 verses / 26 vaggas (hard validation passes), plus a fully-covering
-423/423 verse layer (Pali + two English translations + interlinear gloss).
-See `docs/datasheet.md` and `docs/licensing.md`.
+Set `PYTHONUTF8=1` (`setx PYTHONUTF8 1`) — the default cp1252 codepage cannot
+print Pali diacritics and crashes rather than degrading.
+</details>
 
-**Corpus text cleaning (September 2026):** a corpus-wide scan of the story
-text found PDF-extraction defects that earlier checks never looked for, now
-fixed in the parser itself and pinned by `tests/test_parse_stories.py`.
-Verse quotations were cut in half at page breaks (~30 stories, e.g. Dhp
-388's English translation). Footnote numbers were left in the prose
-(`Dhamma,5`, ~500 of them), and 26 footnotes were missing or filed under
-the wrong story. Chapter title pages were glued onto the end of 24 stories,
-and the book's closing colophon onto the last one. Pali and English lines of
-11 verse quotes were mixed up. The "opening setting" and "closing section"
-boundaries were missed or placed mid-sentence in 47 stories, and the text
-had hard line-wraps and double spaces. Nine source typos were corrected, and
-SuttaCentral `<j>` markup was stripped from 12 of Sujato's verses. Every
-count, and what was deliberately left alone, is in `docs/datasheet.md`
-("Text cleaning pass"). The whole downstream pipeline, chunks, and
-embeddings were rebuilt from the cleaned text.
+<details>
+<summary><b>No frontend needed</b></summary>
 
-**Phase 2 (indexing)** complete: 5,909 chunks (see `docs/indexing.md`;
-originally 2,769 -- narrative text is now windowed rather than emitted as one
-oversized chunk per story, see `docs/evaluation.md`'s headline finding)
-embedded with BGE-M3 (dense + sparse + ColBERT multi-vector), fused with
-Reciprocal Rank Fusion, reranked with `bge-reranker-v2-m3`. Verified against
-the spec's own worked example: querying "the woman whose child died" surfaces
-Kisā Gotamī's stories (Dhp 114 and Dhp 287) with full parent-group assembly.
+The API is fully usable alone: `http://127.0.0.1:8000/docs` is an interactive
+interface, and the CLI works with nothing running —
+`python src/dhammapada_rag/index/assemble.py "the woman whose child died"`.
+</details>
 
-**Phase 3 (retrieval architecture)** formalized as an HTTP service (see
-"Running the API" below) -- `POST /query` runs the full search -> rerank ->
-assemble pipeline (~3-5s/query on this machine's Apple Silicon GPU via MPS);
-`GET /verses/{n}` and `GET /stories/{group_id}` expose direct lookups.
+---
 
-**Phase 4 (generation with enforced layer attribution)** complete: `POST
-/answer` adds Qwen2.5-7B-Instruct (via Ollama, JSON-schema-constrained
-decoding) on top of retrieval -- every claim tagged `verse`/`commentary`/
-`synthesis` and cited back to a `group_id`. See `docs/generation.md` for the
-enforcement design and, importantly, the actual failure cases found while
-testing it (citation fields present but pointing at the wrong retrieved
-source, and a genuine ambiguity in the verse/synthesis boundary) --
-documented rather than hidden, per the spec's emphasis on candid failure
-reporting.
+## Evaluation
 
-**Phase 5 (evaluation)** complete: 120-question gold set (`docs/eval_rubric.md`,
-`data/eval/gold_set.jsonl`), retrieval metrics broken out per query type plus
-all four required ablations, generation metrics (layer attribution accuracy
-against a gold layer tag per claim, conflation rate), and a 1.5B/7B/14B
-model-size sweep. A later correctness pass (`docs/evaluation.md`) found and
-fixed two silent-truncation bugs -- Ollama's default `num_ctx=2048` dropping
-the commentary out of the generation prompt, and a 512-token encoder limit
-leaving 84% of narrative text unindexed -- neither of which raised an error
-anywhere; the system reported 100% schema-valid output throughout, while
-quietly answering from a fraction of its own source material. Post-fix
-headline findings: cross-recension retrieval, previously this system's
-worst-scoring type (nDCG@10 0.54), reached a perfect 1.000 once title
-variants were actually indexed; conflation rate dropped from 31.2% to 2.0%;
-verse-only retrieval still collapses for narrative and cross-recension
-queries (they cannot be answered without commentary/title chunks, which is
-architecturally expected) but, contrary to this project's own working
-prediction, does *not* drop for doctrinal queries -- a negative result,
-reported as one, not smoothed over; and **structural citation validity**
-(does a claim cite a group_id/verse_number actually among the retrieved
-sources -- a claim about citation *form*, not about whether the claim's
-content is true) improves monotonically with model size at a proportional
-latency cost, while retrying a failed generation does not reliably help and
-can make a small model's clean rate worse. **No inter-annotator agreement
-statistic is computed or claimed anywhere** -- see `docs/eval_rubric.md`'s
-"Annotator status" for why and what would be needed to add one. Pre-fix
-numbers are kept, not deleted, at `docs/evaluation_pre_fix.md`. The
-retrieval and generation outputs in `data/eval/` were re-run on 2026-09-23
-against the re-embedded 5,909-chunk index built from the September 2026
-cleaned corpus (baseline nDCG@10 0.954; generation layer accuracy 0.854,
-source fidelity 0.833, zero fabricated Pali quotes). See the top of
-`docs/evaluation.md`. The other files in `data/eval/` (model sweep, RRF
-k-sweep, arm diagnosis, research validation, tag stability) have not been
-re-run and still describe the pre-cleaning index.
+Everything is reproducible from the command line; the dashboard only reads the
+JSON these produce.
 
-## Sources
+```bash
+python -m dhammapada_rag.eval.retrieval_eval --gold data/eval/gold_set_v2.jsonl \
+                                             --out  data/eval/retrieval_results_v2.jsonl
+python -m dhammapada_rag.eval.aggregate_retrieval --results data/eval/retrieval_results_v2.jsonl \
+                                                  --out     data/eval/retrieval_metrics_v2.json
+```
 
-Four independently-published sources, documented with fetch commands and
-license evidence in `data/raw/PROVENANCE.md` and
-`sources/external/PROVENANCE.md`:
+Two gold sets, both committed: **v1** (120 questions, 6 types; 114 scored, as 6
+have no gold answer) and **v2** (72 harder questions across `narrative_deep`,
+`paraphrase`, `pali_ascii`, `disambiguation`, `multi_gold`,
+`situation_to_verse`). Ablations are single-factor — every condition except
+`no_rerank` reranks, so a delta is attributable to one component.
 
-1. **`sources/Dhammapada-Attakatha.pdf`** — Ānandajoti Bhikkhu's 2024
-   revision of Burlingame's *Dhammapada Aṭṭhakathā* translation. The
-   narrative/commentary layer: title, synopsis, cast, and the nidāna/vatthu/
-   desanāvasāne story text per `data/processed/stories.jsonl`. Also the only
-   source for the vagga.story numbering and story-to-verse grouping.
-2. **Mahāsaṅgīti Pali** (`sources/external/mahasangiti_pali/`, CC0, via
-   SuttaCentral) — canonical Pali text for all 423 verses.
-3. **Bhikkhu Sujato's English translation** (`sources/external/sujato_en/`,
-   CC0, via SuttaCentral) — a second, independent English translation for
-   all 423 verses.
-4. **Ānandajoti Bhikkhu's 2017 interlinear edition**
-   (`sources/external/anandajoti_interlinear/`, CC BY-SA 4.0, via
-   ancient-buddhist-texts.net) — phrase-level Pali/English gloss with
-   scholarly notes for all 423 verses; the closest available substitute for
-   the pada-gloss layer, which source (1) explicitly omits.
+![Evaluation dashboard](docs/img/evaluation.png)
 
-The corpus reflects Ānandajoti Bhikkhu's editions as of 2026-07-30 (pinned by
-SHA-256 in `data/raw/PROVENANCE.md`); upstream corrections after that date are
-not incorporated.
+### Limitations, stated plainly
 
-Sources (2)-(4) were added after the first Phase 1 pass, which used only
-source (1) and found real gaps: only ~74% of stories reprint the full Pali
-verse inline, no pada-gloss layer exists in source (1) at all, and its own
-license wasn't stated in-document. See `docs/datasheet.md` and
-`docs/licensing.md` for how each was resolved.
+- **Evaluation is single-annotator.** No inter-annotator agreement statistic
+  exists. A blind 30-question sheet, a κ script and an annotator brief are
+  ready ([`docs/annotator_brief.md`](docs/annotator_brief.md)); a second reader
+  has not yet run them. Calibration point: on that sheet, 10% randomly flipped
+  labels gives κ ≈ 0.685 (0.645–0.710 over five seeds), so whatever number
+  comes back can be read against something concrete rather than a textbook
+  threshold.
+- **Story grouping has one witness.** Ānandajoti's 2024 numbering is the only
+  source for which verses each story explains. A systematic misalignment in that
+  edition would not be detectable here.
+- **Gold sets are constructed from known answers**, not sampled from real user
+  queries.
+- **Two of four retrieval components show no measurable effect** — see the
+  ablation table above.
 
-## Layout
+---
+
+## Repository
 
 ```
-sources/                     source PDF, unmodified
-sources/external/            fetched CC0/CC-BY-SA sources (Pali, 2nd translation, gloss)
-data/raw/                    text extracted from sources/, unmodified beyond format conversion
-data/interim/                intermediate parsing artifacts (gitignored)
-data/normalized/             one cleaned, validated file per source (sc_pali, sc_sujato,
-                             aj_interlinear, aj_stories) plus the alignment table and joins
-data/processed/
-  stories.jsonl                narrative/commentary layer, 305 stories, 408 footnotes
-  verses.jsonl                 canonical verse layer, 423/423 verses, all sources joined
-  alignment_table.json         verse -> story group_id(s)
-  interlinear_gloss.jsonl      parsed interlinear edition, 423/423 verses
-  *_report.json                coverage/validation reports per pipeline stage
-data/index/
-  chunks.jsonl                  5,909 indexable chunks (tracked; small)
-  dense.npy, sparse.pkl,        BGE-M3 embeddings (gitignored; rebuild with embed.py)
-  colbert.pkl, chunk_ids.json
-data/eval/                     gold sets, evaluation results and metrics (see data/eval/README.md)
 src/dhammapada_rag/
-  vaggas.py, models.py          shared schema
-  ingest/                        Phase 1 pipeline (PDF/HTML/JSON -> data/processed/)
-    corrections.py                 logged hand-corrections: verse numbers and source typos
-  index/                         Phase 2-3 pipeline (chunks -> embeddings -> search -> assembly)
-  generate/                      Phase 4: layer-attributed generation (schema, prompt, Ollama call)
-  api/                           Phase 3-4 service: FastAPI wrapper over index/ and generate/
-  eval/                          Phase 5: retrieval/generation evaluation scripts
-tests/                         pytest suite (provenance audit, story-text cleaning)
-web/                            Next.js UI against the FastAPI service (see "UI" below)
-docs/                          datasheet, licensing table, corpus audit, indexing/generation design notes
+  ingest/     corpus construction: PDF/HTML → data/processed/
+  index/      chunking, BGE-M3 embedding, hybrid search, rerank, assembly
+  generate/   schema, prompt, constrained generation, provenance audit, rendering
+  api/        FastAPI service
+  eval/       retrieval + generation metrics, ablations, model sweep, κ tooling
+web/          Next.js frontend (Ask · Corpus · Evaluation · Method)
+data/         processed corpus, chunk index, gold sets, evaluation results
+docs/         datasheet, corpus audit, evaluation, rubric, annotator brief
 ```
 
-## Setup
+Full development history, including the bugs above and what they superseded:
+[`docs/evaluation.md`](docs/evaluation.md), with the pre-fix baseline preserved
+at `docs/evaluation_pre_fix.md`.
 
-```
-python3 -m venv .venv && source .venv/bin/activate   # macOS/Linux
-pip install -e ".[dev]"   # [dev] adds pytest; plain `-e .` is enough to run the pipeline
-```
+---
 
-On Windows, the venv layout differs (`Scripts/` not `bin/`, `.ps1`/`.bat` not a
-POSIX script):
+## Citation
 
-```
-python -m venv .venv
-.venv\Scripts\Activate.ps1    # PowerShell
-pip install -e ".[dev]"
-```
-
-Requires `poppler` (`pdftotext`) on PATH for PDF extraction. First run of the
-indexing pipeline downloads BAAI/bge-m3 (~2.3GB) and BAAI/bge-reranker-v2-m3
-(~1.1GB) from HuggingFace. Generation requires
-[Ollama](https://ollama.com) running locally with a model pulled:
-`ollama pull qwen2.5:7b-instruct` (~4.7GB). The web app needs Node.js 20.9+
-(required by Next.js 16).
-
-`pyproject.toml` pins `huggingface-hub<1.0`: `transformers<5` (needed by
-`FlagEmbedding`'s reranker) requires `huggingface-hub<1.0`, but a plain `pip
-install -e .` can otherwise resolve a newer `huggingface-hub` that breaks the
-reranker import outright. If you see `ImportError: huggingface-hub>=0.34.0,
-<1.0 is required...`, run `pip install "huggingface-hub<1.0,>=0.34.0"` to fix
-it in an existing venv.
-
-## Running the pipeline
-
-You only need this after changing a source file or the parsing code. The
-outputs are checked in. Run the steps in this order, since each reads the
-previous one's output:
-
-```
-# Phase 1: corpus construction
-python src/dhammapada_rag/ingest/parse_stories.py        # PDF text -> stories.jsonl (cleaning + corrections)
-python -m dhammapada_rag.ingest.validate                  # -> validation_report.json (423 verses, 26 vaggas)
-python -m dhammapada_rag.ingest.normalize_sc_pali         # -> data/normalized/sc_pali.jsonl
-python -m dhammapada_rag.ingest.normalize_sc_sujato       # -> data/normalized/sc_sujato.jsonl
-python -m dhammapada_rag.ingest.normalize_aj_interlinear  # -> data/normalized/aj_interlinear.jsonl
-python -m dhammapada_rag.ingest.normalize_aj_stories      # -> data/normalized/aj_stories.jsonl
-python -m dhammapada_rag.ingest.build_verses              # merge -> verses.jsonl
-python -m dhammapada_rag.ingest.build_alignment_table     # -> alignment_table.json
-python -m dhammapada_rag.ingest.join_verses               # -> data/normalized/verses_joined.json
-python -m dhammapada_rag.ingest.validation_gates          # 7 gates, all must PASS
-python -m dhammapada_rag.ingest.audit_corpus              # -> docs/corpus_audit.md
-
-# Phase 2: indexing (re-run both whenever stories.jsonl or verses.jsonl change)
-python src/dhammapada_rag/index/chunks.py               # -> data/index/chunks.jsonl
-python src/dhammapada_rag/index/embed.py                # BGE-M3 -> dense/sparse/colbert
-
-# Query via CLI (Phase 3: retrieve small, return whole)
-python src/dhammapada_rag/index/search.py "<query>"      # hybrid RRF search only
-python src/dhammapada_rag/index/rerank.py "<query>"       # + cross-encoder rerank
-python src/dhammapada_rag/index/assemble.py "<query>"     # + parent-group assembly (full pipeline)
-
-# Generate a layer-attributed answer via CLI (Phase 4)
-python src/dhammapada_rag/generate/generate.py "<question>" [--model qwen2.5:1.5b-instruct]
+```bibtex
+@software{dhammapada_rag_2026,
+  title  = {Dhammapada-RAG: Layer-Attributed Retrieval-Augmented Generation
+            over the Dhammapada and its Commentary},
+  author = {Mihindupura Sujeewa},
+  year   = {2026},
+  url    = {https://github.com/mihinbuilds/dhammapada-rag}
+}
 ```
 
-## Running the API
+## Acknowledgements
 
-```
-uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
-```
-
-Models load once at startup (~5-10s); after that each `/query` takes ~3-5s on
-Apple Silicon (MPS) or an NVIDIA GPU (CUDA) -- falls back to slower CPU fp32
-automatically where neither is available, see `docs/indexing.md`. Device
-selection is logged to stderr at startup (`index/rerank.py`'s `best_device()`,
-shared by the reranker, the query-time embedder in `index/search.py`, and the
-corpus embedder in `index/embed.py`) so a silent CPU fallback on GPU hardware
-is visible rather than inferred from a slow run -- see `docs/evaluation.md`'s
-Round 6 section for why this matters even on a machine with a capable GPU.
-
-On Windows, set `PYTHONUTF8=1` before running any of the commands on this
-page -- the default terminal codepage (cp1252) cannot print Pali diacritics
-and will crash on them rather than degrade gracefully.
-
-Interactive docs at `http://127.0.0.1:8000/docs` (auto-generated from
-`src/dhammapada_rag/api/schemas.py`).
-
-| Endpoint | Method | Purpose |
-|---|---|---|
-| `/health` | GET | Liveness + corpus size sanity check |
-| `/query` | POST | `{"query": str, "top_k"?: 1-20, "candidates"?: 5-100}` -> ranked, deduped verse-groups, each with full Pali/translations/story text and the specific chunk that matched |
-| `/answer` | POST | `{"question": str, "top_k"?: 1-10, "candidates"?: 5-100, "model"?: str}` -> retrieval + Qwen2.5-7B generation, every claim tagged `verse`/`commentary`/`alignment`/`synthesis` with a citation, plus a `warnings` list from the provenance audit (see `docs/generation.md`) and the `sources` actually used |
-| `/verses/{verse_number}` | GET | Direct verse lookup (1-423) |
-| `/stories/{group_id}` | GET | Direct story lookup, e.g. `/stories/8.13` |
-| `/vaggas` | GET | The 26-vagga table (number, names, verse range) |
-| `/eval/summary` | GET | Passthrough of `data/eval/retrieval_metrics.json` (gold set v1) + `retrieval_metrics_v2.json` (gold set v2) + `generation_metrics.json` + a summarized model-size sweep, for the web app's Evaluation dashboard |
-
-CORS is open to `http://localhost:3000` by default (the Next.js dev server);
-override with a comma-separated `DHAMMAPADA_CORS_ORIGINS` env var for other
-origins.
-
-`/answer` requires Ollama running locally (`ollama serve`) with the model
-pulled; ~3-20s per call depending on answer length.
-
-Examples:
-
-```
-curl -X POST http://127.0.0.1:8000/query \
-  -H "Content-Type: application/json" \
-  -d '{"query": "the woman whose child died", "top_k": 3}'
-
-curl -X POST http://127.0.0.1:8000/answer \
-  -H "Content-Type: application/json" \
-  -d '{"question": "why did the Buddha teach Kisa Gotami about mustard seeds?", "top_k": 2}'
-```
-
-## Running the evaluation
-
-```
-python data/eval/build_gold_set.py                       # -> data/eval/gold_set.jsonl (120 questions)
-python src/dhammapada_rag/eval/retrieval_eval.py          # -> retrieval_results.jsonl (114 retrievable questions, ~4s/query)
-python src/dhammapada_rag/eval/aggregate_retrieval.py     # -> retrieval_metrics.json, prints per-type + ablation tables
-python src/dhammapada_rag/eval/generation_metrics.py      # -> generation_raw.jsonl (20-question stratified sample)
-# review generation_raw.jsonl, then judge each claim in data/eval/generation_judgments.py (see docs/eval_rubric.md)
-python src/dhammapada_rag/eval/aggregate_generation.py    # -> generation_metrics.json
-python src/dhammapada_rag/eval/model_sweep.py             # -> model_sweep_results.jsonl (1.5B/7B/14B, ~25min total)
-```
-
-Full results and discussion: `docs/evaluation.md`. Rubric and annotator-status
-caveats (read this before trusting any number): `docs/eval_rubric.md`.
-
-## UI
-
-A web front end (`web/`) against the FastAPI service above -- four routes:
-**Ask** (query + optional layer-attributed generation, animated claim cards,
-provenance warnings, expandable sources), **Corpus** (vagga browser +
-verse/story lookup), **Evaluation** (retrieval metrics and ablations on either gold set, generation
-metrics, model-size sweep, pulled live from `data/eval/` via `/eval/summary`),
-and **Method & notes**. Built with Next.js (App Router) + TypeScript +
-Tailwind, with a paper/ink design language, layer color-coding, and dark mode.
-
-```
-# Terminal 1 -- API, with the Next dev server's origin allowed via CORS
-uvicorn dhammapada_rag.api.main:app --app-dir src --host 127.0.0.1 --port 8000
-
-# Terminal 2 -- web app
-cd web
-npm install    # first time only
-npm run dev
-```
-
-Opens at `http://localhost:3000`. `web/.env.local` points it at the API
-(`NEXT_PUBLIC_API_BASE_URL`, default `http://localhost:8000`). `/answer`
-(the Ask page's "Generate layer-attributed answer" option) requires Ollama
-running locally, same as the API section above; with it off, or if
-generation fails, the page falls back to showing retrieval-only results.
-
-## Licence and citation
-
-Code (`src/`, `tests/`, `web/`) is MIT; see `LICENSE`. The text data under
-`data/` is derived partly from CC BY-SA sources, so it is CC BY-SA 4.0 with
-upstream attribution; see `DATA_LICENSE.md` for per-source terms. Ānandajoti
-Bhikkhu's written permission to use his texts and release the derived data is
-in [`sources/PERMISSION.md`](sources/PERMISSION.md). To cite the project, use
-`CITATION.cff`.
+**Ānandajoti Bhikkhu**, for the editions this project depends on and for
+permission to build on them. **Bhikkhu Sujato** and **SuttaCentral**, for the
+CC0 Pali and English texts. **E. W. Burlingame**, whose 1921 *Buddhist Legends*
+underlies the commentary translation.
