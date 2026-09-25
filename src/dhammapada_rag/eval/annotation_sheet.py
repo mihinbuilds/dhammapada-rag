@@ -12,6 +12,9 @@ the second annotator ever seeing the first one's labels.
   kappa   Reads the filled CSV and compares it with annotator 1's labels
           (candidate is in gold_group_ids) -- Cohen's kappa overall and per
           subtype, raw agreement, and every disagreement listed for review.
+          Scores whatever rows have a 0/1 `relevant` value and reports how
+          many were still blank, rather than refusing a partially-filled
+          sheet -- a realistic stopping point, not an error.
 
 What kappa here measures: agreement on "does this story answer this
 question", over the stories a retriever actually surfaced. That is the
@@ -92,7 +95,11 @@ def build(per_category: int | None, out_path: Path) -> None:
                 verse_text = " / ".join(f"Dhp {v}: {verses[v]['english_sujato']}" for v in s["dhp_verses"])
                 w.writerow([q["question_id"], q["question"], g, s["title_en"], s["synopsis"] or "", verse_text, "", ""])
                 n_rows += 1
-    print(f"Wrote {n_rows} rows for {len(gold)} questions to {out_path.relative_to(ROOT)}")
+    try:
+        shown = out_path.relative_to(ROOT)
+    except ValueError:
+        shown = out_path  # --out pointed outside the repo (e.g. a scratch path)
+    print(f"Wrote {n_rows} rows for {len(gold)} questions to {shown}")
     print(f"Instructions for the annotator:\n  {INSTRUCTIONS}")
 
 
@@ -108,10 +115,26 @@ def cohen_kappa(a: list[int], b: list[int]) -> float:
 
 def kappa(filled: Path, out_path: Path) -> None:
     gold = {q["question_id"]: q for q in _load_jsonl(ROOT / "data/eval/gold_set_v2.jsonl")}
-    rows = list(csv.DictReader(filled.open(encoding="utf-8")))
-    unlabeled = [r for r in rows if r["relevant"].strip() not in ("0", "1")]
-    if unlabeled:
-        raise SystemExit(f"{len(unlabeled)} rows have no 0/1 in `relevant` (first: {unlabeled[0]['question_id']} {unlabeled[0]['candidate_group_id']})")
+    all_rows = list(csv.DictReader(filled.open(encoding="utf-8")))
+
+    # A blank `relevant` cell means "not yet judged" -- realistic for someone
+    # who filled in 200 of 507 rows and stopped -- and is scored on whatever
+    # subset is complete rather than refused outright. Anything non-blank
+    # that isn't 0/1 (a stray "y", a typo) is still a hard error: it's not
+    # incompleteness, it's a formatting mistake that would silently corrupt
+    # the count if scored as-is.
+    malformed = [r for r in all_rows if r["relevant"].strip() and r["relevant"].strip() not in ("0", "1")]
+    if malformed:
+        raise SystemExit(
+            f"{len(malformed)} rows have a `relevant` value that isn't blank or 0/1 "
+            f"(first: {malformed[0]['question_id']} {malformed[0]['candidate_group_id']} = {malformed[0]['relevant']!r})"
+        )
+    rows = [r for r in all_rows if r["relevant"].strip() in ("0", "1")]
+    n_unlabeled = len(all_rows) - len(rows)
+    if not rows:
+        raise SystemExit("0 rows have a 0/1 `relevant` value -- nothing to score yet")
+    if n_unlabeled:
+        print(f"note: {n_unlabeled}/{len(all_rows)} rows are still blank; scoring the {len(rows)} that are filled in")
 
     pairs: dict[str, list[tuple[int, int]]] = defaultdict(list)
     disagreements = []
@@ -125,7 +148,13 @@ def kappa(filled: Path, out_path: Path) -> None:
             disagreements.append({"question_id": r["question_id"], "question": q["question"], "candidate": r["candidate_group_id"],
                                   "title": r["title"], "annotator_1": a1, "annotator_2": a2, "comment": r["comment"]})
 
-    report = {"n_rows": len(rows), "n_questions": len({r["question_id"] for r in rows}), "by": {}}
+    report = {
+        "n_rows_total": len(all_rows),
+        "n_rows_scored": len(rows),
+        "n_unlabeled": n_unlabeled,
+        "n_questions": len({r["question_id"] for r in rows}),
+        "by": {},
+    }
     for key, ps in sorted(pairs.items(), key=lambda kv: (kv[0] != "overall", kv[0])):
         a, b = [x for x, _ in ps], [y for _, y in ps]
         report["by"][key] = {

@@ -40,18 +40,37 @@ be computed from them.
 
 **Materials for a second human pass exist but have not been used.**
 `src/dhammapada_rag/eval/annotation_sheet.py build` generates a blind CSV
-over the v2 gold set (`data/eval/annotation_v2_blank.csv`, currently 507
-rows / 72 questions): candidates are the gold stories, the named
-distractors, and each retrieval condition's top 3, shuffled per question
-with no column indicating which is gold. `docs/annotator_brief.md` is a
-one-page, no-context-assumed brief for whoever fills it in. Once it comes
-back, `annotation_sheet.py kappa <filled.csv>` compares it against
-annotator 1's labels (`gold_group_ids`) and reports Cohen's kappa overall
-and per subtype, plus every disagreement, to `data/eval/iaa_v2.json`. This
-covers retrieval relevance only (the judgment every number in
-`docs/evaluation.md`'s retrieval section rests on), not generation-claim
-judgments, which would need a separate blind pass. Until someone actually
-runs it, the paragraph above still holds: no IAA statistic exists yet.
+over the v2 gold set: a 30-question stratified sample
+(`data/eval/annotation_v2_sample30.csv`, 208 rows, the primary ask -- see
+`docs/annotator_brief.md`) and the full set (`data/eval/annotation_v2_blank.csv`,
+507 rows / 72 questions, optional). Candidates are the gold stories, the
+named distractors, and each retrieval condition's top 3, shuffled per
+question with no column indicating which is gold; verified by checking
+that the gold story's position in the shuffled row order isn't clustered at
+any index (it isn't, on either file). `docs/annotator_brief.md` is a
+one-page, no-context-assumed brief for whoever fills it in. Once a filled
+sheet comes back -- complete or partial; blank rows are scored as "not yet
+judged," not an error -- `annotation_sheet.py kappa <filled.csv>` compares
+it against annotator 1's labels (`gold_group_ids`) and reports Cohen's
+kappa overall and per subtype, plus every disagreement, to
+`data/eval/iaa_v2.json`. This covers retrieval relevance only (the judgment
+every number in `docs/evaluation.md`'s retrieval section rests on), not
+generation-claim judgments, which would need a separate blind pass. Until
+someone actually runs it, the paragraph above still holds: no IAA statistic
+exists yet.
+
+**What a given kappa will mean, calibrated against synthetic sheets.**
+Before handing this to anyone, the `kappa` command was tested against two
+sheets built from annotator 1's own labels: an exact copy scored
+κ = 1.000 (all 507 rows), and a copy with 10% of labels independently
+flipped at random scored **κ = 0.704 overall** (range 0.579-0.787 across
+the six subtypes), raw agreement 0.897. That is a concrete anchor for
+reading the real number when it comes back: on this gold set, roughly one
+disagreement in ten rows lands around κ ≈ 0.70, not the "moderate
+agreement" a textbook threshold table would suggest in the abstract.
+Conventional bands (e.g. Landis & Koch's ≥0.81 "almost perfect", 0.61-0.80
+"substantial") still apply, but now have a project-specific reference point
+rather than being read cold.
 
 ## Construction method
 
