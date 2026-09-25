@@ -346,6 +346,7 @@ generation fails, the page falls back to showing retrieval-only results.
 
 Code (`src/`, `tests/`, `web/`) is MIT; see `LICENSE`. The text data under
 `data/` is derived partly from CC BY-SA sources, so it is CC BY-SA 4.0 with
-upstream attribution; see `DATA_LICENSE.md` for per-source terms and the one
-open caveat, which is the narrative PDF's licence. To cite the project, use
+upstream attribution; see `DATA_LICENSE.md` for per-source terms. Ānandajoti
+Bhikkhu's written permission to use his texts and release the derived data is
+in [`sources/PERMISSION.md`](sources/PERMISSION.md). To cite the project, use
 `CITATION.cff`.
