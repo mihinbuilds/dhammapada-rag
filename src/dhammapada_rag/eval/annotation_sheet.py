@@ -136,7 +136,11 @@ def kappa(filled: Path, out_path: Path) -> None:
         print(f"  {key:20s} n={len(ps):4d}  kappa={report['by'][key]['cohen_kappa']:.3f}  agreement={report['by'][key]['raw_agreement']:.3f}")
     report["disagreements"] = disagreements
     out_path.write_text(json.dumps(report, indent=2, ensure_ascii=False), encoding="utf-8")
-    print(f"{len(disagreements)} disagreements; wrote {out_path.relative_to(ROOT)}")
+    try:
+        shown = out_path.relative_to(ROOT)
+    except ValueError:
+        shown = out_path  # --out pointed outside the repo (e.g. a scratch path)
+    print(f"{len(disagreements)} disagreements; wrote {shown}")
 
 
 def main() -> None:
