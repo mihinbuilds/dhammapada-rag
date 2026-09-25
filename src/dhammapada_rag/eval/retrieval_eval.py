@@ -148,6 +148,20 @@ def mrr(rank: int | None) -> float:
     return 1.0 / rank if rank is not None else 0.0
 
 
+def gold_recall_at_10(top10_story_ids: list[list[str]], gold_group_ids: list[str]) -> float:
+    """Fraction of ALL gold groups present in the top 10 (bundles, or chunks for flat).
+
+    The first-hit metrics above only ask whether *some* gold group was found,
+    which is the right question for single-gold questions and the wrong one
+    for gold_set_v2's multi-gold thematic questions, where finding one of four
+    relevant stories is a partial answer. Equals recall@10 when there is
+    exactly one gold group.
+    """
+    gold = set(gold_group_ids)
+    found = {g for story_ids in top10_story_ids for g in story_ids if g in gold}
+    return len(found) / len(gold)
+
+
 def score(rank: int | None) -> dict:
     return {
         "rank": rank,
@@ -246,8 +260,15 @@ class EvalRunner:
 
 
 def main() -> None:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--gold", default="data/eval/gold_set.jsonl", help="gold set, relative to repo root")
+    ap.add_argument("--out", default="data/eval/retrieval_results.jsonl", help="per-question output, relative to repo root")
+    args = ap.parse_args()
+
     index_dir = ROOT / "data" / "index"
-    gold = [json.loads(l) for l in (ROOT / "data" / "eval" / "gold_set.jsonl").read_text(encoding="utf-8").splitlines()]
+    gold = [json.loads(l) for l in (ROOT / args.gold).read_text(encoding="utf-8").splitlines()]
     retrievable = [q for q in gold if q["gold_group_ids"]]
     print(
         f"Running retrieval eval over {len(retrievable)}/{len(gold)} chunk-retrievable "
@@ -268,6 +289,12 @@ def main() -> None:
         row = {"question_id": q["question_id"], "type": q["type"], "subtype": q.get("subtype"), "gold_group_ids": q["gold_group_ids"]}
         for cond in ("baseline", "verse_only", "dense_only", "no_rerank"):
             row[cond] = score(rank_of_hit(result[cond], q["gold_group_ids"]))
+            row[cond]["gold_recall@10"] = gold_recall_at_10(result[cond][:10], q["gold_group_ids"])
+            # The ranked story lists themselves, not just the rank of the first
+            # hit: a second annotator's blind relevance pass needs to judge
+            # what the system actually returned (see
+            # src/dhammapada_rag/eval/annotation_sheet.py).
+            row[cond]["top10"] = result[cond][:10]
 
         gold_set = set(q["gold_group_ids"])
         flat_rank = None
@@ -276,13 +303,16 @@ def main() -> None:
                 flat_rank = r
                 break
         row["flat"] = score(flat_rank)
+        row["flat"]["gold_recall@10"] = gold_recall_at_10(
+            [runner.chunk_story_ids[idx] for idx in result["flat_chunk_order"][:10]], q["gold_group_ids"]
+        )
 
         per_question.append(row)
         if (i + 1) % 20 == 0:
             elapsed = time.time() - t0
             print(f"  {i+1}/{len(retrievable)} ({elapsed:.0f}s elapsed, ~{elapsed/(i+1):.1f}s/query)")
 
-    out_path = ROOT / "data" / "eval" / "retrieval_results.jsonl"
+    out_path = ROOT / args.out
     with out_path.open("w", encoding="utf-8") as f:
         for row in per_question:
             f.write(json.dumps(row, ensure_ascii=False) + "\n")

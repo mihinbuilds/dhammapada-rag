@@ -38,8 +38,16 @@ def mean(xs):
     return sum(xs) / len(xs) if xs else 0.0
 
 
+def metrics_present(rows: list[dict]) -> list[str]:
+    """METRICS, plus gold_recall@10 when every row carries it (results files
+    written before it existed don't)."""
+    extra = ["gold_recall@10"] if rows and all("gold_recall@10" in r["baseline"] for r in rows) else []
+    return METRICS + extra
+
+
 def aggregate(rows: list[dict]) -> dict:
-    return {cond: {m: round(mean([r[cond][m] for r in rows]), 4) for m in METRICS} for cond in CONDITIONS}
+    ms = metrics_present(rows)
+    return {cond: {m: round(mean([r[cond][m] for r in rows]), 4) for m in ms} for cond in CONDITIONS}
 
 
 def delta_ci(rows: list[dict], cond: str, metric: str, n: int = BOOTSTRAP_N) -> tuple[float, float]:
@@ -62,7 +70,14 @@ def delta_ci(rows: list[dict], cond: str, metric: str, n: int = BOOTSTRAP_N) -> 
 
 
 def main():
-    rows = [json.loads(l) for l in (ROOT / "data" / "eval" / "retrieval_results.jsonl").read_text(encoding="utf-8").splitlines()]
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.split("\n")[0])
+    ap.add_argument("--results", default="data/eval/retrieval_results.jsonl", help="relative to repo root")
+    ap.add_argument("--out", default="data/eval/retrieval_metrics.json", help="relative to repo root")
+    args = ap.parse_args()
+
+    rows = [json.loads(l) for l in (ROOT / args.results).read_text(encoding="utf-8").splitlines()]
     has_subtype = all("subtype" in r for r in rows)
 
     report = {"n_questions": len(rows), "overall": aggregate(rows), "by_type": {}, "by_subtype": {}}
@@ -82,6 +97,7 @@ def main():
             f"  {cond:12s}  R@1={m['recall@1']:.3f}  R@3={m['recall@3']:.3f}  "
             f"R@5={m['recall@5']:.3f}  R@10={m['recall@10']:.3f}  "
             f"nDCG@10={m['ndcg@10']:.3f}  MRR={m['mrr']:.3f}"
+            + (f"  goldR@10={m['gold_recall@10']:.3f}" if "gold_recall@10" in m else "")
         )
 
     print("\n=== BY QUERY TYPE (baseline condition) ===")
@@ -121,7 +137,18 @@ def main():
     )
 
     report["ablation_deltas_ndcg10"] = deltas
-    out_path = ROOT / "data" / "eval" / "retrieval_metrics.json"
+    if "gold_recall@10" in metrics_present(rows):
+        print("\n=== ABLATION DELTAS, baseline - variant, gold_recall@10 [95% CI] ===")
+        gdeltas = {}
+        for cond in ["verse_only", "dense_only", "no_rerank", "flat"]:
+            d = round(report["overall"]["baseline"]["gold_recall@10"] - report["overall"][cond]["gold_recall@10"], 4)
+            lo, hi = delta_ci(rows, cond, "gold_recall@10")
+            sig = "" if lo <= 0 <= hi else "  *"
+            gdeltas[cond] = {"delta": d, "ci": [lo, hi]}
+            print(f"  baseline - {cond:12s}  {d:+.3f}  [{lo:+.3f}, {hi:+.3f}]{sig}")
+        report["ablation_deltas_gold_recall10"] = gdeltas
+
+    out_path = ROOT / args.out
     out_path.write_text(json.dumps(report, indent=2), encoding="utf-8")
     print(f"\nWrote {out_path}")
 
