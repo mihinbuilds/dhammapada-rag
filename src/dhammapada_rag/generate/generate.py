@@ -1,4 +1,4 @@
-"""Generation with enforced layer attribution (DhammapadaRAG.txt Phase 4).
+"""Generation with enforced layer attribution (docs/project_plan.md Phase 4).
 
 Uses Ollama's structured-output support (`format: <json schema>`, grammar-
 constrained decoding, not just prompted JSON) to guarantee every response

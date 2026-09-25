@@ -1,5 +1,5 @@
 """Embed the chunk corpus with BGE-M3: dense + sparse (lexical) + multi-vector
-(ColBERT) from one multilingual model, per DhammapadaRAG.txt Phase 2 --
+(ColBERT) from one multilingual model, per docs/project_plan.md Phase 2 --
 diverging from bge-small-en-v1.5 (English-only; Pali would be near-random
 noise in that space).
 

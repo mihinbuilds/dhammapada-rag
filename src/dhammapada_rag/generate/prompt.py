@@ -1,6 +1,6 @@
 """Build the layer-labeled context and chat messages fed to the generator.
 
-The prompt's entire job, per DhammapadaRAG.txt Phase 4, is to "force the
+The prompt's entire job, per docs/project_plan.md Phase 4, is to "force the
 distinction your project exists to make": present VERSE and COMMENTARY as
 visibly separate blocks, name the ~8-century gap between them explicitly, and
 require every claim in the response to be tagged which one it came from (or

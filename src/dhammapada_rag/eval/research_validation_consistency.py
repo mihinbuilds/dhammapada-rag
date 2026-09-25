@@ -1,4 +1,4 @@
-"""Section H of dhammapada_research_validation.md: consistency checks, a
+"""Section H of docs/dhammapada_research_validation.md: consistency checks, a
 different shape of experiment from the A-G grid (research_validation.py) --
 repeated/varied calls to the SAME condition rather than one call per
 condition. Kept as its own script because Q34 specifically needs the real

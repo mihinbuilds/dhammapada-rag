@@ -1,5 +1,5 @@
 """Cross-encoder second-stage reranking with bge-reranker-v2-m3, per
-DhammapadaRAG.txt Phase 2 ("Pair it with bge-reranker-v2-m3 as a cross-encoder
+docs/project_plan.md Phase 2 ("Pair it with bge-reranker-v2-m3 as a cross-encoder
 second stage").
 
 Cross-encoders score a (query, passage) pair jointly (no separate embeddings),

@@ -1,5 +1,5 @@
 """Structured output schema enforcing layer attribution, per
-DhammapadaRAG.txt Phase 4: "Require structured output where every claim
+docs/project_plan.md Phase 4: "Require structured output where every claim
 carries a layer tag (verse / commentary / synthesis) and a group_id.
 Conflating the two layers is the failure mode; make the output format make
 it visible."

@@ -23,7 +23,7 @@ CC0/CC-BY-SA layers (see sources/external/PROVENANCE.md):
 
   - Pali: Mahasangiti edition via SuttaCentral (CC0), all 423 verses.
   - English: Bhikkhu Sujato's translation via SuttaCentral (CC0), all 423
-    verses -- also incidentally fulfilling DhammapadaRAG.txt's original
+    verses -- also incidentally fulfilling docs/project_plan.md's original
     "two English translations" ask.
   - Interlinear phrase-level gloss + notes: Anandajoti Bhikkhu's 2017
     interlinear edition (CC BY-SA 4.0), all 423 verses -- the closest
@@ -31,7 +31,7 @@ CC0/CC-BY-SA layers (see sources/external/PROVENANCE.md):
 
 The narrative source's own Pali/English quotations (where present) are kept
 too, tagged with which story they came from, since a verse's *narrative*
-recitation context (see DhammapadaRAG.txt Phase 3's parent-assembly design)
+recitation context (see docs/project_plan.md Phase 3's parent-assembly design)
 is meaningfully different from a standalone critical-edition quotation of the
 same verse, even when the words are nearly identical. Per
 docs/corpus_source_ownership.md's Stage 1 table ("the PDF stops owning the

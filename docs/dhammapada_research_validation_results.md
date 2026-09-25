@@ -1,6 +1,6 @@
 # Research validation results
 
-Results for `dhammapada_research_validation.md`. That file is the spec (questions,
+Results for `docs/dhammapada_research_validation.md`. That file is the spec (questions,
 conditions, what each is supposed to demonstrate); this file is the run and the
 judgment. Single annotator (Claude), one pass — same "Annotator status" caveat
 as `docs/eval_rubric.md`: no inter-annotator agreement is claimed anywhere here.
@@ -685,7 +685,7 @@ before comparing this to `full`:
 
 ## What this changes about the committee-question prep
 
-(`dhammapada_research_validation.md`'s own final section — not duplicated
+(`docs/dhammapada_research_validation.md`'s own final section — not duplicated
 here, only updated where these results bear on it directly.)
 
 - **Q7 ("what does failure look like?")**: this run adds concrete new

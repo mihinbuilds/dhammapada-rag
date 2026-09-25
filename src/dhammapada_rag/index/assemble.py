@@ -1,4 +1,4 @@
-"""Parent-group assembly: "retrieve small, return whole" (DhammapadaRAG.txt
+"""Parent-group assembly: "retrieve small, return whole" (docs/project_plan.md
 Phase 3). A search/rerank hit is a small chunk (one verse's Pali, one story's
 title line, one window of a narrative); this resolves it back to its full
 verse-group -- the Dhp verse(s) a story explains, all sourced text for those

@@ -1,7 +1,7 @@
 """Tests for index/chunks.py's _strip_closing_verse_quote.
 
 Found via a research-validation cross-layer retrieval failure (Q16/Q26,
-dhammapada_research_validation_results.md): short single-verse stories quote
+docs/dhammapada_research_validation_results.md): short single-verse stories quote
 their own featured Dhp verse verbatim in their closing lines ("...he
 pronounced the following verse: <Pali>. <English>"), so their nominally
 commentary-only chunk out-competes the true verse-layer chunk on any query

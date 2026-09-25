@@ -1,4 +1,4 @@
-"""Research validation set (dhammapada_research_validation.md): "what can
+"""Research validation set (docs/dhammapada_research_validation.md): "what can
 this system do that a simpler one cannot?" Distinct from retrieval_eval.py
 (Recall/nDCG/MRR against a gold set) and generation_metrics.py (layer-
 attribution accuracy on the production system) -- this asks a different
@@ -91,7 +91,7 @@ SEED = 20260813
 CONDITIONS = ("no_retrieval", "verse_only", "commentary_only", "flat", "full", "production_full")
 
 # --------------------------------------------------------------------------
-# The 35 questions, transcribed from dhammapada_research_validation.md.
+# The 35 questions, transcribed from docs/dhammapada_research_validation.md.
 # `section` is the letter (A-H); H is handled separately (main() skips it
 # in the grid loop). `note` carries the doc's own "watch for" / analysis
 # text, printed alongside the answer in the results file so a reader isn't

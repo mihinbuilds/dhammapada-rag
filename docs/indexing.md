@@ -1,6 +1,6 @@
 # Indexing (Phase 2) design notes
 
-Implements `DhammapadaRAG.txt` Phase 2: "Diverge from the paper on
+Implements `docs/project_plan.md` Phase 2: "Diverge from the paper on
 embeddings... Use BGE-M3... Pair it with bge-reranker-v2-m3 as a cross-encoder
 second stage... For fusion, use Reciprocal Rank Fusion."
 
@@ -121,7 +121,7 @@ and returns up to `top_k` distinct groups.
 
 ## Verified against the spec's own example
 
-`DhammapadaRAG.txt` Phase 3: "A hit on the story index for 'the woman whose
+`docs/project_plan.md` Phase 3: "A hit on the story index for 'the woman whose
 child died' returns Dhp 114 with its Pali, both translations, and Kisāgotamī's
 story." Running that exact query returns, among the top 3 distinct
 verse-groups: **Dhp 114 / story 8.13** (the mustard-seed parable) with full

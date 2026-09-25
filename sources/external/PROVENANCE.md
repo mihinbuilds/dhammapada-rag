@@ -12,7 +12,7 @@ layer, and unconfirmed licensing on the narrative source's revision layer.
   vagga's verse range, e.g. `dhp1-20_root-pli-ms.json`).
 - Fetched via: `curl` from
   `https://raw.githubusercontent.com/suttacentral/bilara-data/published/...`
-- Text basis: Mahāsaṅgīti edition (the exact edition `DhammapadaRAG.txt`'s
+- Text basis: Mahāsaṅgīti edition (the exact edition `docs/project_plan.md`'s
   original plan specified), collated by the Dhamma Society, as adopted and
   segment-ID-tagged by SuttaCentral.
 - License: **CC0 1.0 Universal (public domain dedication)**. Confirmed by
@@ -31,7 +31,7 @@ layer, and unconfirmed licensing on the narrative source's revision layer.
 - Translator: Bhikkhu Sujato.
 - License: CC0, same basis as above.
 - Not one of the four gaps this fetch targeted, but directly fills
-  `DhammapadaRAG.txt`'s original Phase 1 item 1 ask for "two English
+  `docs/project_plan.md`'s original Phase 1 item 1 ask for "two English
   translations," which the single-PDF prototype had been deviating from.
   Ingested as a bonus since it was zero extra licensing risk once the Pali
   fetch was already in progress.

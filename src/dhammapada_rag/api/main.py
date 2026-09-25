@@ -85,7 +85,7 @@ app = FastAPI(
     description=(
         "Hybrid RRF search (BGE-M3 dense+sparse+ColBERT) + bge-reranker-v2-m3 "
         "cross-encoder + parent-group assembly over the Dhammapada verse/"
-        "commentary corpus. See DhammapadaRAG.txt Phases 2-3."
+        "commentary corpus. See docs/project_plan.md Phases 2-3."
     ),
     version="0.2.0",
     lifespan=lifespan,

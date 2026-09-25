@@ -30,7 +30,7 @@ The code that runs and scores the evaluation is in
 | `rrf_k_sweep_results.json` | `eval.rrf_k_sweep` | fusion-constant sweep |
 | `arm_diagnosis_results.json` | `eval.arm_diagnosis` | whether one retrieval arm dominates RRF fusion |
 | `tag_stability_results.json` | `eval.tag_stability` | layer-tag stability across paraphrases of the same question |
-| `research_validation_*.json(l)` | `eval.research_validation`, `eval.research_validation_consistency` | the 32-question research validation grid (see `dhammapada_research_validation_results.md`) |
+| `research_validation_*.json(l)` | `eval.research_validation`, `eval.research_validation_consistency` | the 32-question research validation grid (see `docs/dhammapada_research_validation_results.md`) |
 | `annotation_v2_blank.csv`, `annotation_v2_sample30.csv` | `eval.annotation_sheet` | blind second-annotator sheets (full, and the 30-question sample; see `docs/annotator_brief.md`) |
 | `archive_pre_fix/`, `archive_round1_post_fix/` | — | results from before the bug-fix phases and after round 1, kept for the comparisons in `docs/evaluation.md` |
 
