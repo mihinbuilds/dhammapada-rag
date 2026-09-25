@@ -1,0 +1,16 @@
+# Normalize text files to LF in the repository and the working tree, so a
+# checkout on Windows doesn't show every data/eval file as modified with a
+# line-ending-only diff (see docs/status_report.md §1).
+* text=auto eol=lf
+
+# Upstream source files are kept byte-for-byte as fetched (three of the
+# Anandajoti interlinear .htm files are CRLF upstream); never convert them.
+sources/** -text
+
+# Binary
+*.pdf  binary
+*.ico  binary
+*.png  binary
+*.jpg  binary
+*.npy  binary
+*.pkl  binary

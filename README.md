@@ -341,3 +341,11 @@ Opens at `http://localhost:3000`. `web/.env.local` points it at the API
 (the Ask page's "Generate layer-attributed answer" option) requires Ollama
 running locally, same as the API section above; with it off, or if
 generation fails, the page falls back to showing retrieval-only results.
+
+## Licence and citation
+
+Code (`src/`, `tests/`, `web/`) is MIT; see `LICENSE`. The text data under
+`data/` is derived partly from CC BY-SA sources, so it is CC BY-SA 4.0 with
+upstream attribution; see `DATA_LICENSE.md` for per-source terms and the one
+open caveat, which is the narrative PDF's licence. To cite the project, use
+`CITATION.cff`.
