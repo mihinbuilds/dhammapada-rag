@@ -43,7 +43,11 @@ be computed from them.
 over the v2 gold set: a 30-question stratified sample
 (`data/eval/annotation_v2_sample30.csv`, 208 rows, the primary ask -- see
 `docs/annotator_brief.md`) and the full set (`data/eval/annotation_v2_blank.csv`,
-507 rows / 72 questions, optional). Candidates are the gold stories, the
+507 rows / 72 questions, optional). **The 30 are a stratified sample, not a
+random one: `build --per-category 5` draws 5 questions per subtype (6
+subtypes x 5 = 30) via `random.Random(SEED).sample(...)` per subtype,
+`SEED = 20260924`, deterministic and reproducible from that seed and the
+`--per-category 5` argument alone.** Candidates are the gold stories, the
 named distractors, and each retrieval condition's top 3, shuffled per
 question with no column indicating which is gold; verified by checking
 that the gold story's position in the shuffled row order isn't clustered at
@@ -60,17 +64,24 @@ someone actually runs it, the paragraph above still holds: no IAA statistic
 exists yet.
 
 **What a given kappa will mean, calibrated against synthetic sheets.**
-Before handing this to anyone, the `kappa` command was tested against two
-sheets built from annotator 1's own labels: an exact copy scored
-κ = 1.000 (all 507 rows), and a copy with 10% of labels independently
-flipped at random scored **κ = 0.704 overall** (range 0.579-0.787 across
-the six subtypes), raw agreement 0.897. That is a concrete anchor for
-reading the real number when it comes back: on this gold set, roughly one
-disagreement in ten rows lands around κ ≈ 0.70, not the "moderate
-agreement" a textbook threshold table would suggest in the abstract.
-Conventional bands (e.g. Landis & Koch's ≥0.81 "almost perfect", 0.61-0.80
-"substantial") still apply, but now have a project-specific reference point
-rather than being read cold.
+Before handing this to anyone, the `kappa` command was tested against
+sheets built from annotator 1's own labels with 10% independently flipped
+at random. On the full 507-row sheet (5 replicate noise seeds): κ = 0.704,
+0.720, 0.738, 0.681, 0.696 -- mean 0.708, sd 0.022. On the 208-row sample
+actually going out first: κ = 0.677, 0.682, 0.710, 0.645, 0.710 -- **mean
+0.685, sd 0.027**, range 0.645-0.710. The anchor for the study that will
+actually run is the 208-row number, not the 507-row one: it is a bit lower
+and, as expected from the smaller n, swings a bit more from one replicate
+to the next (sd 0.027 vs 0.022, range width 0.065 vs 0.057 across only 5
+seeds -- not a precise confidence interval, but enough to show the
+direction and rough size of the widening). Reading practical implication:
+on either sheet, one disagreement in ten rows lands around κ ≈ 0.68-0.71,
+not the "moderate agreement" a textbook threshold table would suggest in
+the abstract, and on the 208-row sheet specifically, don't over-read a
+single point estimate that lands a few hundredths away from that band --
+the noise alone moves it that much. Conventional bands (e.g. Landis &
+Koch's ≥0.81 "almost perfect", 0.61-0.80 "substantial") still apply, but
+now have a project-specific reference point rather than being read cold.
 
 ## Construction method
 
