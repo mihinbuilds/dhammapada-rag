@@ -6,7 +6,7 @@ Aggregate numbers hide the interesting result."
 FIXES over the previous revision:
 
 1. SUBTYPE BREAKDOWN. build_gold_set now emits a `subtype` alongside `type`
-   (see data/eval/build_gold_set_PATCH.py). The cross_recension stratum was
+   (see "Bug 14 diagnosis" in data/eval/build_gold_set.py). The cross_recension stratum was
    three unrelated question kinds under one label; reporting only the type
    average made a labelling problem look like a retrieval weakness.
 

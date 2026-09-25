@@ -5,9 +5,9 @@ cross_recension (16) -- per docs/eval_rubric.md.
 Bug 14 fix: `type` used to have four values, with a `cross_recension`
 stratum that actually mixed three different question kinds (verse-grouping
 lookups, genuine CST4 edition-title variance, corpus anomalies) under one
-label -- see build_gold_set_PATCH.py's WHY section. Every entry now also
-carries a `subtype`: doctrinal/philological/narrative subtypes equal their
-type; the other 30 questions split into subtypes verse_grouping (14, now
+label -- see "Bug 14 diagnosis" at the end of this docstring. Every entry
+now also carries a `subtype`: doctrinal/philological/narrative subtypes equal
+their type; the other 30 questions split into subtypes verse_grouping (14, now
 its own `alignment` type), cst4_title_variant (8), colophon_not_indexed (6),
 corpus_anomaly (2), the last three still under `cross_recension`.
 
@@ -26,6 +26,55 @@ question constant lists below (DOCTRINAL, PHILOLOGICAL, NARRATIVE,
 CROSS_RECENSION_COLOPHON, CROSS_RECENSION_MULTIVERSE, CROSS_RECENSION_CST4,
 CROSS_RECENSION_SPECIAL) are hand-written and unchanged by the bug 14 fix --
 only how they get resolved and typed below changed.
+
+--------------------------------------------------------------------------
+Bug 14 diagnosis. Carried over verbatim from build_gold_set_PATCH.py, which
+proposed this fix and was deleted once it had been applied (the file is
+still in git history: `git show 4e57cd9:data/eval/build_gold_set_PATCH.py`).
+Figures are from before the fix.
+
+The `cross_recension` stratum scores 0.54 against ~0.86 elsewhere, and
+that number has been read as a retrieval weakness. Reading the 30 questions
+against index/chunks.py shows it is mostly a labelling problem plus one
+concrete indexing bug:
+
+  CROSS_RECENSION_COLOPHON (6)   PTS story-count comparisons. Genuinely about
+                                 edition variance, but gold_group_ids=[] --
+                                 excluded from retrieval scoring by design.
+                                 Correctly handled already.
+
+  CROSS_RECENSION_MULTIVERSE (14) "Which single story explains Dhp 320-322?"
+                                 This is NOT recension comparison. It tests
+                                 the verse-to-story ALIGNMENT TABLE -- which
+                                 is the project's most valuable artifact, and
+                                 deserves to be its own named query type
+                                 rather than being buried inside a stratum it
+                                 has nothing to do with. Nearly half the
+                                 stratum is mislabelled.
+
+  CROSS_RECENSION_CST4 (8)       Burmese-edition title variants. Genuinely
+                                 cross-recension -- and the only sub-group
+                                 that is. BUT: cst4_title was never emitted as
+                                 a chunk by index/chunks.py, so these eight
+                                 questions were unanswerable by retrieval by
+                                 construction. The fixed chunks.py adds a
+                                 story_titles chunk carrying title_en,
+                                 title_pali, cst4_title, burlingame_title and
+                                 compare. Re-run the retrieval eval after
+                                 rebuilding the index before drawing any
+                                 conclusion about this sub-group.
+
+  CROSS_RECENSION_SPECIAL (2)    Dhp 416's two stories, and a verse-number
+                                 typo in the source PDF. Corpus anomalies, not
+                                 recension comparison.
+
+WHAT TO CLAIM IN THE PAPER. With 8 genuine cross-recension questions and no
+Udanavarga / Gandhari / Patna sources in the corpus, this stratum cannot
+support a claim about cross-recension retrieval. Either say so plainly, or
+ingest SuttaCentral's parallels data and build the stratum properly. What you
+CAN claim -- alignment-table lookup as a distinct, well-supported query type
+with 14 questions -- is a real contribution and is currently invisible because
+it is filed under the wrong name.
 """
 
 from __future__ import annotations
@@ -236,7 +285,7 @@ def resolve_by_group(entries, stories_by_id, qtype: str, subtype: str):
     variance, and corpus anomalies), which is most of why that stratum's
     aggregate score (0.54 against ~0.86 elsewhere) read as a retrieval
     weakness when it was largely a labelling problem -- see
-    build_gold_set_PATCH.py's WHY section for the full diagnosis.
+    "Bug 14 diagnosis" in the module docstring for the full account.
     """
     out = []
     for group_id, question, note in entries:
