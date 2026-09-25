@@ -54,7 +54,7 @@ Attribution for reuse of the derived data:
 > Sujato's translation (SuttaCentral, CC0); Ānandajoti Bhikkhu's
 > *Dhammapada* interlinear edition and his 2024 revision of E.W.
 > Burlingame's *Buddhist Legends* (ancient-buddhist-texts.net, CC BY-SA 4.0).
-> Compiled by Mihindupura Sujeewa, DhammapadaRAG, CC BY-SA 4.0.
+> Compiled by Sujeewa Mihindupura, DhammapadaRAG, CC BY-SA 4.0.
 
 ## Permission
 

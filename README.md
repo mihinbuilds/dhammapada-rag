@@ -296,7 +296,7 @@ at `docs/evaluation_pre_fix.md`.
 @software{dhammapada_rag_2026,
   title  = {Dhammapada-RAG: Layer-Attributed Retrieval-Augmented Generation
             over the Dhammapada and its Commentary},
-  author = {Mihindupura Sujeewa},
+  author = {Mihindupura, Sujeewa},
   year   = {2026},
   url    = {https://github.com/mihinbuilds/dhammapada-rag}
 }
