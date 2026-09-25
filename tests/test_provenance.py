@@ -333,6 +333,34 @@ def test_clean_commentary_claim_not_flagged_for_citation_in_text():
     assert "CITATION_IN_TEXT" not in codes(ws)
 
 
+def test_citation_in_text_flags_parenthetical_field_name_without_colon():
+    """Round 9, Task AG: the observed failure -- "the story explaining Dhp
+    194 (group_id 14.8) tells that..." -- has a space and a parenthesis
+    after the field name, not a colon. The pre-Round-9 colon-suffixed
+    markers ("group_id:", "verse_number:") missed this shape entirely."""
+    ws = audit(
+        answer(CommentaryClaim(
+            text="The story explaining Dhp 194 (group_id 14.8) tells that 500 bhikkhus debated.",
+            group_id="13.2", verse_number=168,
+        )),
+        BUNDLES,
+    )
+    assert "CITATION_IN_TEXT" in codes(ws)
+
+
+def test_citation_in_text_flags_pali_support_field_name_leak():
+    """pali_support is added to the marker set in Round 9 -- it can leak
+    into prose exactly like group_id/verse_number could already."""
+    ws = audit(
+        answer(CommentaryClaim(
+            text="As shown in pali_support, the verse describes the eightfold path.",
+            group_id="13.2", verse_number=168,
+        )),
+        BUNDLES,
+    )
+    assert "CITATION_IN_TEXT" in codes(ws)
+
+
 def test_prompt_never_renders_a_bare_labeled_citation_line_in_commentary_block():
     """Round 2 regression guard: the commentary block's citation must be a
     <<citation_fields ...>> marker, not a "group_id: X" / "cite this
@@ -708,6 +736,108 @@ def test_pali_quote_checked_against_story_pali_verse_too():
     )
     assert "PALI_QUOTE_NOT_IN_SOURCE" not in codes(ws)
     assert "PALI_QUOTE_ORTHOGRAPHIC_VARIANT" not in codes(ws)
+
+
+# --------------------------------------------------------------------------
+# Round 9, Task AE: a story's pali_verse quotes ONE verse of its (possibly
+# multi-verse) group; pali_verse_number says which. Live corpus example:
+# group 20.1 (dhp_verses [273, 274, 275, 276]) has pali_verse_number=273 --
+# its pali_verse is Dhp 273's own text, not a quote spanning all four
+# verses. Before the fix, pali_verse was attached to every verse in the
+# group, so a claim citing e.g. Dhp 274 could be "validated" against Pali
+# that actually belongs to sibling verse 273 -- real Pali from the retrieved
+# group, attached to the wrong verse within it, undetectable by construction.
+# --------------------------------------------------------------------------
+
+PALI_273 = "Maggānaṭṭhaṅgiko seṭṭho, saccānaṁ caturo padā"
+
+
+def test_pali_verse_not_attributed_to_sibling_verse_in_multi_verse_group():
+    b = bundle("20.1", [273, 274, 275, 276])
+    b["stories"][0]["pali_verse"] = PALI_273
+    b["stories"][0]["pali_verse_number"] = 273
+    ws = audit(
+        answer(VerseClaim(text="Dhp 274 states something.", group_id="20.1", verse_number=274,
+                           pali_support=PALI_273)),
+        [b],
+    )
+    assert "PALI_QUOTE_NOT_IN_SOURCE" in codes(ws)
+
+
+def test_pali_verse_still_validates_against_its_own_verse_number():
+    b = bundle("20.1", [273, 274, 275, 276])
+    b["stories"][0]["pali_verse"] = PALI_273
+    b["stories"][0]["pali_verse_number"] = 273
+    ws = audit(
+        answer(VerseClaim(text="Dhp 273 states something.", group_id="20.1", verse_number=273,
+                           pali_support=PALI_273)),
+        [b],
+    )
+    assert "PALI_QUOTE_NOT_IN_SOURCE" not in codes(ws)
+
+
+def test_pali_verse_falls_back_to_group_union_when_verse_number_absent():
+    """When pali_verse_number was not recorded (a parsing gap, not the
+    common case), fall back to the pre-fix behavior rather than losing a
+    legitimate match -- the brief's own instruction: match per cited verse
+    only, fall back to the group union only when verse_number is absent."""
+    b = bundle("20.1", [273, 274])
+    b["stories"][0]["pali_verse"] = PALI_273
+    ws = audit(
+        answer(VerseClaim(text="Dhp 274 states something.", group_id="20.1", verse_number=274,
+                           pali_support=PALI_273)),
+        [b],
+    )
+    assert "PALI_QUOTE_NOT_IN_SOURCE" not in codes(ws)
+
+
+# --------------------------------------------------------------------------
+# Round 9, Task AF: a match at "exact" or "variant" tier only says the
+# quoted words are real -- it says nothing about how much of the verse they
+# cover. Worked examples are the brief's own: Dhp 194 and Dhp 273, each
+# truncated to its first half (~50% coverage after orthographic folding,
+# below PALI_COVERAGE_THRESHOLD=0.6).
+# --------------------------------------------------------------------------
+
+DHP_194_FULL = "Sukho buddhānamuppādo, sukhā saddhammadesanā; Sukhā saṅghassa sāmaggī, samaggānaṁ tapo sukho."
+DHP_194_HALF = "Sukho buddhānamuppādo, sukhā saddhammadesanā"
+
+
+def test_pali_quote_truncated_to_half_verse_is_flagged_warning():
+    b = bundle_with_verse_text("14.8", 194, DHP_194_FULL)
+    ws = audit(
+        answer(VerseClaim(text="Awakening is best.", group_id="14.8", verse_number=194,
+                           pali_support=DHP_194_HALF)),
+        [b],
+    )
+    assert "PALI_QUOTE_TRUNCATED" in codes(ws)
+    warning = next(w for w in ws if w.code == "PALI_QUOTE_TRUNCATED")
+    assert warning.severity == "warning"
+    assert "50%" in warning.message
+
+
+def test_pali_quote_full_verse_is_not_flagged_truncated():
+    b = bundle_with_verse_text("14.8", 194, DHP_194_FULL)
+    ws = audit(
+        answer(VerseClaim(text="Awakening is best.", group_id="14.8", verse_number=194,
+                           pali_support=DHP_194_FULL)),
+        [b],
+    )
+    assert "PALI_QUOTE_TRUNCATED" not in codes(ws)
+
+
+def test_pali_quote_truncated_not_flagged_when_quote_is_fabricated():
+    """A fabricated quote is already reported as PALI_QUOTE_NOT_IN_SOURCE;
+    it must not also be scored for coverage, which requires a resolved
+    match to measure against."""
+    b = bundle_with_verse_text("14.8", 194, DHP_194_FULL)
+    ws = audit(
+        answer(VerseClaim(text="Awakening is best.", group_id="14.8", verse_number=194,
+                           pali_support="completely fabricated pali text")),
+        [b],
+    )
+    assert "PALI_QUOTE_TRUNCATED" not in codes(ws)
+    assert "PALI_QUOTE_NOT_IN_SOURCE" in codes(ws)
 
 
 # --------------------------------------------------------------------------

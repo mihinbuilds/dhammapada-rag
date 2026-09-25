@@ -6,7 +6,7 @@ from dataclasses import dataclass, field
 @dataclass
 class Footnote:
     marker: str
-    source: str  # "BG" (Burlingame) or "AJ" (Anandajoti)
+    source: str  # "BG" (Burlingame), "AJ" (Anandajoti), or "unlabeled" (no prefix in the source)
     text: str
 
 

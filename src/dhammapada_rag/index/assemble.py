@@ -107,6 +107,12 @@ def query(
             # this passage, not the story's opening paragraph.
             "window_index": hit.get("window_index", 0),
             "n_windows": hit.get("n_windows", 1),
+            # Which story this match belongs to (None for a verse-layer
+            # match). generate/prompt.py uses this, paired with
+            # window_index, to truncate a long vatthu around the passage
+            # retrieval actually matched instead of always from its start --
+            # see that module's _budget_around().
+            "group_id": hit.get("group_id"),
         }
         bundle["matched_chunk_ids"] = [hit["chunk_id"]]
         by_key[key] = bundle

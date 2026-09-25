@@ -6,12 +6,14 @@ second stage... For fusion, use Reciprocal Rank Fusion."
 
 ## Chunk schema: what gets matched on
 
-`src/dhammapada_rag/index/chunks.py` derives **5,667 chunks** from
+`src/dhammapada_rag/index/chunks.py` derives **5,909 chunks** from
 `verses.jsonl` and `stories.jsonl` -- see that module's docstring for the
-full breakdown by type (`verse_pali_ms`, `verse_en_sujato`,
-`verse_en_interlinear`, `verse_notes`, `verse_en_narrative`, `story_titles`,
-`story_cast`, `story_keywords`, `story_synopsis`, `story_nidana`,
-`story_vatthu`, `story_desanavasane`). Originally 2,769: a post-hoc
+full breakdown by type. Counts for the index shipped after the September
+2026 cleaning pass: `story_vatthu` 2,302, `verse_pali_ms` 423,
+`verse_en_sujato` 423, `verse_en_interlinear` 423, `story_desanavasane` 395,
+`story_titles` 305, `story_alignment` 305, `story_keywords` 305,
+`story_synopsis` 304, `story_nidana` 301, `verse_en_narrative` 226,
+`verse_notes` 129, `story_cast` 68 (2,362 of them windowed). Originally 2,769: a post-hoc
 correctness pass found that `story_vatthu`/`story_synopsis`/
 `story_desanavasane` were each emitted as one unwindowed chunk per story
 regardless of length, which silently truncated at `embed.py`'s 512-token
@@ -39,7 +41,7 @@ tokens/word; pure Pali runs ~3.98), not a word-count guess -- see
 this machine -- MPS is available but untested here for numerical
 compatibility, CPU was chosen for reliability given the corpus is small
 enough that CPU encoding is tractable -- ~157s for the original 2,769-chunk
-index; not re-measured for the current 5,667-chunk index, since re-timing
+index; not re-measured for the current 5,909-chunk index, since re-timing
 isn't load-bearing for anything this doc claims) and saves, per chunk:
 
 - **Dense**: 1024-dim normalized embedding (`dense.npy`)
@@ -58,7 +60,7 @@ the same space without needing separate models per language.
 `search.py`'s `ChunkIndex.search()`:
 
 1. Dense: cosine similarity (dot product; vectors pre-normalized) over all
-   5,667 chunks, top `dense_k=100`.
+   5,909 chunks, top `dense_k=100`.
 2. Sparse: BGE-M3's own `compute_lexical_matching_score` (token-overlap dot
    product weighted by learned importance) over all chunks, top
    `sparse_k=100`.

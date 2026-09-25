@@ -99,6 +99,43 @@ DEFAULT_NUM_CTX = 16384
 COMPLETION_HEADROOM = 1536
 
 
+def _fit_narrative_budget(question: str, bundles: list[dict], token_budget: int) -> int:
+    """Largest per-bundle narrative_budget_chars (prompt.py) whose rendered
+    prompt still fits token_budget, found by measuring the actual rendered
+    prompt rather than hand-modeling token cost.
+
+    Replaces a flat NARRATIVE_BUDGET_CHARS=6000 applied regardless of
+    num_ctx headroom or story length. Observed failure this fixes: asked
+    "who is the chakkhupala?", retrieval correctly surfaced Dhp 1 / story
+    1.1, but that story's vatthu is 31,178 characters -- the flat 6000-char
+    cap cut it off during the scene-setting backstory, before the text ever
+    reaches Cakkhupala going blind or attaining Awakening. The model's
+    answer was consequently built from the one-sentence synopsis alone,
+    reading as thin not because it failed to synthesize but because the
+    narrative it would synthesize from was never in its context. The prompt
+    at the time used ~10k of a 16k-token num_ctx -- there was room for far
+    more of the story. Binary search (not a bigger flat constant) because
+    the right amount depends on num_ctx, how many bundles were retrieved,
+    and each one's actual vatthu length -- three questions with different
+    shapes should not share one guess.
+    """
+    longest = max((len(s.get("vatthu") or "") for b in bundles for s in b["stories"]), default=0)
+    if longest == 0:
+        return 0
+    # Fits with every story's full text? No search needed.
+    if estimate_tokens(build_messages(question, bundles, narrative_budget_chars=longest)) <= token_budget:
+        return longest
+    lo, hi, best = 0, longest, 0
+    while lo <= hi:
+        mid = (lo + hi) // 2
+        if estimate_tokens(build_messages(question, bundles, narrative_budget_chars=mid)) <= token_budget:
+            best = mid
+            lo = mid + 1
+        else:
+            hi = mid - 1
+    return best
+
+
 def _constrained_schema(bundles: list[dict]) -> dict:
     """JSON Schema with citation fields restricted to what is in context.
 
@@ -264,7 +301,9 @@ class Generator:
         means citation values for this one answer are audited only, not
         made impossible to get wrong.
         """
-        messages = build_messages(question, bundles)
+        budget = self.num_ctx - COMPLETION_HEADROOM
+        narrative_budget_chars = _fit_narrative_budget(question, bundles, budget)
+        messages = build_messages(question, bundles, narrative_budget_chars=narrative_budget_chars)
         try:
             schema = _constrained_schema(bundles)
             schema_status = "constrained"
@@ -275,13 +314,13 @@ class Generator:
             schema_status = f"static (no citable bundles: {e})"
 
         prompt_tokens = estimate_tokens(messages)
-        budget = self.num_ctx - COMPLETION_HEADROOM
         if prompt_tokens > budget:
             raise ContextOverflowError(
                 f"Prompt is ~{prompt_tokens} tokens but only {budget} fit in "
                 f"num_ctx={self.num_ctx} after reserving {COMPLETION_HEADROOM} for the "
-                f"completion. Ollama would silently truncate, dropping the commentary. "
-                f"Raise num_ctx, lower top_k, or lower prompt.NARRATIVE_BUDGET_CHARS."
+                f"completion, even with narrative truncated to {narrative_budget_chars} chars "
+                f"per bundle. Ollama would silently truncate, dropping the commentary. "
+                f"Raise num_ctx or lower top_k."
             )
 
         last_error: Exception | None = None

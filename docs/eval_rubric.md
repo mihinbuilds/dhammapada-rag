@@ -30,6 +30,14 @@ field left in the schema, see below) exists specifically so a second human
 pass can be added later without a schema change, at which point real
 Krippendorff's α / Cohen's κ become computable.
 
+**Generation-claim judgments are a separate single-annotator pass.** The
+current `data/eval/generation_judgments.py` (48 claims, post-cleaning
+re-run of 2026-09-23) was judged by Claude (Opus 5.5). The round-8
+judgments it replaced were by Claude (Sonnet 5) and remain in git history.
+Two different single annotators on two different claim sets are not an
+agreement measurement either: no claim was judged by both, so no IAA can
+be computed from them.
+
 ## Construction method
 
 Each gold question was written by first selecting a specific verse-group
@@ -306,6 +314,40 @@ non-uniform distribution -- errors should cluster on questions touching
 these structurally-similar-figure groups specifically, checkable by
 constructing gold questions that target them directly (see
 `docs/generation.md`'s Round 8 section for a live test of exactly this).
+
+### Scope-widening (Round 9, Task AH)
+
+A second nameable fidelity subtype, distinct from semantic-neighbour
+conflation above: a claim that keeps the right verse, the right layer, and a
+resolvable citation, but drops the qualifier that scopes the verse's
+statement to a category, leaving a claim about everything in general.
+
+Observed: "The Dhammapada also states that the best thing in life is the
+eightfold path," tagged `verse`, citing Dhp 273. The verse says the
+eightfold path is best *of paths* (maggānaṁ seṭṭho) -- one line of a
+four-part parallel (best of paths, of truths, of states, of beings). Dropping
+"of paths" turns a comparative *within a category* into an unqualified claim
+about life itself, which the verse does not make. Same structure as the
+earlier Dhp 135 error: correct layer, resolvable citation, content the
+source does not support -- but semantic-neighbour conflation is an entity
+substitution (one figure swapped for another that shares a structural role);
+scope-widening is a qualifier deletion (a category-bounded comparative
+generalized past its bound). Both are now attested more than once, and both
+predict *where* errors cluster -- on figures sharing a narrative role, and on
+verses phrased as parallel comparatives, respectively -- in a way a generic
+"hallucination" label does not.
+
+**What to check.** Any verse whose claim has the shape "X is best/greatest/
+etc. OF/AMONG <category>" -- Dhp 273's fourfold parallel, Dhp 354
+(*sabbadānaṁ dhammadānaṁ jināti* -- the gift of Dhamma excels *all other
+gifts*, not "excels everything"), Dhp 103 (conquering oneself is greater
+*than conquering others in battle*, not "the greatest achievement") -- is a
+candidate for this failure. Comparatives, conditionals, and negations are the
+general class: any construction whose truth depends on a bound that a
+paraphrase can silently drop. Not mechanically detectable (no field is
+missing or malformed); requires reading the claim against the verse's actual
+scope. `generate/prompt.py`'s VERSE CLAIM SPECIFICITY instruction now names
+this failure directly.
 
 ## Layer-tag stability (generation metric, Task G)
 

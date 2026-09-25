@@ -26,22 +26,28 @@ Docs: http://127.0.0.1:8000/docs
 
 from __future__ import annotations
 
+import json
+import os
 import sys
 from contextlib import asynccontextmanager
+from datetime import datetime, timezone
 from pathlib import Path
 
 from fastapi import FastAPI, HTTPException
+from fastapi.middleware.cors import CORSMiddleware
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from dhammapada_rag.api.schemas import (  # noqa: E402
     AnswerRequest,
     AnswerResponse,
+    EvalSummaryOut,
     HealthResponse,
     LayerCounts,
     QueryRequest,
     QueryResponse,
     StoryOut,
+    VaggaOut,
     VerseOut,
 )
 from dhammapada_rag.generate.generate import (  # noqa: E402
@@ -53,6 +59,7 @@ from dhammapada_rag.generate.generate import (  # noqa: E402
 from dhammapada_rag.index.assemble import load_verses_and_stories, query  # noqa: E402
 from dhammapada_rag.index.rerank import CrossEncoderReranker  # noqa: E402
 from dhammapada_rag.index.search import ChunkIndex  # noqa: E402
+from dhammapada_rag.vaggas import VAGGAS  # noqa: E402
 
 ROOT = Path(__file__).resolve().parents[3]
 
@@ -82,6 +89,22 @@ app = FastAPI(
     ),
     version="0.2.0",
     lifespan=lifespan,
+)
+
+# The Next.js dev server runs on a different origin (localhost:3000) than
+# this API (localhost:8000); browsers block cross-origin fetches without
+# this. DHAMMAPADA_CORS_ORIGINS overrides the dev default for deployment
+# (comma-separated list of allowed origins).
+_cors_origins = [
+    o.strip()
+    for o in os.environ.get("DHAMMAPADA_CORS_ORIGINS", "http://localhost:3000").split(",")
+    if o.strip()
+]
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=_cors_origins,
+    allow_methods=["*"],
+    allow_headers=["*"],
 )
 
 
@@ -166,3 +189,86 @@ def get_story(group_id: str) -> StoryOut:
             status_code=404, detail=f"No story '{group_id}'. Expected format '<vagga>.<story>', e.g. '8.13'."
         )
     return StoryOut(**s)
+
+
+@app.get("/vaggas", response_model=list[VaggaOut])
+def list_vaggas() -> list[VaggaOut]:
+    return [
+        VaggaOut(
+            number=v.number, name_pali=v.name_pali, name_en=v.name_en,
+            first_verse=v.first_verse, last_verse=v.last_verse, verse_count=v.verse_count,
+        )
+        for v in VAGGAS
+    ]
+
+
+def _read_eval_json(name: str) -> dict | None:
+    path = ROOT / "data" / "eval" / name
+    if not path.exists():
+        return None
+    try:
+        return json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return None
+
+
+def _mtime_iso(path: Path) -> str | None:
+    if not path.exists():
+        return None
+    return datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc).isoformat(timespec="seconds")
+
+
+def _read_eval_jsonl(name: str) -> list[dict]:
+    path = ROOT / "data" / "eval" / name
+    if not path.exists():
+        return []
+    rows = []
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line:
+            continue
+        try:
+            rows.append(json.loads(line))
+        except json.JSONDecodeError:
+            continue
+    return rows
+
+
+def _sweep_summary() -> list[dict]:
+    """Same aggregation as ui/app.py's _sweep_section: per (model, max_retries)
+    pair, n / clean_rate / average latency, over both retry-budget result files."""
+    rows = _read_eval_jsonl("model_sweep_results_retries0.jsonl") + _read_eval_jsonl(
+        "model_sweep_results_retries1.jsonl"
+    )
+    order = ["qwen2.5:1.5b-instruct", "qwen2.5:7b-instruct", "qwen2.5:14b-instruct"]
+    by_key: dict[tuple[str, int], list[dict]] = {}
+    for r in rows:
+        by_key.setdefault((r["model"], r.get("max_retries", 0)), []).append(r)
+
+    summary = []
+    for model in order:
+        for mr in (0, 1):
+            group = by_key.get((model, mr))
+            if not group:
+                continue
+            lat = [g["latency_s"] for g in group if isinstance(g.get("latency_s"), (int, float))]
+            summary.append({
+                "model": model,
+                "max_retries": mr,
+                "n": len(group),
+                "clean_rate": sum(1 for g in group if g.get("clean")) / len(group),
+                "avg_latency_s": (sum(lat) / len(lat)) if lat else None,
+            })
+    return summary
+
+
+@app.get("/eval/summary", response_model=EvalSummaryOut)
+def eval_summary() -> EvalSummaryOut:
+    return EvalSummaryOut(
+        retrieval=_read_eval_json("retrieval_metrics.json"),
+        generation=_read_eval_json("generation_metrics.json"),
+        sweep=_sweep_summary(),
+        retrieval_written_at=_mtime_iso(ROOT / "data" / "eval" / "retrieval_metrics.json"),
+        generation_written_at=_mtime_iso(ROOT / "data" / "eval" / "generation_metrics.json"),
+        index_built_at=_mtime_iso(ROOT / "data" / "index" / "dense.npy"),
+    )

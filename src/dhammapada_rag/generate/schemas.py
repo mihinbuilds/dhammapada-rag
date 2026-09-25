@@ -277,6 +277,7 @@ Code = Literal[
     "VERSE_TEXT_AS_COMMENTARY",   # error   -- commentary claim's wording is mostly the verse itself
     "PALI_QUOTE_NOT_IN_SOURCE",   # error   -- pali_support matches no available Pali field, exact or variant
     "PALI_QUOTE_ORTHOGRAPHIC_VARIANT",  # warning -- matches a different edition's orthography of the right verse
+    "PALI_QUOTE_TRUNCATED",       # warning -- quote matches but covers less than PALI_COVERAGE_THRESHOLD of the verse
     "MALFORMED_GROUP_ID",         # warning -- resolvable format drift, e.g. "g13.2"
     "SYNTHESIS_WITH_CITATION",    # info    -- synthesis claim carrying provenance
     "NO_COMMENTARY_ENGAGEMENT",   # warning -- commentary was retrieved but the answer never cites it
@@ -299,6 +300,7 @@ _SEVERITY: dict[str, Severity] = {
     "VERSE_TEXT_AS_COMMENTARY": "error",
     "PALI_QUOTE_NOT_IN_SOURCE": "error",
     "PALI_QUOTE_ORTHOGRAPHIC_VARIANT": "warning",
+    "PALI_QUOTE_TRUNCATED": "warning",
     "MALFORMED_GROUP_ID": "warning",
     "SYNTHESIS_WITH_CITATION": "info",
     "NO_COMMENTARY_ENGAGEMENT": "warning",
@@ -434,24 +436,45 @@ def _pali_orthographic(s: str) -> str:
     return re.sub(r"\s+", "", s)                 # spacing is not lexical here
 
 
-def _match_pali_quote(quote: str, candidates: list[tuple[str, str]]) -> tuple[str | None, str | None]:
+# Round 9, Task AF: pali_support is validated by substring containment, so a
+# half-quoted verse passes clean -- a truncation is a valid substring. A
+# partial quote is not fabrication (the words quoted are genuine), but
+# presenting half a verse as the verse is a fidelity failure invisible to
+# the exact/variant/fabrication tiers above, all three of which only ask
+# "did the model quote real words," never "how much of the verse did it
+# quote." Coverage is measured on the orthographically folded forms (see
+# _pali_orthographic) so that hyphenation/niggahita/case differences between
+# the quote and the matched field don't masquerade as missing text.
+#
+# 0.6 is set so that quoting one of two half-verses (a common and sometimes
+# legitimate move when only one half bears on the claim, e.g. citing only
+# the pada a question actually asks about) is flagged for review rather
+# than silently accepted, while a near-complete quote missing only a
+# closing particle is not. Tuned against data/eval/generation_raw.jsonl;
+# report this value in the write-up.
+PALI_COVERAGE_THRESHOLD = 0.6
+
+
+def _match_pali_quote(quote: str, candidates: list[tuple[str, str]]) -> tuple[str | None, str | None, str | None]:
     """Check `quote` against each (field_name, field_text) candidate.
 
-    Returns (tier, matched_field): tier is "exact", "variant", or None
-    (fabrication -- matches nothing, at either tier). Exact is checked
-    across ALL candidates before variant is checked against any of them, so
-    an exact match in a later-listed field is never shadowed by an
-    earlier-listed field's variant match.
+    Returns (tier, matched_field, matched_text): tier is "exact", "variant",
+    or None (fabrication -- matches nothing, at either tier); matched_text is
+    the full text of the field the quote matched against (for coverage
+    measurement) or None when tier is None. Exact is checked across ALL
+    candidates before variant is checked against any of them, so an exact
+    match in a later-listed field is never shadowed by an earlier-listed
+    field's variant match.
     """
     quote_exact = _pali_exact(quote)
     for field_name, field_text in candidates:
         if field_text and quote_exact in _pali_exact(field_text):
-            return "exact", field_name
+            return "exact", field_name, field_text
     quote_ortho = _pali_orthographic(quote)
     for field_name, field_text in candidates:
         if field_text and quote_ortho in _pali_orthographic(field_text):
-            return "variant", field_name
-    return None, None
+            return "variant", field_name, field_text
+    return None, None, None
 
 
 # Round 2, Task B: prompt.py's commentary block renders a
@@ -468,7 +491,17 @@ def _match_pali_quote(quote: str, candidates: list[tuple[str, str]]) -> tuple[st
 # (plural), which is NOT a substring of "verse_number:" (singular) -- the
 # latter's trailing "r:" never matches the former's "rs:" -- so it needs its
 # own entry rather than relying on the existing singular-form marker.
-_CITATION_LEAK_MARKERS = ("group_id:", "verse_number:", "verse_numbers:", "citation_fields")
+#
+# Round 9, Task AG: the colon-suffixed forms above missed
+# "the story explaining Dhp 194 (group_id 14.8) tells that..." -- a leaked
+# field name followed by a space and a parenthesis, not a colon. The field
+# name itself is what makes prose unusable (a reader sees raw JSON-schema
+# vocabulary either way); the punctuation that happens to follow it is not
+# load-bearing. Bare field names, matched anywhere in the text regardless of
+# what follows -- "verse_number" as a substring also catches "verse_numbers:",
+# making that entry redundant, and "pali_support" is added since that field
+# name can leak into prose exactly like the others.
+_CITATION_LEAK_MARKERS = ("group_id", "verse_number", "pali_support", "citation_fields")
 
 # A story counts as "substantive commentary" above this length -- short
 # enough to exclude near-empty synopses, long enough that a real vatthu or a
@@ -578,6 +611,13 @@ def audit(
        judging this narrows, rather than replaces, still catches paraphrase;
        this only catches the near-verbatim case a machine can verify without
        reading for meaning.
+    5. Quote coverage (Round 9, Task AF): a pali_support quote matching at
+       tier "exact" or "variant" is real words, but says nothing about how
+       much of the verse those words are. A quote covering less than
+       PALI_COVERAGE_THRESHOLD of the matched field is flagged
+       PALI_QUOTE_TRUNCATED (warning) -- a genuine partial quote, not a
+       fabrication, but presenting half a verse as the verse is a fidelity
+       failure the exact/variant/fabrication tiers alone cannot see.
 
     Tiers 1-3 verify a claim's citation is well-formed and traceable, not
     that its content is correctly tagged against what the source text
@@ -623,7 +663,19 @@ def audit(
                 verses_by_group.setdefault(gid, set()).update(verses)
                 retrieved_verses.update(verses)
                 if s.get("pali_verse"):
-                    for vn in verses:
+                    # Round 9, Task AE: a story's pali_verse quotes ONE verse
+                    # of its (possibly multi-verse) group -- pali_verse_number
+                    # says which. Previously this was attached to every verse
+                    # in `verses`, so a claim citing e.g. Dhp 274 could be
+                    # "validated" against group 20.1's pali_verse, which is
+                    # actually Dhp 273's text -- real Pali from the retrieved
+                    # group, but the wrong verse within it, passing silently.
+                    # Fall back to the group union only when pali_verse_number
+                    # is absent (unknown which verse it quotes) so a legitimate
+                    # match isn't lost to a parsing gap.
+                    pvn = s.get("pali_verse_number")
+                    target_verses = {pvn} if pvn is not None else verses
+                    for vn in target_verses:
                         pali_candidates_by_number.setdefault(vn, []).append(
                             (f"pali_verse ({gid})", s["pali_verse"])
                         )
@@ -713,7 +765,7 @@ def audit(
         # error PALI_QUOTE_NOT_IN_SOURCE always was.
         if isinstance(c, VerseClaim) and c.pali_support and bundles is not None:
             candidates = pali_candidates_by_number.get(c.verse_number, [])
-            tier, matched_field = _match_pali_quote(c.pali_support, candidates)
+            tier, matched_field, matched_text = _match_pali_quote(c.pali_support, candidates)
             if tier == "variant":
                 warnings.append(
                     _warn("PALI_QUOTE_ORTHOGRAPHIC_VARIANT", i,
@@ -730,6 +782,22 @@ def audit(
                           f"{c.verse_number} ({', '.join(available)}), exact or edition-variant -- "
                           f"fabricated primary-source quote: {c.text!r}")
                 )
+
+            # Round 9, Task AF: a match at either tier only says the quoted
+            # words are real; it says nothing about how much of the verse
+            # they cover. Measured on the folded forms so hyphenation
+            # differences between the quote and matched_text don't read as
+            # missing text.
+            if tier is not None and matched_text:
+                coverage = len(_pali_orthographic(c.pali_support)) / len(_pali_orthographic(matched_text))
+                if coverage < PALI_COVERAGE_THRESHOLD:
+                    warnings.append(
+                        _warn("PALI_QUOTE_TRUNCATED", i,
+                              f"pali_support={c.pali_support!r} covers only {coverage:.0%} of "
+                              f"{matched_field!r} for Dhp {c.verse_number} (threshold "
+                              f"{PALI_COVERAGE_THRESHOLD:.0%}) -- a genuine but partial quote "
+                              f"presented as the verse: {c.text!r}")
+                    )
 
         if isinstance(c, SynthesisClaim):
             # Round 4/5 amendment (Task K/L amendment): SynthesisClaim has no

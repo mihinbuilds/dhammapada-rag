@@ -79,14 +79,15 @@ stories in the narrative source, all 423 canonical verses; no sampling.
   teaser quote appears at these stories, by original editorial design (see
   the translator's introduction). This is why `verses.jsonl` exists as a
   separate, fully-covering table rather than something derived solely from
-  `stories.jsonl`. `english_verse` is missing in only 4/305 cases where
-  `pali_verse` *was* found (extraction gap, not source gap).
-- `nidana` (opening "with reference to whom" pericope): detected in 84.3%
-  (257/305); the rest have varied enough phrasing that the regex heuristic
-  didn't anchor cleanly -- `vatthu` still contains the full body in those
-  cases, just undivided.
-- `desanavasane` (closing "fruits of the teaching"): detected in 97.7%
-  (298/305).
+  `stories.jsonl`. `english_verse` is present wherever `pali_verse` is
+  (226/226; the 4 former misses were page breaks inside the quotation, see
+  "Text cleaning pass" below).
+- `nidana` (opening "with reference to whom" pericope): detected in 98.7%
+  (301/305; 257 before the phrase was allowed to wrap across a line); in
+  the other 4 `vatthu` still contains the full body, just undivided.
+- `desanavasane` (closing "fruits of the teaching"): detected in 97.4%
+  (297/305). The 8 without one end on the verse or on narrative with no
+  closing formula (25.7's former match was mid-sentence, see below).
 - **True pada-vibhaṅga (word-by-word commentarial gloss) is absent from
   every source ingested so far.** The narrative source explicitly omits it
   (Burlingame's 1921 translation did, and Ānandajoti Bhikkhu's 2024 revision
@@ -104,8 +105,9 @@ stories in the narrative source, all 423 canonical verses; no sampling.
   `verses.jsonl`) rather than a true fourth vatthu-internal segment.
 
 **Is there a label or target associated with each instance?** No; this is a
-retrieval corpus, not a labeled training/eval set. The gold evaluation set
-called for in Phase 5 is separate, not-yet-built work.
+retrieval corpus, not a labeled training/eval set. The Phase 5 gold
+evaluation set is separate: `data/eval/gold_set.jsonl` (120 questions, see
+`docs/eval_rubric.md`).
 
 ## Collection process
 
@@ -155,8 +157,62 @@ Phase 1 review flagged the coverage/licensing gaps below).
   introduction calls this out explicitly as the one place in the whole text
   the source does this. `validate.py` reports this as the corpus's one
   remaining "duplicated verse"; it is expected, not a bug.
+- **Text cleaning pass (September 2026).** A corpus-wide scan of the story
+  fields found extraction defects the checks above never looked for; all
+  are now fixed in `parse_stories.py` itself (not patched downstream) and
+  pinned by `tests/test_parse_stories.py`:
+  - *Page breaks inside verse quotations.* Blank lines left by page breaks
+    stopped verse extraction mid-quotation, so ~30 stories carried half a
+    Pali or English verse (e.g. 26.6's Dhp 388 kept two of four English
+    lines). Blank lines are no longer kept: the source separates paragraphs
+    by line breaks alone, so every blank line in a body is page-break or
+    footnote residue.
+  - *Verse-quote Pali/English split.* A single English stopword decided the
+    language of a line, and "so", "no", "a" are Pali words too: 8 stories
+    had a Pali line filed under `english_verse`, and an English line with no
+    listed stopword ("Those sages without violence,") was glued onto the
+    Pali. Now scored by stopwords against diacritic-bearing tokens.
+  - *Inline footnote markers* ("Wheel of the Dhamma,5", "ox’s foot.4") left
+    in the prose: ~500 occurrences. Stripped only where the digits match a
+    footnote actually extracted for that story or a neighbour, so ordinary
+    numbers are untouched. 15 footnotes printed under the next story's
+    opening lines were moved to the story that references them, and 11
+    footnotes with no `AJ:`/`BG:` prefix (recorded as `source:
+    "unlabeled"`), previously never extracted, now are: 408 footnotes,
+    4-411, each exactly once.
+  - *Vagga title pages* ("2. The Chapter about Heedfulness, Appamādavagga")
+    glued onto the last story of each of 24 vaggas; the vagga 5 title page
+    also carried Burlingame's long essay on story 5.1, now kept as 5.1's
+    footnote 151 (the note AJ says it originally was) instead of 4.12's
+    `desanavasane`.
+  - *Story 26.40*, which has no rating line, had its whole body -- and the
+    book's closing colophon, Nigamanakathā -- parsed as `synopsis`. The
+    metadata block now ends at the first blank line after `Keywords:`; the
+    colophon and its footnotes (412-420) are dropped.
+  - *Hard line wraps and double spaces.* Narrative fields are now reflowed
+    into paragraphs (blank line between paragraphs, verse quotations one
+    line per verse line); removing pagination crumbs no longer leaves
+    double spaces (1,400+ before).
+  - *Section boundaries.* The "with reference to" match now spans line
+    breaks (`nidana` found in 301/305 stories, up from 257); the closing
+    section must start a sentence with a capital "At the end/conclusion of",
+    so 7.9, 18.1 and 25.7 are no longer cut mid-sentence at "reborn at the
+    end of his life" and similar phrases.
+  - *Source typos.* 9 unambiguous misspellings ("milllion", "defilments",
+    "worhipped", ...) corrected via the logged `TEXT_CORRECTIONS` table in
+    `corrections.py`; British spellings and archaisms are left as written.
+
+  **Not fixed, known:** in ~28 stories the text after the "At the end of
+  the teaching..." sentence continues with more narrative (a sequel, or a
+  Story of the Past told afterwards -- e.g. 4.5, 5.1, 7.9), and all of it is
+  stored in `desanavasane`. Separating it needs a new field, a schema
+  change not made in this pass.
 
 **verses.jsonl (merge):**
+- Sujato's English carried 12 SuttaCentral `<j>` line-join markup tags
+  verbatim (e.g. Dhp 17: "Here they’re tormented, <j>hereafter...");
+  `normalize_sc_sujato.py` now strips bilara markup and rejects any that
+  survives.
 - Mahāsaṅgīti/Sujato JSON segments (keyed `dhp<verse>:<line>`) joined per
   verse in ascending line order, excluding `:0`/`:0.N` header segments
   (nikāya/vagga/story-title metadata, not verse text).

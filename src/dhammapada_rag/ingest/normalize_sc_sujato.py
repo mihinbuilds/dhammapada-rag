@@ -24,6 +24,15 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from dhammapada_rag.ingest._sc_segments import load_sc_segments  # noqa: E402
 
 _CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b-\x1f]")
+# bilara-data inline markup: "<j>" marks where a long line is split for
+# verse display ("Here they’re tormented, <j>hereafter they’re tormented").
+# It is layout, not text -- 12 of them leaked into english_sujato verbatim.
+_MARKUP_RE = re.compile(r"</?[a-z]+>")
+
+
+def _clean(text: str) -> str:
+    text = _MARKUP_RE.sub("", text)
+    return re.sub(r" {2,}", " ", text).strip()
 
 
 def normalize() -> list[dict]:
@@ -36,7 +45,7 @@ def normalize() -> list[dict]:
             raise ValueError(f"Dhp {verse} missing from sources/external/sujato_en/")
         rows.append({
             "verse": verse,
-            "english": segments[verse]["text"],
+            "english": _clean(segments[verse]["text"]),
             "source_ref": segments[verse]["source_ref"],
         })
     return rows
@@ -53,6 +62,8 @@ def validate(rows: list[dict]) -> None:
             continue
         if not r["source_ref"]:
             errors.append(f"Dhp {r['verse']}: empty source_ref")
+        if _MARKUP_RE.search(r["english"]):
+            errors.append(f"Dhp {r['verse']}: markup tag survived cleaning")
         cc = _CONTROL_CHAR_RE.findall(r["english"])
         if cc:
             errors.append(f"Dhp {r['verse']}: control character(s) {sorted(set(cc))!r}")

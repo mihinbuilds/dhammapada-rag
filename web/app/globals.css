@@ -1,0 +1,201 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------
+   Design tokens. Carries forward the paper/ink identity already
+   established in ui/app.py (Streamlit) so screenshots from either
+   surface read as the same product -- serif display type, mono for
+   citations/data, semantic color reserved for layer attribution, audit
+   severity, and source disposition. `.dark` overrides the same variable
+   names rather than defining a parallel set, so every component that
+   consumes a token is theme-correct for free.
+   --------------------------------------------------------------------- */
+
+:root {
+  --paper: #f7f5f0;
+  --surface: #ffffff;
+  --surface-2: #f2efe8;
+  --ink: #1c1917;
+  --ink-soft: #57534e;
+  --ink-faint: #8a857d;
+  --line: #e5e1d8;
+  --line-soft: #efece5;
+
+  --verse: #1e40af;
+  --verse-bg: #eef4ff;
+  --commentary: #b45309;
+  --commentary-bg: #fffbeb;
+  --alignment: #6d28d9;
+  --alignment-bg: #f5f3ff;
+  --synthesis: #15803d;
+  --synthesis-bg: #f0fdf4;
+
+  --error: #dc2626;
+  --error-bg: #fef2f2;
+  --error-text: #7f1d1d;
+  --warning: #d97706;
+  --warning-bg: #fffbeb;
+  --warning-text: #78350f;
+  --info: #2563eb;
+  --info-bg: #eff6ff;
+  --info-text: #1e3a5f;
+
+  --used: #15803d;
+  --used-bg: #f0fdf4;
+  --partial: #b45309;
+  --partial-bg: #fffbeb;
+  --not-relevant: #78716c;
+  --not-relevant-bg: #f5f4f1;
+
+  --shadow-color: 28 25 23;
+  color-scheme: light;
+}
+
+.dark {
+  --paper: #14130f;
+  --surface: #1b1915;
+  --surface-2: #201d18;
+  --ink: #f2ede1;
+  --ink-soft: #cac2b1;
+  --ink-faint: #8d8574;
+  --line: #322e25;
+  --line-soft: #24211a;
+
+  --verse: #85aeff;
+  --verse-bg: #17213b;
+  --commentary: #f2ae57;
+  --commentary-bg: #3a2a10;
+  --alignment: #bb9bf5;
+  --alignment-bg: #291f3e;
+  --synthesis: #67d199;
+  --synthesis-bg: #112a1b;
+
+  --error: #f9938c;
+  --error-bg: #3c1614;
+  --error-text: #fbd5d1;
+  --warning: #fbbf5a;
+  --warning-bg: #3a2a0c;
+  --warning-text: #fbe3ae;
+  --info: #7db2fb;
+  --info-bg: #14243d;
+  --info-text: #cbdffb;
+
+  --used: #67d199;
+  --used-bg: #112a1b;
+  --partial: #f2ae57;
+  --partial-bg: #3a2a10;
+  --not-relevant: #9c9384;
+  --not-relevant-bg: #26221b;
+
+  --shadow-color: 242 237 225;
+  color-scheme: dark;
+}
+
+@theme inline {
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-ink: var(--ink);
+  --color-ink-soft: var(--ink-soft);
+  --color-ink-faint: var(--ink-faint);
+  --color-line: var(--line);
+  --color-line-soft: var(--line-soft);
+
+  --color-verse: var(--verse);
+  --color-verse-bg: var(--verse-bg);
+  --color-commentary: var(--commentary);
+  --color-commentary-bg: var(--commentary-bg);
+  --color-alignment: var(--alignment);
+  --color-alignment-bg: var(--alignment-bg);
+  --color-synthesis: var(--synthesis);
+  --color-synthesis-bg: var(--synthesis-bg);
+
+  --color-error: var(--error);
+  --color-error-bg: var(--error-bg);
+  --color-error-text: var(--error-text);
+  --color-warning: var(--warning);
+  --color-warning-bg: var(--warning-bg);
+  --color-warning-text: var(--warning-text);
+  --color-info: var(--info);
+  --color-info-bg: var(--info-bg);
+  --color-info-text: var(--info-text);
+
+  --color-used: var(--used);
+  --color-used-bg: var(--used-bg);
+  --color-partial: var(--partial);
+  --color-partial-bg: var(--partial-bg);
+  --color-not-relevant: var(--not-relevant);
+  --color-not-relevant-bg: var(--not-relevant-bg);
+
+  --font-serif: var(--font-source-serif), Georgia, "Times New Roman", serif;
+  --font-sans: var(--font-inter), -apple-system, "Segoe UI", Helvetica, Arial, sans-serif;
+  --font-mono: var(--font-plex-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  --animate-fade-up: fade-up 0.45s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.3s ease-out both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(10px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes accordion-down {
+    from {
+      height: 0;
+    }
+    to {
+      height: var(--radix-accordion-content-height);
+    }
+  }
+  @keyframes accordion-up {
+    from {
+      height: var(--radix-accordion-content-height);
+    }
+    to {
+      height: 0;
+    }
+  }
+}
+
+@layer base {
+  * {
+    border-color: var(--line);
+  }
+  html {
+    color-scheme: light;
+  }
+  html.dark {
+    color-scheme: dark;
+  }
+  body {
+    background: var(--paper);
+    color: var(--ink);
+    font-family: var(--font-sans);
+  }
+  ::selection {
+    background: var(--verse-bg);
+    color: var(--verse);
+  }
+}
+
+@layer utilities {
+  .font-serif-display {
+    font-family: var(--font-serif);
+    letter-spacing: -0.01em;
+  }
+  .scrollbar-thin {
+    scrollbar-width: thin;
+  }
+}
