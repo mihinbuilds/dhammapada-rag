@@ -113,6 +113,12 @@ export default function MethodPage() {
             CC BY-SA 4.0 propagates: any file derived from Ānandajoti&apos;s editions must carry the
             same license. Per-file terms: DATA_LICENSE.md.
           </p>
+          <p className="font-sans text-[0.78rem] leading-relaxed text-ink-faint">
+            Until October 2026 the verse layer also used a Pali text and an English translation
+            published by SuttaCentral. SuttaCentral asked that their
+            material not be used in any project that uses AI, so both were removed from the corpus
+            and from the repository&apos;s history; see data/raw/PROVENANCE.md.
+          </p>
         </section>
 
         <section className="space-y-3">

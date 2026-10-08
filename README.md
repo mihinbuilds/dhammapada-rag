@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-200%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-197%20passing-brightgreen.svg)](tests/)
 [![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
 
 </div>
@@ -68,23 +68,30 @@ four ablations returned confidence intervals spanning zero and a third's lower
 bound sat at exactly zero — the cross-encoder reranker looked useless.
 
 Gold set v2 (72 deliberately harder questions) was built and the same ablations
-re-run on the same code:
+re-run on the same code. The reranker's effect grew sixfold, to +0.116
+[+0.056, +0.179], and crossed significance. It was always working; v1 simply
+could not measure it.
+
+Current numbers, after the October 2026 change to the verse layer (see
+[Corpus](#corpus)):
 
 | Ablation | v1 Δ nDCG@10 [95% CI] | v2 Δ nDCG@10 [95% CI] |
 |---|---|---|
-| `verse_only` (no commentary chunks) | +0.427 [+0.338, +0.522] ✱ | +0.618 [+0.502, +0.726] ✱ |
-| `no_rerank` (no cross-encoder) | +0.019 [−0.007, +0.047] | **+0.116 [+0.056, +0.179] ✱** |
-| `dense_only` (no sparse/ColBERT/RRF) | +0.002 [−0.008, +0.010] | +0.022 [−0.011, +0.062] |
-| `flat` (no parent-group assembly) | +0.003 [+0.000, +0.008] | +0.000 [+0.000, +0.000] |
+| `verse_only` (no commentary chunks) | +0.421 [+0.331, +0.515] ✱ | +0.608 [+0.492, +0.715] ✱ |
+| `no_rerank` (no cross-encoder) | **+0.045 [+0.012, +0.078] ✱** | **+0.114 [+0.054, +0.176] ✱** |
+| `dense_only` (no sparse/ColBERT/RRF) | +0.004 [−0.008, +0.017] | +0.023 [−0.005, +0.058] |
+| `flat` (no parent-group assembly) | +0.003 [+0.000, +0.008] | +0.003 [+0.000, +0.008] |
 
 <sub>✱ interval excludes zero. Both runs: same index, same code, RTX 5080.</sub>
 
-The reranker's effect grew sixfold and crossed significance. It was always
-working; v1 simply could not measure it. **`dense_only` and `flat` remain null
-on both sets** — sparse and ColBERT add nothing over dense alone, and
-parent-group assembly barely moves the ranking (exactly zero on v2). Reported as
-null results rather than omitted, and they argue that fusion beyond dense, and
-the assembly step, are complexity without a measurable retrieval-quality return.
+v1 now detects the reranker too, entirely through its doctrinal questions.
+Those were written in the vocabulary of the translation the index no longer
+holds, so first-stage retrieval ranks them lower and the cross-encoder
+recovers them. **`dense_only` and `flat` remain null on both sets** — sparse
+and ColBERT add nothing over dense alone, and parent-group assembly barely
+moves the ranking. Reported as null results rather than omitted, and they
+argue that fusion beyond dense, and the assembly step, are complexity without
+a measurable retrieval-quality return.
 
 ### Commentary retrieval does not help verse-anchored questions
 
@@ -94,14 +101,15 @@ their gold answer lives in the commentary. The informative cell is doctrinal:
 
 | Query type | baseline | verse_only | Δ |
 |---|---|---|---|
-| narrative | 0.975 | 0.058 | +0.917 |
-| alignment | 1.000 | 0.025 | +0.975 |
-| philological | 0.963 | 0.909 | +0.054 |
-| **doctrinal** | **0.942** | **0.988** | **−0.046** |
+| narrative | 0.975 | 0.096 | +0.879 |
+| alignment | 1.000 | 0.000 | +1.000 |
+| philological | 0.963 | 0.919 | +0.044 |
+| **doctrinal** | **0.859** | **0.881** | **−0.022** |
 
-Verse-only *beats* the full system on doctrinal queries. Reproduced on separate
-hardware. Commentary retrieval does not help verse-anchored questions and may
-slightly hurt them.
+Verse-only *beats* the full system on doctrinal queries. It did on the original
+corpus (0.988 against 0.942, reproduced on separate hardware), and still does
+after the verse layer changed. Commentary retrieval does not help
+verse-anchored questions and may slightly hurt them.
 
 ### Correct citations, false content
 
@@ -180,13 +188,21 @@ commentary relates…"* survive being copied out.
 
 | Layer | Source | Licence |
 |---|---|---|
-| Pali verse | Mahāsaṅgīti, via SuttaCentral | CC0 |
-| English verse | Bhikkhu Sujato, via SuttaCentral | CC0 |
+| Pali verse | Ānandajoti Bhikkhu, 2017 interlinear | CC BY-SA 4.0 |
+| English verse | Ānandajoti Bhikkhu, 2017 interlinear | CC BY-SA 4.0 |
 | Interlinear gloss + notes | Ānandajoti Bhikkhu, 2017 | CC BY-SA 4.0 |
 | Commentary, titles, verse grouping | Ānandajoti's revision of Burlingame, 2024 | CC BY-SA 4.0 |
 
-**423** verses · **26** vaggas · **305** commentarial stories · **5,909**
+**423** verses · **26** vaggas · **305** commentarial stories · **5,486**
 indexed chunks. Full coverage, no gaps, validated on every build.
+
+Until October 2026 the verse layer also used the Mahāsaṅgīti Pali and Bhikkhu
+Sujato's English translation, both published by SuttaCentral. SuttaCentral
+[asked](https://discourse.suttacentral.net/t/licensing-question-retrieval-over-cc0-texts-does-this-fall-under-your-ai-request/45514)
+that their material not be used in any project that uses AI, so both were
+removed from the corpus and from the repository's history (the decision, and
+the one thing the history purge did not reach, are recorded in
+[`data/raw/PROVENANCE.md`](data/raw/PROVENANCE.md)).
 
 Use of the Ānandajoti editions is by written permission
 ([`sources/PERMISSION.md`](sources/PERMISSION.md)). Share-alike propagates:
@@ -317,6 +333,5 @@ at `docs/evaluation_pre_fix.md`.
 ## Acknowledgements
 
 **Ānandajoti Bhikkhu**, for the editions this project depends on and for
-permission to build on them. **Bhikkhu Sujato** and **SuttaCentral**, for the
-CC0 Pali and English texts. **E. W. Burlingame**, whose 1921 *Buddhist Legends*
-underlies the commentary translation.
+permission to build on them. **E. W. Burlingame**, whose 1921 *Buddhist
+Legends* underlies the commentary translation.

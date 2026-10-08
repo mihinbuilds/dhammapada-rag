@@ -105,3 +105,111 @@ Neither source has changed in git since the baseline commit. With
 permission granted, shipping the PDF in the repository is allowed but no
 longer necessary. It stays for now; `fetch.sh` is the alternative, and it
 makes version drift visible instead of silent.
+
+## SuttaCentral material: removed 2026-10-08
+
+### What was used
+
+From the first Phase 1 pass (fetched 2026-07-30) until 2026-10-08 the verse
+layer also carried two sources published by SuttaCentral, both taken from the
+`published` branch of their `bilara-data` repository:
+
+- the Mahāsaṅgīti Pāli root text of all 423 verses
+  (`sources/external/mahasangiti_pali/`), and
+- Bhikkhu Sujato's English translation of all 423 verses
+  (`sources/external/sujato_en/`).
+
+Both were indexed for retrieval, shown to the model in every generation
+prompt, displayed in the web interface and quoted in the evaluation records.
+
+### The ruling
+
+On 2026-10-08 the project asked on SuttaCentral's forum whether a
+retrieval-based question-answering system over these texts fell under their
+request that their content not be used for AI:
+[Licensing question: retrieval over CC0 texts — does this fall under your AI request?](https://discourse.suttacentral.net/t/licensing-question-retrieval-over-cc0-texts-does-this-fall-under-your-ai-request/45514)
+
+The same day, SuttaCentral's Forum Management Committee answered:
+
+> You cannot use Bhante Sujato's translations in any project which uses AI.
+
+They pointed to SuttaCentral's licensing page, which asks that their content
+"not be scraped or used in any way for the creation of datasets for
+generative AI", and to Bhante Sujato's 2024 essay *"Let's Make SuttaCentral
+100% AI-free Forever."* The thread was then closed.
+
+The material was released under CC0, and this project was under no legal
+obligation to remove it. It was removed because SuttaCentral asked, and
+because the project had said publicly in that thread that it would act on
+their answer either way. Their request covers content, not only the
+translation, so the Mahāsaṅgīti Pāli went too.
+
+### What was removed
+
+From the current tree (commit "Remove SuttaCentral material; Ānandajoti's
+interlinear carries the verse layer"):
+
+- both source directories, and `data/normalized/sc_pali.jsonl` and
+  `sc_sujato.jsonl` built from them;
+- the code that only read them (`ingest/normalize_sc_pali.py`,
+  `ingest/normalize_sc_sujato.py`, `ingest/_sc_segments.py`,
+  `tests/test_normalize.py`);
+- the two verse fields in `data/processed/verses.jsonl` and
+  `data/normalized/verses_joined.json`, and the two verse chunk types in
+  `data/index/chunks.jsonl` (5,909 chunks became 5,486);
+- every SuttaCentral string, and every verbatim span of 30 or more characters,
+  in the stored evaluation records (`data/eval/generation_raw.jsonl` and its
+  two archives, the three `research_validation_*.jsonl` files,
+  `tag_stability_results.json`), replaced with the marker
+  `[SuttaCentral text removed 2026-10-08]`; their source labels now read
+  "SuttaCentral";
+- the English shown in the blind annotation sheets, now Ānandajoti's;
+- one gold question and one annotator note that reused the translation's
+  wording, and the quotations of it in `docs/`;
+- the README screenshots, retaken.
+
+Ānandajoti Bhikkhu's 2017 interlinear Pāli and English, already present for
+all 423 verses, now carry the verse layer alone. He has since confirmed again
+in writing: "you are always welcome to use my work if you need to." A Pāli
+reader on the SuttaCentral forum who has memorised the Dhammapada across
+eight English translations recommended Ānandajoti's as among the best at
+preserving the Pāli meaning and sequence.
+
+### History purge, and its exception
+
+On 2026-10-08 the repository's history was rewritten with `git filter-repo`.
+The source directories, the two normalized files and the four code files
+above were removed from every commit (`--invert-paths`). The two earlier
+README screenshots, which showed the removed text, were stripped by blob ID
+(`--strip-blobs-with-ids`). Every commit hash changed. The pre-purge state
+was pushed first, and a full copy of the repository was kept locally (not
+published) in case the rewrite went wrong.
+
+**Exception: files whose earlier versions carried the text inside them.**
+Path-based removal cannot reach text stored inside a file that is still part
+of the project. Earlier versions of these files contain SuttaCentral text,
+and their history was not rewritten:
+
+- `data/processed/verses.jsonl` and `data/normalized/verses_joined.json`
+  (the two removed fields);
+- `data/index/chunks.jsonl` (the two removed chunk types);
+- `data/processed/corpus_audit_report.json`, `docs/corpus_audit.md` and
+  `docs/status_report.md` (cross-edition comparisons quoting it);
+- the evaluation records and annotation sheets listed above, and a few
+  quotations in `docs/`.
+
+The current version of every one of them does not contain it. A scan of
+the current tree for every SuttaCentral string, and for every 30-character
+fragment of one that does not also occur in Ānandajoti's sources, finds
+none.
+
+Why the history was documented rather than rewritten: rewriting these files'
+contents in every commit would change what each past evaluation result says
+it was computed from. The history would then misdescribe itself, which is
+the one thing a provenance record must not do. Removing the files from
+history entirely would do the same, more bluntly. This was a judgement call,
+recorded here so it can be revisited.
+
+One limit the project does not control: GitHub can keep serving a pre-purge
+commit by its old hash until its own garbage collection runs, and any clone
+or fork made before 2026-10-08 keeps the old history.
