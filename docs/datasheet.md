@@ -185,6 +185,20 @@ Details, source URLs and per-file checksums: `data/raw/PROVENANCE.md`.
   introduction calls this out explicitly as the one place in the whole text
   the source does this. `validate.py` reports this as the corpus's one
   remaining "duplicated verse"; it is expected, not a bug.
+- **Story 23.1's setting disagrees with the story it quotes (checked
+  2026-10-08), kept as the source has it.** 23.1's `nidana` says the verses
+  were given "while he was in residence at Jetavana". Its `vatthu` says the
+  story "is related in detail in the commentary on the first verses of the
+  Appamādavagga" (footnote 352: "Dhp-a 2.1") and quotes that story's
+  Māgandiyā episode. Story 2.1 is set "at Ghosita monastery near Kosambī",
+  and the episode takes place there. The source PDF has "Jetavana" at this
+  point (`data/raw/dhammapada-attakatha.txt`), so this is not an extraction
+  or alignment error: Dhp 320-322 → 23.1 is correct, and the corpus
+  reproduces its source. Which setting the Pāli commentary gives cannot be
+  checked here, because the corpus holds no Pāli aṭṭhakathā. The text is left
+  unchanged rather than corrected on inference. A generated answer that 23.1
+  was spoken at Jetavana is faithful to this edition, not to the episode it
+  narrates.
 - **Text cleaning pass (September 2026).** A corpus-wide scan of the story
   fields found extraction defects the checks above never looked for; all
   are now fixed in `parse_stories.py` itself (not patched downstream) and
