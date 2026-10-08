@@ -70,8 +70,6 @@ class VerseOut(BaseModel):
     vagga_number: int
     vagga_name_pali: str
     vagga_name_en: str
-    pali_mahasangiti: str | None
-    english_sujato: str | None
     interlinear_pali: str | None
     interlinear_english: str | None
     interlinear_notes: list[str]

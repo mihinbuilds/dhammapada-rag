@@ -10,7 +10,7 @@
     },
     "2_field_ownership": {
       "passed": true,
-      "n_checked": 1692,
+      "n_checked": 846,
       "violations": []
     },
     "3_encoding": {
@@ -32,19 +32,291 @@
     },
     "5_metrical_sanity": {
       "passed": true,
-      "n_padas_checked": 1772,
-      "n_anomalies": 0,
-      "anomaly_rate": 0.0,
-      "anomalies": []
-    },
-    "6_cross_source_agreement": {
-      "passed": true,
-      "n_verses": 423,
-      "n_exact": 246,
-      "n_boundary_artifact": 0,
-      "n_distinct": 177,
-      "exact_rate": 0.5816,
-      "distinct_rate": 0.4184
+      "n_padas_checked": 1454,
+      "n_anomalies": 56,
+      "anomaly_rate": 0.0385,
+      "anomalies": [
+        {
+          "verse": 44,
+          "pada": "Kŏ imaṁ paṭhaviṁ vicessati yamalokañ-ca imaṁ sadevakaṁ",
+          "n_syllables": 21
+        },
+        {
+          "verse": 44,
+          "pada": "Ko dhammapadaṁ sudesitaṁ kusalo puppham-ivappacessati",
+          "n_syllables": 20
+        },
+        {
+          "verse": 45,
+          "pada": "Sekho paṭhaviṁ vicessati yamalokañ-ca imaṁ sadevakaṁ",
+          "n_syllables": 20
+        },
+        {
+          "verse": 45,
+          "pada": "Sekho dhammapadaṁ sudesitaṁ kusalo puppham-ivappacessati",
+          "n_syllables": 21
+        },
+        {
+          "verse": 49,
+          "pada": "Yathā pi bhamaro pupphaṁ vaṇṇagandhaṁ aheṭhayaṁ paḷeti rasam-ādāya",
+          "n_syllables": 24
+        },
+        {
+          "verse": 58,
+          "pada": "Yathā saṅkāradhānasmiṁ ujjhitasmiṁ mahāpathe padumaṁ tattha jāyetha",
+          "n_syllables": 24
+        },
+        {
+          "verse": 59,
+          "pada": "andhabhūte puthujjane atirocati paññāya Sammāsambuddhasāvako",
+          "n_syllables": 24
+        },
+        {
+          "verse": 75,
+          "pada": "evam-etaṁ abhiññāya bhikkhu Buddhassa sāvako sakkāraṁ nābhinandeyya",
+          "n_syllables": 24
+        },
+        {
+          "verse": 108,
+          "pada": "Yaṁ kiñci yiṭṭhaṁ ca hutaṁ ca loke saṁvaccharaṁ yajetha puññapekkho",
+          "n_syllables": 22
+        },
+        {
+          "verse": 127,
+          "pada": "na vijjatī so jagatippadeso yatthaṭṭhito mucceyya pāpakammā",
+          "n_syllables": 22
+        },
+        {
+          "verse": 137,
+          "pada": "Yo daṇḍena adaṇḍesu appaduṭṭhesu dussati dasannam-aññataraṁ ṭhānaṁ khippam-eva nigacchati",
+          "n_syllables": 33
+        },
+        {
+          "verse": 138,
+          "pada": "jāniṁ",
+          "n_syllables": 2
+        },
+        {
+          "verse": 149,
+          "pada": "Yānimāni apatthāni alāpūneva sārade kāpotakāni aṭṭhīni",
+          "n_syllables": 24
+        },
+        {
+          "verse": 153,
+          "pada": "Anekajātisaṁsāraṁ sandhāvissaṁ anibbisaṁ gahakārakaṁ gavesanto",
+          "n_syllables": 25
+        },
+        {
+          "verse": 156,
+          "pada": "Acaritvā brahmacariyaṁ aladdhā yobbane dhanaṁ senti cāpātikhittā va",
+          "n_syllables": 25
+        },
+        {
+          "verse": 164,
+          "pada": "Yo sāsanaṁ arahataṁ Ariyānaṁ Dhammajīvinaṁ paṭikkosati dummedho diṭṭhiṁ nissāya pāpikaṁ",
+          "n_syllables": 33
+        },
+        {
+          "verse": 188,
+          "pada": "Bahuṁ ve saraṇaṁ yanti pabbatāni vanāni ca ārāmarukkhacetyāni",
+          "n_syllables": 24
+        },
+        {
+          "verse": 199,
+          "pada": "Susukhaṁ vata jīvāma ussukesu anussukā ussukesu manussesu viharāma anussukā",
+          "n_syllables": 32
+        },
+        {
+          "verse": 208,
+          "pada": "tasmā hi",
+          "n_syllables": 3
+        },
+        {
+          "verse": 208,
+          "pada": "taṁ tādisaṁ sappurisaṁ sumedhaṁ bhajetha nakkhattapathaṁ va candimā",
+          "n_syllables": 23
+        },
+        {
+          "verse": 227,
+          "pada": "Atula",
+          "n_syllables": 3
+        },
+        {
+          "verse": 243,
+          "pada": "bhikkhavo",
+          "n_syllables": 3
+        },
+        {
+          "verse": 249,
+          "pada": "tattha yo maṅku bhavati paresaṁ pānabhojane na so divā vā rattiṁ vā",
+          "n_syllables": 24
+        },
+        {
+          "verse": 262,
+          "pada": "Na vākkaraṇamattena vaṇṇapokkharatāya vā sādhurūpo naro hoti",
+          "n_syllables": 24
+        },
+        {
+          "verse": 284,
+          "pada": "Yāva hi vanatho na chijjati aṇumatto pi narassa nārisu",
+          "n_syllables": 21
+        },
+        {
+          "verse": 285,
+          "pada": "santimaggam-eva brūhaya Nibbānaṁ Sugatena desitaṁ",
+          "n_syllables": 19
+        },
+        {
+          "verse": 293,
+          "pada": "Yesañ-ca susamāraddhā niccaṁ kāyagatā sati akiccaṁ te na sevanti",
+          "n_syllables": 24
+        },
+        {
+          "verse": 301,
+          "pada": "Suppabuddhaṁ pabujjhanti sadā Gotamasāvakā yesaṁ divā ca ratto ca bhāvanāya rato mano",
+          "n_syllables": 32
+        },
+        {
+          "verse": 306,
+          "pada": "ubho pi te pecca samā bhavanti nihīnakammā manujā parattha",
+          "n_syllables": 22
+        },
+        {
+          "verse": 320,
+          "pada": "Ahaṁ nāgo va saṅgāme cāpāto patitaṁ saraṁ ativākyaṁ titikkhissaṁ",
+          "n_syllables": 24
+        },
+        {
+          "verse": 324,
+          "pada": "Dhanapālakŏ nāma kuñjaro kaṭukappabhedano dunnivārayo",
+          "n_syllables": 22
+        },
+        {
+          "verse": 326,
+          "pada": "Idaṁ pure cittam-acāri cārikaṁ yenicchakaṁ yatthakāmaṁ yathāsukhaṁ",
+          "n_syllables": 24
+        },
+        {
+          "verse": 328,
+          "pada": "Sace labhetha nipakaṁ sahāyaṁ saddhiṁcaraṁ sādhuvihāridhīraṁ",
+          "n_syllables": 22
+        },
+        {
+          "verse": 328,
+          "pada": "abhibhuyya sabbāni parissayāni careyya tenattamano satīmā",
+          "n_syllables": 23
+        },
+        {
+          "verse": 329,
+          "pada": "No ce labhetha nipakaṁ sahāyaṁ saddhiṁcaraṁ sādhuvihāridhīraṁ",
+          "n_syllables": 22
+        },
+        {
+          "verse": 329,
+          "pada": "rājā va raṭṭhaṁ vijitaṁ pahāya eko care mātaṅgaraññe va nāgo",
+          "n_syllables": 23
+        },
+        {
+          "verse": 334,
+          "pada": "Manujassa pamattacārino taṇhā vaḍḍhati māluvā viya",
+          "n_syllables": 20
+        },
+        {
+          "verse": 334,
+          "pada": "so palavatī hurāhuraṁ phalam-icchaṁ va vanasmi’ vānaro",
+          "n_syllables": 20
+        },
+        {
+          "verse": 338,
+          "pada": "evam-pi taṇhānusaye anūhate nibbattatī dukkham-idaṁ punappunaṁ",
+          "n_syllables": 24
+        },
+        {
+          "verse": 341,
+          "pada": "Saritāni sinehitāni ca sŏmanassāni bhavanti jantuno",
+          "n_syllables": 21
+        },
+        {
+          "verse": 342,
+          "pada": "Tasiṇāya purakkhatā pajā parisappanti saso va bādhito",
+          "n_syllables": 21
+        },
+        {
+          "verse": 342,
+          "pada": "saṁyojanasaṅgasattakā dukkham-upenti punappunaṁ cirāya",
+          "n_syllables": 21
+        },
+        {
+          "verse": 343,
+          "pada": "Tasiṇāya purakkhatā pajā parisappanti saso va bādhito",
+          "n_syllables": 21
+        },
+        {
+          "verse": 345,
+          "pada": "sārattarattā maṇikuṇḍalesu puttesu dāresu ca yā apekhā",
+          "n_syllables": 22
+        },
+        {
+          "verse": 347,
+          "pada": "Ye rāgarattānupatanti sotaṁ sayaṁkataṁ makkaṭako va jālaṁ",
+          "n_syllables": 22
+        },
+        {
+          "verse": 350,
+          "pada": "Vitakkupasame ca yo rato asubhaṁ bhāvayatī sadā sato",
+          "n_syllables": 21
+        },
+        {
+          "verse": 352,
+          "pada": "sa ve antimasārīro mahāpañño (mahāpuriso) ti vuccati",
+          "n_syllables": 21
+        },
+        {
+          "verse": 371,
+          "pada": "Jhāya",
+          "n_syllables": 2
+        },
+        {
+          "verse": 371,
+          "pada": "bhikkhu",
+          "n_syllables": 2
+        },
+        {
+          "verse": 371,
+          "pada": "pamatto",
+          "n_syllables": 3
+        },
+        {
+          "verse": 371,
+          "pada": "mā kandi",
+          "n_syllables": 3
+        },
+        {
+          "verse": 374,
+          "pada": "Yato yato sammasati khandhānaṁ udayabbayaṁ labhatī pītipāmojjaṁ",
+          "n_syllables": 24
+        },
+        {
+          "verse": 383,
+          "pada": "brāhmaṇa",
+          "n_syllables": 3
+        },
+        {
+          "verse": 383,
+          "pada": "brāhmaṇa",
+          "n_syllables": 3
+        },
+        {
+          "verse": 388,
+          "pada": "pabbājayam-attano malaṁ tasmā pabbajito ti vuccati",
+          "n_syllables": 19
+        },
+        {
+          "verse": 389,
+          "pada": "tato",
+          "n_syllables": 2
+        }
+      ]
     },
     "7_title_body_coherence": {
       "passed": true,

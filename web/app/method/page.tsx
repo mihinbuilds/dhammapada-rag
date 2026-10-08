@@ -103,9 +103,9 @@ export default function MethodPage() {
           <EvalTable
             columns={[{ header: "Layer" }, { header: "Source" }, { header: "License" }]}
             rows={[
-              ["Pali verse", "Mahāsaṅgīti (via SuttaCentral)", "CC0"],
-              ["English verse", "Bhikkhu Sujato (via SuttaCentral)", "CC0"],
-              ["Interlinear gloss", "Ānandajoti Bhikkhu, 2017", "CC BY-SA 4.0"],
+              ["Pali verse", "Ānandajoti Bhikkhu, 2017 interlinear", "CC BY-SA 4.0"],
+              ["English verse", "Ānandajoti Bhikkhu, 2017 interlinear", "CC BY-SA 4.0"],
+              ["Gloss notes", "Ānandajoti Bhikkhu, 2017 interlinear", "CC BY-SA 4.0"],
               ["Commentary & grouping", "Ānandajoti's revision of Burlingame, 2024", "CC BY-SA 4.0"],
             ]}
           />

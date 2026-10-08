@@ -47,12 +47,12 @@ from schemas import (
 def bundle(group_id: str, verses: list[int]) -> dict:
     """Minimal but build_context()-complete bundle: enough fields for
     audit()'s tests (group_id, dhp_verses) and for the prompt-renderer
-    contract test below (verse_numbers, verses[].pali_mahasangiti,
+    contract test below (verse_numbers, verses[].interlinear_pali,
     stories[].title_en are all accessed unconditionally by
     format_verse_group)."""
     return {
         "verse_numbers": verses,
-        "verses": [{"verse": v, "pali_mahasangiti": f"<pali text for {v}>"} for v in verses],
+        "verses": [{"verse": v, "interlinear_pali": f"<pali text for {v}>"} for v in verses],
         "stories": [
             {
                 "group_id": group_id,
@@ -453,15 +453,17 @@ def test_label_in_text_and_citation_in_text_are_independent_checks():
 # Round 4, Task F: verse text relabelled as commentary
 # --------------------------------------------------------------------------
 
-def bundle_with_verse_text(group_id: str, verse: int, verse_text: str) -> dict:
+def bundle_with_verse_text(group_id: str, verse: int, verse_text: str,
+                           field: str = "interlinear_pali") -> dict:
     b = bundle(group_id, [verse])
-    b["verses"][0]["pali_mahasangiti"] = verse_text
+    b["verses"][0][field] = verse_text
     return b
 
 
+# Ānandajoti's interlinear English for Dhp 222 (the verse layer since Round 13).
 DHP_222_TEXT = (
-    "When anger surges like a lurching chariot, keep it in check. That's "
-    "what I call a charioteer; others just hold the reins."
+    "Whoever should hold back arisen anger just like a swerving chariot, that "
+    "one I say is a charioteer, other people are just rein-holders."
 )
 
 
@@ -469,7 +471,7 @@ def test_verbatim_verse_tagged_commentary_is_flagged():
     """The actual observed failure: Dhp 222's own words, tagged 'commentary'
     because the model needed to satisfy the COVERAGE instruction and had
     little else to draw on."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
         answer(CommentaryClaim(text=DHP_222_TEXT, group_id="5.4", verse_number=222)),
         [b],
@@ -481,7 +483,7 @@ def test_verbatim_verse_tagged_commentary_is_flagged():
 def test_same_sentence_tagged_verse_is_not_flagged():
     """The mirror case: the identical wording, correctly tagged 'verse',
     must not trip the commentary-only check."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
         answer(VerseClaim(text=DHP_222_TEXT, group_id="5.4", verse_number=222)),
         [b],
@@ -492,7 +494,7 @@ def test_same_sentence_tagged_verse_is_not_flagged():
 def test_genuine_narrative_commentary_is_not_flagged():
     """A real commentary claim, wording nothing like the verse, must not be
     flagged just for being tagged 'commentary'."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
         answer(CommentaryClaim(
             text="A quarrelsome bhikkhu was rebuked by the Buddha at Jetavana for his temper.",
@@ -507,7 +509,7 @@ def test_commentary_legitimately_quoting_the_verse_is_not_flagged():
     """Moderate overlap is expected and tolerated -- a nidana commonly opens
     by naming the verse it explains. Only a dominant overlap (> threshold)
     is evidence of mislabelling, not any shared wording at all."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
         answer(CommentaryClaim(
             text="The Buddha spoke the verse about anger and the chariot to a monk who lost his temper "
@@ -523,9 +525,9 @@ def test_short_claim_is_not_scored():
     """Below MIN_CONTENT_WORDS a claim is too short to measure reliably --
     must not be flagged just because its handful of words happen to appear
     in the verse."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
-        answer(CommentaryClaim(text="Keep anger in check.", group_id="5.4", verse_number=222)),
+        answer(CommentaryClaim(text="Hold back arisen anger.", group_id="5.4", verse_number=222)),
         [b],
     )
     assert "VERSE_TEXT_AS_COMMENTARY" not in codes(ws)
@@ -546,7 +548,7 @@ def test_verse_text_as_commentary_falls_back_to_union_when_verse_number_unresolv
     still checkable against the union of retrieved verse text -- this is an
     independent content check from whatever the citation-validity tier
     (VERSE_GROUP_MISMATCH etc.) makes of the same claim."""
-    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT)
+    b = bundle_with_verse_text("5.4", 222, DHP_222_TEXT, "interlinear_english")
     ws = audit(
         answer(CommentaryClaim(text=DHP_222_TEXT, group_id="5.4", verse_number=999)),
         [b],
@@ -573,17 +575,17 @@ def test_corpus_ids_are_all_canonical():
 
 # --------------------------------------------------------------------------
 # Round 4, Task J: pali_support validated as a substring of the cited
-# verse's own Pali (pali_mahasangiti), NFC-normalized on both sides
+# verse's own Pali (interlinear_pali), NFC-normalized on both sides
 # --------------------------------------------------------------------------
 
-PALI_222 = "Yo ve uppatitaṃ kodhaṃ rathaṃ bhantaṃva vāraye"
+PALI_222 = "Yo ve uppatitaṁ kodhaṁ rathaṁ bhantaṁ va dhāraye"
 
 
 def test_pali_support_matching_substring_not_flagged():
     b = bundle_with_verse_text("5.4", 222, PALI_222)
     ws = audit(
         answer(VerseClaim(text="Anger is checked like a chariot.", group_id="5.4", verse_number=222,
-                           pali_support="uppatitaṃ kodhaṃ")),
+                           pali_support="uppatitaṁ kodhaṁ")),
         [b],
     )
     assert "PALI_QUOTE_NOT_IN_SOURCE" not in codes(ws)
@@ -606,7 +608,7 @@ def test_pali_support_from_a_different_verse_is_flagged():
     string -- checked against the cited verse_number's own text only."""
     b1 = bundle_with_verse_text("5.4", 222, PALI_222)
     b2 = bundle("1.1", [1])
-    b2["verses"][0]["pali_mahasangiti"] = "Manopubbaṅgamā dhammā manoseṭṭhā manomayā"
+    b2["verses"][0]["interlinear_pali"] = "Manopubbaṅgamā dhammā, manoseṭṭhā manomayā"
     ws = audit(
         answer(VerseClaim(text="Anger is checked like a chariot.", group_id="5.4", verse_number=222,
                            pali_support="Manopubbaṅgamā dhammā")),
@@ -633,7 +635,7 @@ def test_pali_support_nfc_normalization():
     mismatch -- both sides are NFC-normalized before comparison."""
     decomposed_source = unicodedata.normalize("NFD", PALI_222)
     b = bundle_with_verse_text("5.4", 222, decomposed_source)
-    composed_quote = unicodedata.normalize("NFC", "uppatitaṃ kodhaṃ")
+    composed_quote = unicodedata.normalize("NFC", "uppatitaṁ kodhaṁ")
     ws = audit(
         answer(VerseClaim(text="Anger is checked like a chariot.", group_id="5.4", verse_number=222,
                            pali_support=composed_quote)),
@@ -652,39 +654,40 @@ def test_pali_support_only_checked_when_bundles_given():
 
 # --------------------------------------------------------------------------
 # Round 6, Task P: three-tier Pali matching (exact / edition variant /
-# fabrication). Worked examples are the brief's own table: Dhp 221's
-# "sabbam-atikkameyya" vs Mahasangiti's "sabbamatikkameyya" (one hyphen),
-# Dhp 222's "tam-ahaṁ"/"bhantaṁ va" vs "Tamahaṁ"/"bhantaṁva" (space, hyphen,
-# case), Dhp 223 exact. Task O's probe found the hyphenated forms reach the
-# model's own prompt via the story's narrative Pali (Ānandajoti's edition),
-# not just pali_mahasangiti -- so the widened candidate set below includes
-# interlinear_pali and a story's pali_verse, not pali_mahasangiti alone.
+# fabrication). The Round 6 worked examples were Dhp 221's
+# "sabbam-atikkameyya" vs an unhyphenated "sabbamatikkameyya", and Dhp 222's
+# "tam-ahaṁ"/"bhantaṁ va" vs "Tamahaṁ"/"bhantaṁva" (space, hyphen, case).
+# Task O's probe found more than one orthography reaching the model's own
+# prompt, so the candidate set covers every Pali field in context: the
+# verse record's interlinear_pali and each story's pali_verse.
+#
+# Since Round 13 the second orthography in these fixtures is synthetic --
+# Ānandajoti's line with the sandhi hyphens dropped -- standing in for the
+# removed SuttaCentral edition (data/raw/PROVENANCE.md).
 # --------------------------------------------------------------------------
 
-MAHASANGITI_221 = (
-    "Kodhaṁ jahe vippajaheyya mānaṁ, Saṁyojanaṁ sabbamatikkameyya; "
-    "Taṁ nāmarūpasmimasajjamānaṁ, Akiñcanaṁ nānupatanti dukkhā."
-)
 ANANDAJOTI_221 = (
     "Kodhaṁ jahe, vippajaheyya mānaṁ, saṁyojanaṁ sabbam-atikkameyya, "
     "taṁ nāmarūpasmiṁ asajjamānaṁ, akiñcanaṁ nānupatanti dukkhā."
 )
+UNHYPHENATED_221 = ANANDAJOTI_221.replace("-", "")
 
 
-def bundle_with_two_pali_editions(group_id: str, verse: int, mahasangiti: str, interlinear: str) -> dict:
+def bundle_with_two_pali_editions(group_id: str, verse: int, story_pali: str, interlinear: str) -> dict:
     b = bundle(group_id, [verse])
-    b["verses"][0]["pali_mahasangiti"] = mahasangiti
+    b["stories"][0]["pali_verse"] = story_pali
+    b["stories"][0]["pali_verse_number"] = verse
     b["verses"][0]["interlinear_pali"] = interlinear
     return b
 
 
 def test_pali_quote_matching_only_a_different_edition_is_warning_not_error():
-    """The Round 6 finding: a quote absent from pali_mahasangiti but present
-    verbatim in interlinear_pali (a field genuinely in the model's own
-    context, per Task O) is a citable, exact match against THAT field --
-    not an error, and not even folded-orthography 'variant' once the
-    candidate set is widened to the field the model actually copied from."""
-    b = bundle_with_two_pali_editions("20.11", 221, MAHASANGITI_221, ANANDAJOTI_221)
+    """The Round 6 finding: a quote absent from one Pali field but present
+    verbatim in another (a field genuinely in the model's own context, per
+    Task O) is a citable, exact match against THAT field -- not an error,
+    and not even folded-orthography 'variant' once the candidate set is
+    widened to the field the model actually copied from."""
+    b = bundle_with_two_pali_editions("20.11", 221, UNHYPHENATED_221, ANANDAJOTI_221)
     ws = audit(
         answer(VerseClaim(text="Overcome all fetters.", group_id="20.11", verse_number=221,
                            pali_support="sabbam-atikkameyya")),
@@ -698,7 +701,7 @@ def test_pali_quote_orthographic_variant_matches_no_field_verbatim_is_warning():
     """A quote that matches no available field byte-for-byte, but folds to
     match one once hyphenation/spacing/case/niggahita variants are
     normalized away, is edition variance -- warning, not error."""
-    b = bundle_with_two_pali_editions("20.11", 221, MAHASANGITI_221, ANANDAJOTI_221)
+    b = bundle_with_two_pali_editions("20.11", 221, UNHYPHENATED_221, ANANDAJOTI_221)
     ws = audit(
         # Space instead of hyphen: not a literal substring of either field.
         answer(VerseClaim(text="Overcome all fetters.", group_id="20.11", verse_number=221,
@@ -712,7 +715,7 @@ def test_pali_quote_orthographic_variant_matches_no_field_verbatim_is_warning():
 
 
 def test_pali_quote_matching_neither_edition_nor_variant_is_error():
-    b = bundle_with_two_pali_editions("20.11", 221, MAHASANGITI_221, ANANDAJOTI_221)
+    b = bundle_with_two_pali_editions("20.11", 221, UNHYPHENATED_221, ANANDAJOTI_221)
     ws = audit(
         answer(VerseClaim(text="Overcome all fetters.", group_id="20.11", verse_number=221,
                            pali_support="completely invented pali words")),
@@ -725,9 +728,9 @@ def test_pali_quote_matching_neither_edition_nor_variant_is_error():
 
 def test_pali_quote_checked_against_story_pali_verse_too():
     """The widened candidate set includes a retrieved story's own pali_verse
-    field, not just the verse record's two Pali fields."""
+    field, not just the verse record's own Pali."""
     b = bundle("20.11", [287])
-    b["verses"][0]["pali_mahasangiti"] = "unrelated mahasangiti text for 287"
+    b["verses"][0]["interlinear_pali"] = "unrelated verse-record text for 287"
     b["stories"][0]["pali_verse"] = "Taṁ puttapasusammattaṁ byāsattamanasaṁ naraṁ"
     ws = audit(
         answer(VerseClaim(text="Death takes the doting.", group_id="20.11", verse_number=287,
@@ -799,8 +802,8 @@ def test_pali_verse_falls_back_to_group_union_when_verse_number_absent():
 # below PALI_COVERAGE_THRESHOLD=0.6).
 # --------------------------------------------------------------------------
 
-DHP_194_FULL = "Sukho buddhānamuppādo, sukhā saddhammadesanā; Sukhā saṅghassa sāmaggī, samaggānaṁ tapo sukho."
-DHP_194_HALF = "Sukho buddhānamuppādo, sukhā saddhammadesanā"
+DHP_194_FULL = "Sukho Buddhānam-uppādo, sukhā Saddhammadesanā, sukhā Saṅghassa sāmaggī, samaggānaṁ tapo sukho."
+DHP_194_HALF = "Sukho Buddhānam-uppādo, sukhā Saddhammadesanā"
 
 
 def test_pali_quote_truncated_to_half_verse_is_flagged_warning():

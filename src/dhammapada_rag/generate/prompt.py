@@ -140,7 +140,8 @@ Pali quote back to the reader regardless of what the prompt asked, so the
 verse layer never showed its own language even though every source block
 here prints it. `generate/schemas.py` now defines `VerseClaim.pali_support`
 and PALI SUPPORT below asks for it explicitly; `audit()` validates it as an
-NFC-normalized substring of the cited verse's own `pali_mahasangiti`, and
+NFC-normalized substring of the cited verse's own Pali (since Round 13,
+`interlinear_pali`), and
 `render.py` prints it beneath the verse claim it supports.
 
 Also: CITATIONS still states the *completeness* requirement ("must carry a
@@ -246,7 +247,7 @@ def _strip_control_chars(s: str) -> str:
 
 SYSTEM_PROMPT = """You are answering questions about the Dhammapada using ONLY the source material provided in the user message.
 
-ROLE AND SOURCES. The source has two layers, roughly eight centuries apart, and you must never conflate them. VERSE is the canonical Dhammapada verse (Pali plus English translations) -- the Buddha's own words. COMMENTARY is Buddhaghosa's aṭṭhakathā: the narrative explaining who a verse was spoken to, when, and why, compiled centuries later -- not the verse's own words, even where it explains the verse correctly.
+ROLE AND SOURCES. The source has two layers, roughly eight centuries apart, and you must never conflate them. VERSE is the canonical Dhammapada verse (Pali plus English translation) -- the Buddha's own words. COMMENTARY is Buddhaghosa's aṭṭhakathā: the narrative explaining who a verse was spoken to, when, and why, compiled centuries later -- not the verse's own words, even where it explains the verse correctly.
 
 TAGGING. Every claim carries exactly one layer tag: "verse" for what the verse itself literally says; "commentary" for anything drawn from the aṭṭhakathā -- occasion, persons, narrative, outcome, or interpretation beyond the verse's own words; "alignment" for a fact about the corpus's own editorial structure -- which story explains which verse(s), how many verses a group covers -- stated by neither the verse nor the commentary itself; "synthesis" for your own inference or generalization, drawn from neither text directly.
 
@@ -266,7 +267,7 @@ SOURCE DISPOSITION. Every retrieved source group must get exactly one dispositio
 
 CITATIONS. Every "verse" and "commentary" claim must carry a group_id and verse_number identifying its source; never leave either empty. A claim about a verse group cites the group's first verse. An "alignment" claim instead carries a group_id and verse_numbers -- the group's COMPLETE list of verse numbers, never a single one.
 
-PALI SUPPORT. Every "verse" claim must also carry pali_support: a pada copied verbatim, byte for byte, from that verse's "Pali (Mahasangiti)" line below -- its exact spelling and word-joining, not a differently-hyphenated or differently-spaced form you may recognize from elsewhere. Copy only from the Mahasangiti line printed in this prompt, never from memory, even if you can recite the verse -- other editions join or hyphenate words differently, and a quote that does not match this printed line character for character will be rejected as unsupported.
+PALI SUPPORT. Every "verse" claim must also carry pali_support: a pada copied verbatim, byte for byte, from that verse's "Pali (Anandajoti interlinear)" line below -- its exact spelling and word-joining, not a differently-hyphenated or differently-spaced form you may recognize from elsewhere. Copy only from the Pali line printed in this prompt, never from memory, even if you can recite the verse -- other editions join or hyphenate words differently, and a quote that does not match this printed line character for character will be rejected as unsupported.
 
 OUTPUT DISCIPLINE. The `text` field is prose for a human reader. It must never begin with "verse:", "commentary:", "alignment:", "synthesis:", "group_id:", or "verse_number:" -- the layer belongs in the layer field, the citation in its own fields, not as a label inside the prose.
 
@@ -360,9 +361,10 @@ def format_verse_group(bundle: dict, narrative_budget_chars: int = NARRATIVE_BUD
         ids = ", ".join(s["group_id"] for s in stories)
         lines.append(f"group_id: {ids} (multiple stories explain this verse group; cite whichever applies)")
     for v in bundle["verses"]:
-        lines.append(f"Dhp {v['verse']} -- Pali (Mahasangiti): {v['pali_mahasangiti']}")
-        if v.get("english_sujato"):
-            lines.append(f"Dhp {v['verse']} -- English (Sujato): {v['english_sujato']}")
+        # Round 13: Ānandajoti's interlinear is the only verse source; the
+        # SuttaCentral Pali and English lines were removed at SuttaCentral's
+        # request (data/raw/PROVENANCE.md).
+        lines.append(f"Dhp {v['verse']} -- Pali (Anandajoti interlinear): {v['interlinear_pali']}")
         if v.get("interlinear_english"):
             lines.append(f"Dhp {v['verse']} -- English (Anandajoti interlinear): {v['interlinear_english']}")
 

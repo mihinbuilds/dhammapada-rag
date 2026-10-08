@@ -162,8 +162,8 @@ For each claim in a generated `LayeredAnswer`:
 
 - **Correct** if the claim's tag (`verse`/`commentary`/`alignment`/
   `synthesis`) matches where its content actually originates, judged against
-  the gold verse-group's `pali_mahasangiti`/`english_sujato`/
-  `interlinear_english` (verse layer), `nidana`/`vatthu`/`desanavasane`/
+  the gold verse-group's `interlinear_pali`/`interlinear_english` (verse
+  layer; until 2026-10-08 also the two SuttaCentral fields, since removed), `nidana`/`vatthu`/`desanavasane`/
   `synopsis` (commentary layer), and the fact that a given story explains a
   given verse group (alignment layer -- see "The fourth layer" below).
 - **Verse paraphrase is scored as "verse," not "synthesis"** -- restating a
@@ -204,9 +204,8 @@ Reported as: (claims meeting this definition) / (total verse-or-commentary-tagge
 ### The mirror-image failure, and the one piece of it a machine can catch (Round 4, Task F)
 
 Round 1 made commentary engagement mandatory to stop all-`verse` output.
-That fix induced its own mirror-image failure: the same sentence -- "when
-anger surges like a lurching chariot, keep it in check... that's what I call
-a charioteer; others just hold the reins," verbatim Dhp 222 -- was observed
+That fix induced its own mirror-image failure: the same sentence -- Dhp
+222's English, verbatim [SuttaCentral text removed 2026-10-08] -- was observed
 tagged `verse` in response to one question and `commentary` in response to
 another. When retrieval returns verse-heavy groups with little usable
 narrative, the model can satisfy the COVERAGE instruction by relabelling a
@@ -308,8 +307,9 @@ existing checks:
 **Worked example 2 (Round 7, Task Y).** A generated claim tagged `verse`,
 citing Dhp 135, stated *"living beings desire rebirth despite the suffering
 it brings."* Dhp 135's actual content (`data/processed/verses.jsonl`,
-`english_sujato`): *"As a cowherd drives the cows to pasture with the rod,
-so too old age and death drive life from living beings"* -- a simile about
+`interlinear_english`; this example originally quoted the SuttaCentral
+translation, removed 2026-10-08): *"Like a cowherd with a stick drives cattle
+to pasture, so do old age and death drive life out of beings"* -- a simile about
 aging and death driving beings *out of* life, with no mention of desire for
 rebirth in either direction, let alone despite suffering. This is not a
 paraphrase that adds unstated content (which would be a layer-attribution

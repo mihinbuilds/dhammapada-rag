@@ -17,8 +17,6 @@ export interface VerseOut {
   vagga_number: number;
   vagga_name_pali: string;
   vagga_name_en: string;
-  pali_mahasangiti: string | null;
-  english_sujato: string | null;
   interlinear_pali: string | null;
   interlinear_english: string | null;
   interlinear_notes: string[];

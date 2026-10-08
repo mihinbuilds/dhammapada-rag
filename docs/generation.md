@@ -157,7 +157,7 @@ prompt change:
 ## Round 4: the mirror-image conflation, and answering the question asked
 
 **Verse text relabelled as commentary (Task F).** The same verbatim Dhp 222
-sentence ("when anger surges like a lurching chariot...") was observed
+sentence ([SuttaCentral text removed 2026-10-08]) was observed
 tagged `verse` in response to one question and `commentary` in response to
 another. Traced to Round 1's COVERAGE fix: requiring at least one
 `commentary` claim per answer, with no escape hatch, gives the model a way
@@ -727,8 +727,9 @@ the truncation observed in the brief's example answer was the model's, not
 an extraction gap -- Task AF applies, not a `docs/corpus_audit.md` addition.
 The suspected cross-verse attribution of `saccānaṁ caturo padā` was also
 checked directly: it is genuinely the first line of Dhp 273's own text
-(`Maggānaṭṭhaṅgiko seṭṭho, saccānaṁ caturo padā; Virāgo seṭṭho dhammānaṁ,
-dvipadānañca cakkhumā.`), not a neighbouring verse's words -- not cross-verse
+(`Maggānaṭṭhaṅgiko seṭṭho, saccānaṁ caturo padā, virāgo seṭṭho dhammānaṁ,
+dipadānañ-ca Cakkhumā.` -- Ānandajoti's text; the edition quoted here
+originally was SuttaCentral's, removed 2026-10-08), not a neighbouring verse's words -- not cross-verse
 contamination in this instance.
 
 Inspecting `audit()`'s Pali matching per the brief's instruction found a
@@ -786,8 +787,7 @@ VERSE CLAIM SPECIFICITY extended per the brief's instruction (comparatives/
 conditionals/negations must survive the paraphrase). Re-running the exact
 question live (qwen2.5:7b-instruct, same retrieval): the Dhp 103 probe
 ("who is the supreme conqueror?") produced a claim that correctly keeps the
-comparative's bound -- "conquers a million men in battle, but... a single
-man: himself" -- with zero warnings. The Dhp 273 claim's fourth clause also
+comparative's bound -- [SuttaCentral text removed 2026-10-08] -- with zero warnings. The Dhp 273 claim's fourth clause also
 now correctly keeps its bound ("the Visionary as the best of **humans**",
 i.e. *dvipadānaṁ*, two-footed beings). But the same claim's first three
 clauses did not: *"the best thing in life is the eightfold path, the four

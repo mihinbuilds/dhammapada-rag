@@ -415,7 +415,7 @@ def main():
     # the model actually quote." A half-quoted verse passes the substring
     # check cleanly (a truncation is a valid substring) and reads as a full
     # exact match in the tiers above -- this is what that number hides.
-    # Measured against the verse's own canonical pali_mahasangiti (not
+    # Measured against the verse's own canonical Pali, interlinear_pali (not
     # whichever field schemas.py's audit() happened to match against, which
     # this script doesn't have -- generation_raw.jsonl carries claims, not
     # bundles) on the orthographically folded forms, same fold audit() uses,
@@ -424,7 +424,7 @@ def main():
     # no verse text they actually quote to measure coverage of.
     verses_path = ROOT / "data" / "processed" / "verses.jsonl"
     verse_pali = {
-        v["verse"]: v.get("pali_mahasangiti")
+        v["verse"]: v.get("interlinear_pali")
         for v in (json.loads(l) for l in verses_path.read_text(encoding="utf-8").splitlines())
     }
     quote_coverages = []

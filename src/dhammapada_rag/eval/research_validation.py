@@ -186,9 +186,7 @@ def ctx_verse_only(bundles: list[dict]) -> str:
     for b in bundles:
         lines.append(f"=== Dhp {', '.join(str(n) for n in b['verse_numbers'])} ===")
         for v in b["verses"]:
-            lines.append(f"Dhp {v['verse']} -- Pali (Mahasangiti): {v['pali_mahasangiti']}")
-            if v.get("english_sujato"):
-                lines.append(f"Dhp {v['verse']} -- English (Sujato): {v['english_sujato']}")
+            lines.append(f"Dhp {v['verse']} -- Pali (Anandajoti): {v['interlinear_pali']}")
             if v.get("interlinear_english"):
                 lines.append(f"Dhp {v['verse']} -- English (Anandajoti): {v['interlinear_english']}")
         lines.append("")
@@ -227,9 +225,7 @@ def ctx_full(bundles: list[dict]) -> str:
     for b in bundles:
         lines.append(f"=== Dhp {', '.join(str(n) for n in b['verse_numbers'])} ===")
         for v in b["verses"]:
-            lines.append(f"Dhp {v['verse']} -- Pali (Mahasangiti): {v['pali_mahasangiti']}")
-            if v.get("english_sujato"):
-                lines.append(f"Dhp {v['verse']} -- English (Sujato): {v['english_sujato']}")
+            lines.append(f"Dhp {v['verse']} -- Pali (Anandajoti): {v['interlinear_pali']}")
             if v.get("interlinear_english"):
                 lines.append(f"Dhp {v['verse']} -- English (Anandajoti): {v['interlinear_english']}")
         for s in b["stories"]:

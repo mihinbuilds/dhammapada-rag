@@ -77,7 +77,7 @@ def _pali_line(c: Claim) -> str:
     """Indented line beneath a verse claim quoting the Pali it rests on.
 
     Round 4, Task J: the verse layer never showed its own language even
-    though the corpus carries pali_mahasangiti for every verse and the
+    though the corpus carries Pali for every verse and the
     prompt shows it -- schemas.py's `pali_support` field (audited against
     the source in `audit()`) is the model's copy of the pada it relied on;
     this is where it finally reaches the reader. "  \\n" is CommonMark's hard

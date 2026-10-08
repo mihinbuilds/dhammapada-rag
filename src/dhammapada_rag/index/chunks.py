@@ -59,11 +59,16 @@ not a 26.40 special case; it also cleans 21 other stories' minor
 next-chapter-heading leaks (each is the last story of its own vagga) as a
 side effect of the same one-line fix.
 
+ROUND 13 (2026-10-08) -- VERSE LAYER NOW ĀNANDAJOTI ONLY. The two
+SuttaCentral verse chunk types (Pali and English) are gone, removed at
+SuttaCentral's request (data/raw/PROVENANCE.md). Ānandajoti's interlinear
+Pali, previously unindexed, takes the Pali slot as verse_pali_interlinear;
+his interlinear English already had its own chunk type.
+
 Chunk types:
 
   verse-level (verses.jsonl, all 423):
-    verse_pali_ms         Mahasangiti Pali
-    verse_en_sujato       Sujato's English
+    verse_pali_interlinear  Anandajoti 2017 interlinear Pali
     verse_en_interlinear  Anandajoti 2017 interlinear English
     verse_notes           Interlinear scholarly notes, WINDOWED (philological
                            query type)
@@ -109,7 +114,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 WINDOW_WORDS = 200
 OVERLAP_WORDS = 40
 
-# Pure Pali (verse_pali_ms) is a categorically different density than English
+# Pure Pali (verse_pali_interlinear) is a categorically different density than English
 # narrative with embedded Pali names: measured 3.98 tokens/word on the one
 # case that actually overflowed (verse 423, 195 words -> 776 tokens -- under
 # the WINDOW_WORDS=200 threshold by word count, so never even split, and
@@ -208,8 +213,8 @@ def _strip_closing_verse_quote(text: str, dhp_verses: list[int]) -> str:
 
     Burlingame's translation convention closes most stories with "...he
     pronounced the following verse: <number>. <Pali>. <English>" -- the
-    narrative quotes, verbatim, the exact verse text that verse:<n>:pali_ms /
-    en_sujato / en_interlinear already carry as separate chunks. For short
+    narrative quotes, verbatim, the exact verse text that verse:<n>:pali_interlinear /
+    en_interlinear already carry as separate chunks. For short
     single-verse stories this closing quote is most of the field, so the
     resulting story_vatthu/story_desanavasane chunk is barely distinguishable
     from a verse chunk -- and out-competes the true verse-layer chunks (and
@@ -343,26 +348,18 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
 
     for v in verses:
         n = v["verse"]
-        if v.get("pali_mahasangiti"):
+        if v.get("interlinear_pali"):
             # Windowed defensively, not because verse text is normally long
-            # (it isn't -- this is a no-op single-chunk pass-through in every
-            # normal case) but because verse 423's pali_mahasangiti was found
-            # to carry the Mahasangiti source's trailing colophon (per-vagga
-            # story/verse-count uddana, ~170 extra words) concatenated on by
-            # Phase 1's build_verses.py segment-join. 776 tokens, well over
-            # embed.py's 512 limit. Out of scope to fix at the corpus level
-            # here (brief: "Do not regenerate data/processed/*.jsonl"), so
-            # made safe at chunking time like the synopsis/desanavasane cases
-            # above.
+            # (it isn't -- a single-chunk pass-through in every normal case)
+            # but because pure Pali runs ~4 tokens/word (see
+            # PALI_WINDOW_WORDS) and one bad extraction once pushed a verse
+            # well past embed.py's 512-token limit.
             chunks.extend(
                 _windowed_chunks(
-                    f"verse:{n}:pali_ms", "verse_pali_ms", v["pali_mahasangiti"], dhp_verses=[n], group_id=None,
+                    f"verse:{n}:pali_interlinear", "verse_pali_interlinear", v["interlinear_pali"],
+                    dhp_verses=[n], group_id=None,
                     window=PALI_WINDOW_WORDS, overlap=PALI_OVERLAP_WORDS,
                 )
-            )
-        if v.get("english_sujato"):
-            chunks.extend(
-                _windowed_chunks(f"verse:{n}:en_sujato", "verse_en_sujato", v["english_sujato"], dhp_verses=[n], group_id=None)
             )
         if v.get("interlinear_english"):
             chunks.extend(

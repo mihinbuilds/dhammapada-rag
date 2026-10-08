@@ -5,36 +5,14 @@ Fetched 2026-07-30 to close three gaps flagged after the first Phase 1 pass
 and `docs/licensing.md`): incomplete Pali verse coverage, no pada-gloss
 layer, and unconfirmed licensing on the narrative source's revision layer.
 
-## mahasangiti_pali/ -- complete Pali root text, all 423 verses
+## Removed: two SuttaCentral sources (2026-10-08)
 
-- Source: `suttacentral/bilara-data`, `published` branch,
-  `root/pli/ms/sutta/kn/dhp/dhp{range}_root-pli-ms.json` (26 files, one per
-  vagga's verse range, e.g. `dhp1-20_root-pli-ms.json`).
-- Fetched via: `curl` from
-  `https://raw.githubusercontent.com/suttacentral/bilara-data/published/...`
-- Text basis: Mahāsaṅgīti edition (the exact edition `docs/project_plan.md`'s
-  original plan specified), collated by the Dhamma Society, as adopted and
-  segment-ID-tagged by SuttaCentral.
-- License: **CC0 1.0 Universal (public domain dedication)**. Confirmed by
-  fetching `LICENSE.md` from the same repo/branch: "All translations created
-  in Bilara and supported by SuttaCentral are dedicated to the Public Domain
-  by means of the Creative Commons Public Domain (CC0) license." Root/segment
-  Pali text is included under the same repo-wide license. See
-  https://suttacentral.net/licensing for the canonical statement.
-- Format: JSON, `{"dhp<verse>:<line>": "Pali text "}`, plus `dhp<verse>:0.N`
-  header segments giving nikāya/vagga/story-title context per verse.
-
-## sujato_en/ -- second independent English translation, all 423 verses
-
-- Source: same repo/branch,
-  `translation/en/sujato/sutta/kn/dhp/dhp{range}_translation-en-sujato.json`.
-- Translator: Bhikkhu Sujato.
-- License: CC0, same basis as above.
-- Not one of the four gaps this fetch targeted, but directly fills
-  `docs/project_plan.md`'s original Phase 1 item 1 ask for "two English
-  translations," which the single-PDF prototype had been deviating from.
-  Ingested as a bonus since it was zero extra licensing risk once the Pali
-  fetch was already in progress.
+This directory used to hold two more sources fetched the same day from
+SuttaCentral: a Pali root text and an English translation of all 423 verses.
+SuttaCentral asked that their material not be used in any project that uses
+AI, so both were deleted, and the code and derived files built from them went
+with them. The ruling, the date and what was removed are recorded in
+[`data/raw/PROVENANCE.md`](../../data/raw/PROVENANCE.md).
 
 ## anandajoti_interlinear/ -- phrase-level gloss layer, all 423 verses
 

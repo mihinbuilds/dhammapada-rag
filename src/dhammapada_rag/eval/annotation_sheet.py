@@ -92,7 +92,7 @@ def build(per_category: int | None, out_path: Path) -> None:
         for q in gold:
             for g in candidate_pool(q, results.get(q["question_id"])):
                 s = stories[g]
-                verse_text = " / ".join(f"Dhp {v}: {verses[v]['english_sujato']}" for v in s["dhp_verses"])
+                verse_text = " / ".join(f"Dhp {v}: {verses[v]['interlinear_english']}" for v in s["dhp_verses"])
                 w.writerow([q["question_id"], q["question"], g, s["title_en"], s["synopsis"] or "", verse_text, "", ""])
                 n_rows += 1
     try:

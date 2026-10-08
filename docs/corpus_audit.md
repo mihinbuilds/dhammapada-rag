@@ -20,147 +20,20 @@ None found.
 
 ## 3. Pali character set
 
-0 verse(s) with a character in `pali_mahasangiti` outside the allowed IAST set.
+0 verse(s) with a character in `interlinear_pali` outside the allowed set.
 
-None found -- `pali_mahasangiti` stays within the allowed set (IAST letters plus the em dash/curly quotes genuinely present in reported-speech verses) across all 423 verses. An earlier, narrower version of this gate (IAST only, no typographic punctuation) flagged 22 verses here, all confirmed legitimate on hand inspection -- see git history for that finding; the gate was widened rather than the corpus changed.
+None found -- `interlinear_pali` stays within the allowed set across all 423 verses: IAST letters, Ānandajoti's breve vowels (ĕ, ŏ) for metrically short e/o, and the punctuation genuinely present in the source (curly quotes and dashes around reported speech, colon, ?, !, parentheses). The set has been widened twice, each time after hand inspection showed every hit was legitimate -- see git history; the corpus was never changed to pass it.
 
-## 4. Cross-source verse agreement (pali_mahasangiti vs. interlinear_pali)
+## 4. Cross-source verse agreement (retired)
 
-Of 423 verses with both fields: **246 exact** match after folding edition orthography (hyphenation/niggahita/case/spacing); **0 boundary-artifact** (one field is a normalized prefix or suffix of the other -- see below, not a content disagreement); **177 distinct** (rate 0.4184) -- genuine mismatches, the number worth acting on.
-
-**The boundary-artifact tier is 0 on the current corpus.** An earlier version of this corpus had `pali_mahasangiti` carrying a trailing vagga-name + verse-count colophon on every vagga-final verse, and `interlinear_pali` carrying a leading page-heading fragment on some vagga-initial verses -- both per-verse fields contaminated by neighboring structural text that extraction didn't trim at the verse boundary. `build_verses.py`'s cutover to Stage 2's normalized files (`docs/corpus_normalization.md`) fixed this at the source; this check finding 0 confirms the fix is holding, not a claim this script invents fresh each run. Hand-checking a sample of the *distinct* tier below shows it is mostly a separate, real finding, not a bug: genuine word-level differences between the two editions -- different verbal forms of the same root (Dhp 292: `karīyati` vs `kayirati`), different word choice entirely (Dhp 371: `ramessu` vs `bhamassu`; Dhp 69: `atha dukkhaṁ` vs `bālo dukkhaṁ`), not a formatting convention any normalization should fold away. **This reads as genuine cross-edition textual variance** -- exactly the phenomenon this project's own framing (Round 6, `docs/generation.md`) says it exists to represent, here found in the base corpus a layer before generation ever touches it -- not corpus damage. Confirming that at scale (rather than by spot-check) is a philology question a word-level diff and ideally a Pali-reading human, not this script, should answer -- flagged as Stage 0's own limit, not resolved here.
-
-Worst 20 genuinely distinct cases (lowest similarity first, boundary artifacts excluded):
-
-- Dhp 416 (similarity 0.661):
-  - mahasangiti:  `Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ. Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ.`
-  - interlinear:  `Yodha taṇhaṁ pahatvāna, anāgāro paribbaje, taṇhābhavaparikkhīṇaṁ, tam-ahaṁ brūmi brāhmaṇaṁ.`
-- Dhp 380 (similarity 0.8834):
-  - mahasangiti:  `Attā hi attano nātho, ko hi nātho paro siyā; Attā hi attano gati, tasmā saṁyamamattānaṁ; Assaṁ bhadraṁva vāṇijo.`
-  - interlinear:  `Attā hi attano nātho, attā hi attano gati, tasmā saṁyamayattānaṁ assaṁ bhadraṁ va vāṇijo.`
-- Dhp 343 (similarity 0.9247):
-  - mahasangiti:  `Tasiṇāya purakkhatā pajā, Parisappanti sasova bandhito; Tasmā tasiṇaṁ vinodaye, Ākaṅkhanta virāgamattano.`
-  - interlinear:  `Tasiṇāya purakkhatā pajā parisappanti saso va bādhito, tasmā tasiṇaṁ vinodaye – bhikkhu ākaṅkha’ virāgam-attano.`
-- Dhp 371 (similarity 0.9286):
-  - mahasangiti:  `Jhāya bhikkhu mā pamādo, Mā te kāmaguṇe ramessu cittaṁ; Mā lohaguḷaṁ gilī pamatto, Mā kandi “dukkhamidan”ti dayhamāno.`
-  - interlinear:  `Jhāya, bhikkhu, mā ca pāmado, mā te kāmaguṇe bhamassu cittaṁ, mā lohaguḷaṁ gilī, pamatto, mā kandi: ‘Dukkham-idan’-ti ḍayhamāno.`
-- Dhp 292 (similarity 0.9308):
-  - mahasangiti:  `Yañhi kiccaṁ apaviddhaṁ, akiccaṁ pana karīyati; Unnaḷānaṁ pamattānaṁ, tesaṁ vaḍḍhanti āsavā.`
-  - interlinear:  `Yaṁ hi kiccaṁ tad-apaviddhaṁ, akiccaṁ pana kayirati, unnalānaṁ pamattānaṁ, tesaṁ vaḍḍhanti āsavā.`
-- Dhp 69 (similarity 0.9404):
-  - mahasangiti:  `Madhuṁvā maññati bālo, yāva pāpaṁ na paccati; Yadā ca paccati pāpaṁ, atha dukkhaṁ nigacchati.`
-  - interlinear:  `Madhuvā maññati bālo, yāva pāpaṁ na paccati, yadā ca paccati pāpaṁ, bālo dukkhaṁ nigacchati.`
-- Dhp 340 (similarity 0.9434):
-  - mahasangiti:  `Savanti sabbadhi sotā, latā uppajja tiṭṭhati; Tañca disvā lataṁ jātaṁ, mūlaṁ paññāya chindatha.`
-  - interlinear:  `Savanti sabbadhī sotā, latā ubbhijja tiṭṭhati, tañ-ca disvā lataṁ jātaṁ mūlaṁ paññāya chindatha.`
-- Dhp 95 (similarity 0.9503):
-  - mahasangiti:  `Pathavisamo no virujjhati, Indakhilupamo tādi subbato; Rahadova apetakaddamo, Saṁsārā na bhavanti tādino.`
-  - interlinear:  `Paṭhavisamo no virujjhati, indakhīlūpamŏ tādi subbato, rahado va apetakaddamo – saṁsārā na bhavanti tādino.`
-- Dhp 240 (similarity 0.9508):
-  - mahasangiti:  `Ayasāva malaṁ samuṭṭhitaṁ, Tatuṭṭhāya tameva khādati; Evaṁ atidhonacārinaṁ, Sāni kammāni nayanti duggatiṁ.`
-  - interlinear:  `Ayasā va malaṁ samuṭṭhitaṁ, taduṭṭhāya tam-eva khādati, evaṁ atidhonacārinaṁ – sakakammāni nayanti duggatiṁ.`
-- Dhp 324 (similarity 0.9529):
-  - mahasangiti:  `Dhanapālo nāma kuñjaro, Kaṭukabhedano dunnivārayo; Baddho kabaḷaṁ na bhuñjati, Sumarati nāgavanassa kuñjaro.`
-  - interlinear:  `Dhanapālakŏ nāma kuñjaro kaṭukappabhedano dunnivārayo, baddho kabalaṁ na bhuñjati, sumarati nāgavanassa kuñjaro.`
-- Dhp 313 (similarity 0.9536):
-  - mahasangiti:  `Kayirā ce kayirāthenaṁ, daḷhamenaṁ parakkame; Sithilo hi paribbājo, bhiyyo ākirate rajaṁ.`
-  - interlinear:  `Kayirañ-ce kayirāthenaṁ, daḷham-enaṁ parakkame, saṭhilo hi paribbājo bhiyyo ākirate rajaṁ.`
-- Dhp 339 (similarity 0.9548):
-  - mahasangiti:  `Yassa chattiṁsati sotā, manāpasavanā bhusā; Mahāvahanti duddiṭṭhiṁ, saṅkappā rāganissitā.`
-  - interlinear:  `Yassa chattiṁsatī sotā manāpassavanā bhusā, vāhā vahanti duddiṭṭhiṁ saṅkappā rāganissitā.`
-- Dhp 275 (similarity 0.9565):
-  - mahasangiti:  `Etañhi tumhe paṭipannā, dukkhassantaṁ karissatha; Akkhāto vo mayā maggo, aññāya sallakantanaṁ.`
-  - interlinear:  `Etaṁ hi tumhe paṭipannā dukkhassantaṁ karissatha, akkhāto ve mayā maggo, aññāya sallasanthanaṁ.`
-- Dhp 379 (similarity 0.9595):
-  - mahasangiti:  `Attanā codayattānaṁ, paṭimaṁsetha attanā; So attagutto satimā, sukhaṁ bhikkhu vihāhisi.`
-  - interlinear:  `Attanā codayattānaṁ, paṭimāsettam-attanā, so attagutto satimā sukhaṁ bhikkhu vihāhisi.`
-- Dhp 237 (similarity 0.9605):
-  - mahasangiti:  `Upanītavayo ca dānisi, Sampayātosi yamassa santikaṁ; Vāso te natthi antarā, Pātheyyampi ca te na vijjati.`
-  - interlinear:  `Upanītavayo ca dāni ’si, sampayāto ’si Yamassa santike, vāso pi ca te natthi antarā, pātheyyam-pi ca te na vijjati.`
-- Dhp 350 (similarity 0.9605):
-  - mahasangiti:  `Vitakkūpasame ca yo rato, Asubhaṁ bhāvayate sadā sato; Esa kho byanti kāhiti, Esa checchati mārabandhanaṁ.`
-  - interlinear:  `Vitakkupasame ca yo rato asubhaṁ bhāvayatī sadā sato, esa kho vyantikāhiti, esacchecchati Mārabandhanaṁ.`
-- Dhp 37 (similarity 0.961):
-  - mahasangiti:  `Dūraṅgamaṁ ekacaraṁ, asarīraṁ guhāsayaṁ; Ye cittaṁ saṁyamissanti, mokkhanti mārabandhanā.`
-  - interlinear:  `Dūraṅgamaṁ ekacaraṁ, asarīraṁ guhāsayaṁ, ye cittaṁ saññam-essanti, mokkhanti Mārabandhanā.`
-- Dhp 173 (similarity 0.961):
-  - mahasangiti:  `Yassa pāpaṁ kataṁ kammaṁ, kusalena pidhīyati; Somaṁ lokaṁ pabhāseti, abbhā muttova candimā.`
-  - interlinear:  `Yassa pāpaṁ kataṁ kammaṁ kusalena pithīyati – sŏ imaṁ lokaṁ pabhāseti abbhā mutto va candimā.`
-- Dhp 109 (similarity 0.9615):
-  - mahasangiti:  `Abhivādanasīlissa, niccaṁ vuḍḍhāpacāyino; Cattāro dhammā vaḍḍhanti, āyu vaṇṇo sukhaṁ balaṁ.`
-  - interlinear:  `Abhivādanasīlissa niccaṁ vaddhāpacāyino, cattāro dhammā vaḍḍhanti: āyu vaṇṇo sukhaṁ balaṁ.`
-- Dhp 122 (similarity 0.9636):
-  - mahasangiti:  `Māvamaññetha puññassa, na mandaṁ āgamissati; Udabindunipātena, udakumbhopi pūrati; Dhīro pūrati puññassa, thokaṁ thokampi ācinaṁ.`
-  - interlinear:  `Māppamaññetha puññassa: na maṁ taṁ āgamissati. udabindunipātena udakumbho pi pūrati, dhīro pūrati puññassa, thokathokam-pi ācinaṁ.`
+Retired in Round 13 (2026-10-08). This check compared the SuttaCentral Pali edition with Ānandajoti's interlinear Pali; the SuttaCentral edition was removed at SuttaCentral's request (data/raw/PROVENANCE.md), leaving one Pali edition per verse and nothing to compare.
 
 ## 5. Inline-vs-canonical Pali (story's `pali_verse` vs. its `pali_verse_number`)
 
-Of 226 stories with an inline quote naming a verse: **123 exact**; **5 boundary-artifact** (the story's `pali_verse` is a normalized prefix of the canonical verse -- an accurate partial quote, e.g. a one-pada "teaser" rather than a full 4-pada citation, which `stories.jsonl`'s separate `verse_teaser` field confirms is an expected, not anomalous, shape for this corpus); **98 distinct** (rate 0.4336) -- genuine mismatches.
+Of 226 stories with an inline quote naming a verse: **217 exact**; **9 boundary-artifact** (the story's `pali_verse` is a normalized prefix of the canonical verse -- an accurate partial quote, e.g. a one-pada "teaser" rather than a full 4-pada citation, which `stories.jsonl`'s separate `verse_teaser` field confirms is an expected, not anomalous, shape for this corpus); **0 distinct** (rate 0.0) -- genuine mismatches.
 
-Same reading as check 4 above, spot-checked separately here: most of the distinct tier is not corruption but genuine spelling/word-choice variance between the story's own (Ānandajoti-sourced) inline quote and the (Mahāsaṅgīti-sourced) canonical verse -- e.g. 3.4's `saññam-essanti` vs canonical `saṁyamissanti`, 8.8's `vaddhāpacāyino` vs `vuḍḍhāpacāyino`, 9.6's `Māppamaññetha` vs `Māvamaññetha`. Expected, since this check compares the same two editions as check 4 by a different route (a story's own quote vs. the verse record, rather than the verse record's two fields directly) -- not a second, independent confirmation of a corpus defect, and read accordingly.
+Since Round 13 both sides of this comparison are Ānandajoti's: the story's inline quote comes from his 2024 commentary edition (the source PDF), the canonical verse from his 2017 interlinear. A distinct case is a difference between two editions by the same editor, or an extraction error on one side -- worth hand review either way.
 
-Worst 20 genuinely distinct cases (lowest similarity first, boundary artifacts excluded):
-
-- 26.33 (cites Dhp 416, similarity 0.6512):
-  - story pali_verse: `Yodha taṇhaṁ pahatvāna, anāgāro paribbaje, taṇhābhavaparikkhīṇaṁ, tam-ahaṁ brūmi brāhmaṇaṁ. Whoever, giving up craving,`
-  - canonical:        `Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ. Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ.`
-- 1.7 (cites Dhp 9, similarity 0.6786):
-  - story pali_verse: `Anikkasāvo kāsāvaṁ yo vatthaṁ paridahessati,`
-  - canonical:        `Anikkasāvo kāsāvaṁ, yo vatthaṁ paridahissati; Apeto damasaccena, na so kāsāvamarahati.`
-- 1.14 (cites Dhp 19, similarity 0.8333):
-  - story pali_verse: `Bahum-pi ce sahitaṁ bhāsamāno, na takkaro hoti naro pamatto, gopo va gāvo gaṇayaṁ paresaṁ, na bhāgavā sāmaññassa hoti. Even though reciting abundant scriptures,`
-  - canonical:        `Bahumpi ce saṁhita bhāsamāno, Na takkaro hoti naro pamatto; Gopova gāvo gaṇayaṁ paresaṁ, Na bhāgavā sāmaññassa hoti.`
-- 26.32 (cites Dhp 415, similarity 0.8671):
-  - story pali_verse: `Yodha kāme pahatvāna anāgāro paribbaje, kāmabhavaparikkhīṇaṁ, tam-ahaṁ brūmi brāhmaṇaṁ. Whoever, giving up desires,`
-  - canonical:        `Yodha kāme pahantvāna, anāgāro paribbaje; Kāmabhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ.`
-- 5.10 (cites Dhp 69, similarity 0.9404):
-  - story pali_verse: `Madhuvā maññati bālo, yāva pāpaṁ na paccati, yadā ca paccati pāpaṁ, bālo dukkhaṁ nigacchati.`
-  - canonical:        `Madhuṁvā maññati bālo, yāva pāpaṁ na paccati; Yadā ca paccati pāpaṁ, atha dukkhaṁ nigacchati.`
-- 18.3 (cites Dhp 240, similarity 0.9508):
-  - story pali_verse: `Ayasā va malaṁ samuṭṭhitaṁ, taduṭṭhāya tam-eva khādati, evaṁ atidhonacārinaṁ – sakakammāni nayanti duggatiṁ.`
-  - canonical:        `Ayasāva malaṁ samuṭṭhitaṁ, Tatuṭṭhāya tameva khādati; Evaṁ atidhonacārinaṁ, Sāni kammāni nayanti duggatiṁ.`
-- 23.3 (cites Dhp 324, similarity 0.9529):
-  - story pali_verse: `Dhanapālakŏ nāma kuñjaro kaṭukappabhedano dunnivārayo, baddho kabalaṁ na bhuñjati, sumarati nāgavanassa kuñjaro.`
-  - canonical:        `Dhanapālo nāma kuñjaro, Kaṭukabhedano dunnivārayo; Baddho kabaḷaṁ na bhuñjati, Sumarati nāgavanassa kuñjaro.`
-- 25.10 (cites Dhp 379, similarity 0.9595):
-  - story pali_verse: `Attanā codayattānaṁ, paṭimāsettam-attanā, so attagutto satimā sukhaṁ bhikkhu vihāhisi.`
-  - canonical:        `Attanā codayattānaṁ, paṭimaṁsetha attanā; So attagutto satimā, sukhaṁ bhikkhu vihāhisi.`
-- 3.4 (cites Dhp 37, similarity 0.961):
-  - story pali_verse: `Dūraṅgamaṁ ekacaraṁ, asarīraṁ guhāsayaṁ, ye cittaṁ saññam-essanti, mokkhanti Mārabandhanā.`
-  - canonical:        `Dūraṅgamaṁ ekacaraṁ, asarīraṁ guhāsayaṁ; Ye cittaṁ saṁyamissanti, mokkhanti mārabandhanā.`
-- 13.6 (cites Dhp 173, similarity 0.961):
-  - story pali_verse: `Yassa pāpaṁ kataṁ kammaṁ kusalena pithīyati – sŏ imaṁ lokaṁ pabhāseti abbhā mutto va candimā.`
-  - canonical:        `Yassa pāpaṁ kataṁ kammaṁ, kusalena pidhīyati; Somaṁ lokaṁ pabhāseti, abbhā muttova candimā.`
-- 8.8 (cites Dhp 109, similarity 0.9615):
-  - story pali_verse: `Abhivādanasīlissa niccaṁ vaddhāpacāyino, cattāro dhammā vaḍḍhanti: āyu vaṇṇo sukhaṁ balaṁ.`
-  - canonical:        `Abhivādanasīlissa, niccaṁ vuḍḍhāpacāyino; Cattāro dhammā vaḍḍhanti, āyu vaṇṇo sukhaṁ balaṁ.`
-- 9.6 (cites Dhp 122, similarity 0.9636):
-  - story pali_verse: `Māppamaññetha puññassa: na maṁ taṁ āgamissati. udabindunipātena udakumbho pi pūrati, dhīro pūrati puññassa, thokathokam-pi ācinaṁ.`
-  - canonical:        `Māvamaññetha puññassa, na mandaṁ āgamissati; Udabindunipātena, udakumbhopi pūrati; Dhīro pūrati puññassa, thokaṁ thokampi ācinaṁ.`
-- 20.6 (cites Dhp 281, similarity 0.9662):
-  - story pali_verse: `Vācānurakkhī manasā susaṁvuto, kāyena ca akusalaṁ na kayirā, ete tayo kammapathe visodhaye, ārādhaye maggaṁ isippaveditaṁ.`
-  - canonical:        `Vācānurakkhī manasā susaṁvuto, Kāyena ca nākusalaṁ kayirā; Ete tayo kammapathe visodhaye, Ārādhaye maggamisippaveditaṁ.`
-- 22.6 (cites Dhp 314, similarity 0.9677):
-  - story pali_verse: `Akataṁ dukkataṁ seyyo, pacchā tapati dukkataṁ, katañ-ca sukataṁ seyyo, yaṁ katvā nānutappati.`
-  - canonical:        `Akataṁ dukkaṭaṁ seyyo, pacchā tappati dukkaṭaṁ; Katañca sukataṁ seyyo, yaṁ katvā nānutappati.`
-- 25.2 (cites Dhp 362, similarity 0.9681):
-  - story pali_verse: `Hatthasaṁyatŏ pādasaṁyato, vācāya saṁyatŏ saṁyatuttamo, ajjhattarato samāhito, eko santusito: tam-āhu bhikkhuṁ.`
-  - canonical:        `Hatthasaṁyato pādasaṁyato, Vācāsaṁyato saṁyatuttamo; Ajjhattarato samāhito, Eko santusito tamāhu bhikkhuṁ.`
-- 9.3 (cites Dhp 118, similarity 0.9689):
-  - story pali_verse: `Puññañ-ce puriso kayirā, kayirāthetaṁ punappunaṁ, tamhi chandaṁ kayirātha, sukho puññassa uccayo.`
-  - canonical:        `Puññañce puriso kayirā, kayirā naṁ punappunaṁ; Tamhi chandaṁ kayirātha, sukho puññassa uccayo.`
-- 10.5 (cites Dhp 135, similarity 0.9714):
-  - story pali_verse: `Yathā daṇḍena gopālo gāvo pāceti gocaraṁ, evaṁ jarā ca maccu ca āyuṁ pācenti pāṇinaṁ.`
-  - canonical:        `Yathā daṇḍena gopālo, gāvo pājeti gocaraṁ; Evaṁ jarā ca maccu ca, āyuṁ pājenti pāṇinaṁ.`
-- 12.4 (cites Dhp 160, similarity 0.9726):
-  - story pali_verse: `Attā hi attano nātho, ko hi nātho paro siyā? Attanā va sudantena nāthaṁ labhati dullabhaṁ.`
-  - canonical:        `Attā hi attano nātho, ko hi nātho paro siyā; Attanā hi sudantena, nāthaṁ labhati dullabhaṁ.`
-- 20.12 (cites Dhp 288, similarity 0.9726):
-  - story pali_verse: `Na santi puttā tāṇāya, na pitā na pi bandhavā, Antakenādhipannassa natthi ñātisu tāṇatā.`
-  - canonical:        `Na santi puttā tāṇāya, na pitā nāpi bandhavā; Antakenādhipannassa, natthi ñātīsu tāṇatā.`
-- 4.5 (cites Dhp 49, similarity 0.973):
-  - story pali_verse: `Yathā pi bhamaro pupphaṁ vaṇṇagandhaṁ aheṭhayaṁ paḷeti rasam-ādāya, evaṁ gāme munī care.`
-  - canonical:        `Yathāpi bhamaro pupphaṁ, vaṇṇagandhamaheṭhayaṁ; Paleti rasamādāya, evaṁ gāme munī care.`
 
 ## 6. Alignment closure
 
@@ -189,12 +62,12 @@ None found -- `parse_stories.py`'s glyph fix is holding.
 This is what the design doc's own sequence says Stage 0 decides. Reading all seven checks together, not just their raw counts:
 
 - **Structural integrity is sound.** Alignment closure (check 6) passes at 423/423 with zero gaps and only the one already-documented legitimate duplicate (Dhp 416). Zero length outliers (check 7). These are exactly the checks a rebuild's Stage 5 gates 1 and 4 would also run, and they already pass on the current corpus.
-- **Control characters (check 2) are at 0 on this corpus.** They were one repeated cosmetic artifact (`\x0c` in `desanavasane`/`body_raw` on vagga-final stories), fixed at the source in `clean_body_text()`. The boundary-artifact tier of check 4 (0 cases) -- the same class of vagga-boundary contamination -- is already fixed at the source (`build_verses.py`'s Stage 2 cutover); check 5's 5 boundary-artifact cases are expected partial-quote "teasers" (`verse_teaser`), not a bug. (That tier was 16 before the story parser stopped splitting verse quotations at page breaks: 11 of the 16 were full quotations cut off mid-verse by a page break, not teasers.)
-- **One check's own premise didn't hold**: check 3's 22 "violations" were all legitimate typographic punctuation, not OCR residue -- the character-set gate now allows them (see check 3 above) rather than needing the corpus changed.
+- **Control characters (check 2) are at 0 on this corpus.** They were one repeated cosmetic artifact (`\x0c` in `desanavasane`/`body_raw` on vagga-final stories), fixed at the source in `clean_body_text()`. Check 5's 9 boundary-artifact cases are expected partial-quote "teasers" (`verse_teaser`), not a bug. (That tier was 16 before the story parser stopped splitting verse quotations at page breaks: 11 of the 16 were full quotations cut off mid-verse by a page break, not teasers.)
+- **One check's own premise didn't hold**: check 3's first "violations" were all legitimate typographic punctuation, not OCR residue -- the character-set gate now allows them (see check 3 above) rather than needing the corpus changed.
 - **Title/body coherence (check 1) found one already-resolved false positive (23.1) and three more, hand-checked here** -- 16.4, 20.5, and 22.2 are also false positives (a pluralization mismatch, a name that lives in `nidana` rather than `vatthu`, and a paraphrased doctrinal title with no real proper noun), not corpus errors. The checker itself, not the corpus, was narrow; see check 1's function docstring for the fix.
-- **The large "distinct" numbers in checks 4/5 (42% and 43%) are the one finding that looked, before inspection, like it might justify a rebuild -- and mostly doesn't.** Spot-checking shows most are genuine word-level variance between two real, already-correctly-distinguishable editions (Mahāsaṅgīti vs. Ānandajoti), which is what `corpus_rebuild_design.md`'s own Stage 1 ownership table already assumes is true of these two fields -- not evidence the current corpus conflates its sources.
+- **Check 5's distinct tier (0%) compares two editions by the same editor** (Ānandajoti's 2024 commentary quotes vs. his 2017 interlinear). Check 4, which compared editions by different editors, is retired with the SuttaCentral source it depended on.
 
-**None of the above requires re-fetching from external sources, a new alignment table, or rebuilding the index.** All four of the prior audit pass's action items are now resolved on this corpus: (1) vagga-boundary contamination in `verses.jsonl`'s `pali_mahasangiti`/`interlinear_pali` -- fixed by the Stage 2 cutover, confirmed at 0 boundary-artifact cases above; (2) `\x0c` stripped from `desanavasane`/`body_raw` at `clean_body_text()`; (3) 16.4/20.5/22.2 hand-checked against the source text and cleared as false positives, with the checker itself widened accordingly; (4) the Pali character-set gate now allows the typographic punctuation genuinely present in the source. If a fuller rebuild is wanted later for other reasons -- publishing the alignment table on its own, adding Burlingame's original as an independent cross-check -- this audit found no corpus-integrity emergency forcing it now.
+**None of the above requires re-fetching from external sources, a new alignment table, or rebuilding the index.** All four of the prior audit pass's action items are now resolved on this corpus: (1) vagga-boundary contamination in `verses.jsonl`'s Pali fields -- fixed by the Stage 2 cutover; (2) `\x0c` stripped from `desanavasane`/`body_raw` at `clean_body_text()`; (3) 16.4/20.5/22.2 hand-checked against the source text and cleared as false positives, with the checker itself widened accordingly; (4) the Pali character-set gate now allows the typographic punctuation genuinely present in the source. If a fuller rebuild is wanted later for other reasons -- publishing the alignment table on its own, adding Burlingame's original as an independent cross-check -- this audit found no corpus-integrity emergency forcing it now.
 
 ## Reading this report
 

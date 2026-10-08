@@ -11,8 +11,6 @@
 # and evaluation were built from. Replacing the pinned files is a deliberate
 # corpus rebuild, not something this script does. See data/raw/PROVENANCE.md.
 #
-# The Mahāsaṅgīti and Sujato sources (CC0, SuttaCentral bilara-data) are not
-# covered here; their fetch is documented in sources/external/PROVENANCE.md.
 set -euo pipefail
 
 HERE="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"

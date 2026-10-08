@@ -486,8 +486,11 @@ label below with caution.** The original judgment (all five conditions
 as the verse naming craving as the house-builder's identity. Re-reading the
 Pali clause-by-clause does not support that as cleanly:
 
-> Gahakāraka diṭṭhosi, puna gehaṁ na kāhasi; Sabbā te phāsukā bhaggā,
-> gahakūṭaṁ visaṅkhataṁ; **Visaṅkhāragataṁ cittaṁ, taṇhānaṁ khayamajjhagā.**
+> Gahakāraka diṭṭhosi! Puna gehaṁ na kāhasi: sabbā te phāsukā bhaggā,
+> gahakūṭaṁ visaṅkhitaṁ, **visaṅkhāragataṁ cittaṁ, taṇhānaṁ khayam-ajjhagā.**
+>
+> <sub>Ānandajoti's text. The edition quoted here originally was
+> SuttaCentral's, removed 2026-10-08 at their request.</sub>
 
 The house-builder is addressed in the vocative across the first three
 clauses ("house-builder, you are seen... your rafters are broken"). The

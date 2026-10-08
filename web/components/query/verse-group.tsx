@@ -110,21 +110,11 @@ export function VerseGroup({
                   </span>
                 </div>
                 <VersePair
-                  pali={v.pali_mahasangiti ?? "(not available)"}
-                  paliCaption="Pali · Mahāsaṅgīti (CC0)"
-                  english={v.english_sujato ?? "(not available)"}
-                  englishCaption="English · Sujato (CC0)"
+                  pali={v.interlinear_pali ?? "(not available)"}
+                  paliCaption="Pali · Ānandajoti interlinear (CC BY-SA 4.0)"
+                  english={v.interlinear_english ?? "(not available)"}
+                  englishCaption="English · Ānandajoti interlinear (CC BY-SA 4.0)"
                 />
-                {v.interlinear_english && (
-                  <div className="mt-3">
-                    <p className="font-serif text-[0.92rem] leading-relaxed text-ink">
-                      {v.interlinear_english}
-                    </p>
-                    <p className="pt-1.5 font-sans text-[0.7rem] text-ink-faint">
-                      English · Ānandajoti interlinear (CC BY-SA 4.0)
-                    </p>
-                  </div>
-                )}
                 <div className="mt-4 border-t border-line-soft" />
               </div>
             ))}

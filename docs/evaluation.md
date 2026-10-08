@@ -1021,7 +1021,7 @@ pairs only), flagged as a gap for a future round rather than fixed this one.
 
 Checked first, per the brief: is Dhp 110 even a defensible single gold
 answer for "what does the Dhammapada say about life?" No -- Dhp 135
-("old age and death drive life from living beings," mortality) and Dhp 182
+("old age and death drive life out of beings," mortality) and Dhp 182
 ("hard to gain a human birth... the life of mortals is hard," the rarity
 of human life) are both independently defensible answers to the same
 question, addressing different facets of "life" than the 110-115 series.
@@ -1318,6 +1318,138 @@ and a paraphrase-focused note (summarizing the previous paragraph) for v2.
 been run by anyone. That is the next item, and the one most likely to
 matter to an external reviewer -- see `docs/eval_rubric.md`'s "Annotator
 status".
+
+## Round 13: SuttaCentral material removed (2026-10-08)
+
+On 2026-10-08 SuttaCentral's Forum Management Committee answered a licensing
+question asked on their forum: their translations may not be used in any
+project that uses AI. Both SuttaCentral sources left the corpus: the Pali
+root text and the English translation that had filled the verse layer
+alongside Ānandajoti's interlinear since Phase 1. The record of the decision
+(date, ruling, link, what was removed from history and what was not) is in
+`data/raw/PROVENANCE.md`. This section covers what it did to the numbers.
+
+**The verse layer is now Ānandajoti's 2017 interlinear alone.** It already
+covered all 423 verses in both Pali and English, so this was a field
+reassignment, not a new ingestion. `build_verses.py` now fails if any verse
+lacks either field, rather than writing a null. None did.
+
+**Index: 5,909 → 5,486 chunks.** The two SuttaCentral verse chunk types
+(423 Pali, 423 English) are gone. Ānandajoti's interlinear Pali is indexed for
+the first time as `verse_pali_interlinear` (423). Every other chunk type is
+unchanged. Re-embedded on CUDA (RTX 5080). All 5,486 chunks fit within the
+512-token limit.
+
+**Retrieval, both gold sets re-run on the new index.** The corpus changed,
+so the numbers were expected to change. Same code, same machine, same
+questions, except one v1 question reworded (below).
+
+| v1 (114 scored) | nDCG@10 before → after | R@1 before → after | R@10 before → after |
+|---|---|---|---|
+| baseline   | 0.954 → 0.932 | 0.912 → 0.877 | 0.983 → 0.983 |
+| verse_only | 0.526 → 0.511 | 0.500 → 0.474 | 0.553 → 0.553 |
+| dense_only | 0.952 → 0.928 | 0.921 → 0.886 | 0.974 → 0.965 |
+| no_rerank  | 0.934 → 0.887 | 0.877 → 0.798 | 0.974 → 0.974 |
+| flat       | 0.951 → 0.929 | 0.912 → 0.877 | 0.983 → 0.983 |
+
+| v2 (72) | nDCG@10 before → after | R@1 before → after | R@10 before → after |
+|---|---|---|---|
+| baseline   | 0.925 → 0.920 | 0.861 → 0.847 | 0.972 → 0.972 |
+| verse_only | 0.307 → 0.312 | 0.264 → 0.264 | 0.347 → 0.361 |
+| dense_only | 0.903 → 0.897 | 0.819 → 0.806 | 0.972 → 0.972 |
+| no_rerank  | 0.809 → 0.806 | 0.667 → 0.667 | 0.958 → 0.958 |
+| flat       | 0.925 → 0.917 | 0.861 → 0.847 | 0.972 → 0.972 |
+
+Ablation deltas, baseline − variant, nDCG@10 [95% CI]:
+
+| Ablation | v1 before | v1 after | v2 before | v2 after |
+|---|---|---|---|---|
+| `verse_only` | +0.427 [+0.338, +0.522] ✱ | +0.421 [+0.331, +0.515] ✱ | +0.618 [+0.502, +0.726] ✱ | +0.608 [+0.492, +0.715] ✱ |
+| `dense_only` | +0.002 [−0.008, +0.010] | +0.004 [−0.008, +0.017] | +0.022 [−0.011, +0.063] | +0.023 [−0.005, +0.058] |
+| `no_rerank`  | +0.019 [−0.007, +0.047] | **+0.045 [+0.012, +0.078] ✱** | +0.116 [+0.056, +0.179] ✱ | +0.114 [+0.054, +0.176] ✱ |
+| `flat`       | +0.003 [+0.000, +0.008] | +0.003 [+0.000, +0.008] | +0.000 [+0.000, +0.000] | +0.003 [+0.000, +0.008] |
+
+<sub>✱ interval excludes zero.</sub>
+
+**v2 barely moved; v1's drop is almost all in one stratum, and it is a
+measurement artefact.** Five of v1's six types score exactly what they
+scored before. All of the movement is in `doctrinal` (nDCG@10 0.942 → 0.859,
+R@1 0.900 → 0.767). Six doctrinal questions changed rank (q008, q012, q013,
+q016, q019, q025), and their wording explains why: they were written against
+the SuttaCentral English and reuse its vocabulary ("supreme conqueror",
+"astute", "mendicant"). With that translation gone from the index, those
+words have nothing to match. The gold set was constructed from a translation
+the index no longer holds. Ānandajoti's renderings use different words for
+the same verses (Dhp 258: "wise", not "astute"), so this is not evidence that
+retrieval got worse at doctrinal questions. In v2, whose questions were not
+written that way, the only stratum that moved is `pali_ascii` (0.886 →
+0.855): ASCII-folded Pali queries had been matching the removed edition's
+unhyphenated orthography.
+
+**The reranker is now visible on v1 too.** `no_rerank` on v1 went from a
+null result (CI spanning zero) to +0.045 [+0.012, +0.078]. The change is
+entirely in `doctrinal`: its baseline − `no_rerank` gap went from 0.072 to
+0.168, and every other type's gap is identical to before. Without the
+SuttaCentral wording to match, first-stage retrieval ranks the doctrinal gold
+lower, and the cross-encoder recovers much of it (`no_rerank` doctrinal 0.691
+against a baseline of 0.859). The Round 10 conclusion (the reranker does real work; v1 was too easy to show
+it) now holds on both sets. `dense_only` and `flat` stay null on both, as
+before.
+
+**The doctrinal verse-only finding survives, smaller.** `verse_only` still
+beats the full system on doctrinal questions: 0.881 against a baseline of
+0.859 (Δ −0.022, was −0.046). Commentary retrieval still does not help
+verse-anchored questions.
+
+**One gold question reworded, one note.** v1's q006 (Dhp 89) reused nine
+consecutive words of the SuttaCentral translation. It now reads "What does the Dhammapada say about
+those who have developed the factors of awakening and given up grasping?" The
+same change is applied wherever the question was stored
+(`build_gold_set.py`, `gold_set.jsonl`, the archived pre-fix copy,
+`tag_stability.py` and its results file). It ranks first before and after,
+so it does not contribute to the doctrinal drop. A five-word-shingle scan of
+both gold sets against all SuttaCentral text found no other question that
+reuses its wording verbatim. One annotator note (q007, Dhp 98) quoted it and
+now quotes Ānandajoti instead. Notes are not sent to retrieval, so no number
+depends on it.
+
+**Corpus checks.** Validation gate 6 and audit check 4 (cross-edition Pali
+agreement) are retired: they compared the SuttaCentral Pali with
+Ānandajoti's, and one edition cannot disagree with itself. Gate 3 and check
+3 (Pali character set) now run on the interlinear Pali, with the allowed set
+widened to Ānandajoti's breve vowels (ĕ, ŏ) and the punctuation he uses (en
+dash, colon, ?, !, parentheses). Those were measured as the only characters
+outside the old set, and every hard gate passes. Gate 5 (metre, warn-only)
+now flags 56 of 1,454 segments, where it flagged 0 on the old field. That is
+not damage: Ānandajoti often leaves a pāda boundary unpunctuated, so two
+pādas read as one segment. Audit check 5 (each story's quoted Pali against
+the verse record) went from 98 distinct of 226 to **0 distinct**. Ānandajoti's
+2024 commentary quotes and his 2017 interlinear agree on every verse both
+contain (217 exact, 9 partial "teaser" quotes). Before, this check had been
+comparing his quotes against the other editor's text.
+
+**Not re-run this round, and what that means.** Generation metrics
+(`generation_metrics.json`), the research-validation grid, tag stability and
+the model sweep all describe the pipeline as it was. The model's prompt
+carried the SuttaCentral Pali and English for every retrieved verse, and the
+PALI SUPPORT rule asked the model to copy from the SuttaCentral Pali line.
+That prompt line now shows Ānandajoti's Pali, and the rule points to it. The
+stored records of those runs (`generation_raw.jsonl` and its two archives,
+the three `research_validation_*.jsonl` files and `tag_stability_results.json`)
+have had every SuttaCentral string replaced with the marker
+`[SuttaCentral text removed 2026-10-08]`. That covers full verse texts and any
+verbatim span of 30 or more characters, including model outputs quoting
+them. The source labels in the stored prompts and warnings (the edition and
+translator names, and the two field names) now read "SuttaCentral". Nothing
+else in those records changed. Their metrics stand as a record
+of that pipeline, not of the current one. A fresh generation pass on the new
+prompt is the next step for those numbers.
+
+**Annotation sheets.** The blind second-annotator sheets
+(`annotation_v2_blank.csv`, `annotation_v2_sample30.csv`) showed each
+candidate's verses in the SuttaCentral English. That column now shows
+Ānandajoti's English. Questions, candidates and row order are unchanged, so
+the κ calibration point in `docs/eval_rubric.md` still applies.
 
 ## Summary
 

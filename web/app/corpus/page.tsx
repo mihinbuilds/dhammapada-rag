@@ -98,7 +98,7 @@ export default function CorpusPage() {
         items={[
           { label: "Verses indexed", value: health ? health.n_verses : "…", sub: "of 423 canonical" },
           { label: "Story groups", value: health ? health.n_stories : "…", sub: "Dhammapada-aṭṭhakathā" },
-          { label: "Text layers", value: 3, sub: "Pali · Sujato · interlinear" },
+          { label: "Text layers", value: 3, sub: "Pali · English · commentary" },
         ]}
       />
 

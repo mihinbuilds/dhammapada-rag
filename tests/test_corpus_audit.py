@@ -29,17 +29,17 @@ def test_classify_exact_after_normalization():
 
 
 def test_classify_boundary_when_one_is_a_prefix_of_the_other():
-    """The vagga-final-verse pattern: pali_mahasangiti carries a trailing
-    colophon interlinear_pali doesn't."""
+    """The vagga-final-verse pattern: one side carries a trailing colophon
+    the other doesn't."""
     assert classify_pali_pair(
-        "Yodha taṇhaṁ pahantvāna, anāgāro paribbaje. Jotikattheravatthu.",
-        "Yodha taṇhaṁ pahantvāna anāgāro paribbaje",
+        "Yo ve uppatitaṁ kodhaṁ rathaṁ bhantaṁ va dhāraye. Kodhavaggo.",
+        "Yo ve uppatitaṁ kodhaṁ rathaṁ bhantaṁ va dhāraye",
     ) == "boundary"
 
 
 def test_classify_boundary_when_one_is_a_suffix_of_the_other():
-    """The vagga-initial-verse pattern: interlinear_pali carries a leading
-    page-heading fragment pali_mahasangiti doesn't."""
+    """The vagga-initial-verse pattern: one side carries a leading
+    page-heading fragment the other doesn't."""
     assert classify_pali_pair(
         "Yamakavaggo Paṭhamo Related Verses from the Dhammapada Yathā pi ruciraṁ pupphaṁ",
         "Yathāpi ruciraṁ pupphaṁ",
@@ -57,7 +57,7 @@ def test_classify_distinct_for_genuine_word_level_variance():
 
 def test_classify_distinct_when_completely_different():
     assert classify_pali_pair(
-        "Kodhaṁ jahe vippajaheyya mānaṁ", "completely unrelated text"
+        "Kodhaṁ jahe, vippajaheyya mānaṁ", "completely unrelated text"
     ) == "distinct"
 
 
@@ -175,18 +175,21 @@ def test_length_outliers_clean_story_not_flagged():
 
 def test_pali_charset_allows_reported_speech_punctuation():
     """Regression: the design doc's original allowed set was IAST-only and
-    flagged 22 genuinely correct verses for curly quotes/em dash marking
+    flagged genuinely correct verses for curly quotes/dashes marking
     reported speech inside the verse (e.g. Dhp 17's "Papam me katan"ti).
     That was the gate's own premise not holding, not corpus damage -- the
-    set was widened rather than the corpus changed."""
-    verses = [{"verse": 17, "pali_mahasangiti": "Pāpaṁ me katan”ti tappati."}]
+    set was widened rather than the corpus changed. Ānandajoti's breve
+    vowels (Dhp 17's mĕ) are notation, not residue, too."""
+    verses = [{"verse": 17, "interlinear_pali": "“Pāpaṁ mĕ katan”-ti tappati, bhiyyo tappati duggatiṁ gato."}]
     assert check_pali_charset(verses) == []
-    verses_em_dash = [{"verse": 208, "pali_mahasangiti": "Tasmā hi— Dhīrañca paññañca."}]
-    assert check_pali_charset(verses_em_dash) == []
+    verses_dash = [{"verse": 208, "interlinear_pali": "dhorayhasīlaṁ vatavantam-ariyaṁ – taṁ tādisaṁ"}]
+    assert check_pali_charset(verses_dash) == []
+    verses_question = [{"verse": 44, "interlinear_pali": "Kŏ imaṁ paṭhaviṁ vicessati?"}]
+    assert check_pali_charset(verses_question) == []
 
 
 def test_pali_charset_still_flags_genuine_residue():
-    verses = [{"verse": 1, "pali_mahasangiti": "Manopubbaṅgamā dhammā 123"}]
+    verses = [{"verse": 1, "interlinear_pali": "Manopubbaṅgamā dhammā 123"}]
     hits = check_pali_charset(verses)
     assert len(hits) == 1
     assert hits[0]["verse"] == 1

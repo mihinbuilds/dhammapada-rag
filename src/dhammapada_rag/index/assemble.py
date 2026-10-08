@@ -139,8 +139,8 @@ def main() -> None:
         print(f"Matched text: {mc['text'][:150]}")
         for v in b["verses"]:
             print(f"\n  Dhp {v['verse']} ({v['vagga_name_pali']})")
-            print(f"    Pali (Mahasangiti): {v['pali_mahasangiti']}")
-            print(f"    English (Sujato):   {v['english_sujato']}")
+            print(f"    Pali:    {v['interlinear_pali']}")
+            print(f"    English: {v['interlinear_english']}")
         for s in b["stories"]:
             print(f"\n  Story {s['group_id']}: {s['title_en']}")
             print(f"    Synopsis: {s['synopsis']}")

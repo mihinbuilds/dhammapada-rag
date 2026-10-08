@@ -1,33 +1,23 @@
 """Build the canonical per-verse record for all 423 Dhammapada verses.
 
-CUTOVER (dhammapada_fixes/corpus_rebuild_design.md, Sequence step 5): this
-now reads Stage 2's normalized outputs (data/normalized/sc_pali.jsonl,
-sc_sujato.jsonl, aj_interlinear.jsonl) instead of re-deriving pali_mahasangiti
-/ english_sujato / interlinear_* from sources/external/ and
-data/processed/interlinear_gloss.jsonl directly. This is not a schema
-change -- verses.jsonl's fields are unchanged, and api/schemas.py's VerseOut
-still mirrors it exactly -- it's a provenance change: the three real bugs
-docs/corpus_normalization.md's normalizers found and fixed (the vagga-final
-colophon folded into pali_mahasangiti/english_sujato's own SuttaCentral
-segmentation, Dhp 416's second-story title leaking into a shared verse's
-segments, and Dhp 51/327's citation-vs-canonical swap in interlinear_pali/
-english) now flow into the live corpus instead of staying quarantined in the
-rebuild track. See that doc's "Measured effect" table for what changed
-(boundary-artifact cross-source disagreements: 19 -> 0).
+Reads Stage 2's normalized output (data/normalized/aj_interlinear.jsonl)
+for the verse layer, and data/processed/stories.jsonl for the narrative
+quotations and story references.
 
-Originally (first Phase 1 pass) this closed the gap where the narrative
-source (Dhammapada-Attakatha.pdf) only reprints the full Pali verse text
-inline for ~74% of stories (companion verses in multi-verse groups often get
-only a teaser quote), by joining in two independently-sourced, fully-covering
-CC0/CC-BY-SA layers (see sources/external/PROVENANCE.md):
+The narrative source (Dhammapada-Attakatha.pdf) only reprints the full Pali
+verse text inline for ~74% of stories (companion verses in multi-verse
+groups often get only a teaser quote), so the verse layer comes from a
+separate, fully-covering edition by the same editor:
 
-  - Pali: Mahasangiti edition via SuttaCentral (CC0), all 423 verses.
-  - English: Bhikkhu Sujato's translation via SuttaCentral (CC0), all 423
-    verses -- also incidentally fulfilling docs/project_plan.md's original
-    "two English translations" ask.
-  - Interlinear phrase-level gloss + notes: Anandajoti Bhikkhu's 2017
-    interlinear edition (CC BY-SA 4.0), all 423 verses -- the closest
-    available substitute for the pada-gloss layer the narrative source omits.
+  - Pali and English: Ānandajoti Bhikkhu's 2017 interlinear edition
+    (CC BY-SA 4.0, used by written permission -- sources/PERMISSION.md),
+    all 423 verses, with its phrase-level gloss notes.
+
+ROUND 13 (2026-10-08): until this round the verse layer also carried a
+second Pali edition and a second English translation, both published by
+SuttaCentral. SuttaCentral asked that their material not be used in any
+project that uses AI, so both fields were removed and the interlinear
+fields now carry the verse layer alone. See data/raw/PROVENANCE.md.
 
 The narrative source's own Pali/English quotations (where present) are kept
 too, tagged with which story they came from, since a verse's *narrative*
@@ -53,20 +43,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 from dhammapada_rag.vaggas import vagga_for_verse  # noqa: E402
 
 
-def load_normalized_jsonl(path: Path, value_field: str) -> dict[int, str]:
-    """Stage 2's normalized files are already one clean row per verse
-    (`{"verse": int, <value_field>: str, "source_ref": ...}`) -- no
-    segment-joining or page-selection logic needed here, since normalize_
-    sc_pali.py / normalize_sc_sujato.py already did it, with the boundary
-    fixes documented in docs/corpus_normalization.md."""
-    out: dict[int, str] = {}
-    with path.open(encoding="utf-8") as f:
-        for line in f:
-            rec = json.loads(line)
-            out[rec["verse"]] = rec[value_field]
-    return out
-
-
 def load_interlinear(path: Path) -> dict[int, dict]:
     out = {}
     with path.open(encoding="utf-8") as f:
@@ -84,16 +60,12 @@ def load_stories(path: Path) -> list[dict]:
 def build() -> tuple[list[dict], dict]:
     root = Path(__file__).resolve().parents[3]
     norm_dir = root / "data" / "normalized"
-    for name in ("sc_pali.jsonl", "sc_sujato.jsonl", "aj_interlinear.jsonl"):
-        if not (norm_dir / name).exists():
-            raise FileNotFoundError(
-                f"{norm_dir / name} not found -- build_verses.py now reads Stage 2's "
-                f"normalized output; run normalize_sc_pali.py, normalize_sc_sujato.py, "
-                f"and normalize_aj_interlinear.py first."
-            )
+    if not (norm_dir / "aj_interlinear.jsonl").exists():
+        raise FileNotFoundError(
+            f"{norm_dir / 'aj_interlinear.jsonl'} not found -- build_verses.py reads Stage 2's "
+            f"normalized output; run normalize_aj_interlinear.py first."
+        )
 
-    pali_ms = load_normalized_jsonl(norm_dir / "sc_pali.jsonl", "pali")
-    english_sujato = load_normalized_jsonl(norm_dir / "sc_sujato.jsonl", "english")
     interlinear = load_interlinear(norm_dir / "aj_interlinear.jsonl")
     stories = load_stories(root / "data" / "processed" / "stories.jsonl")
 
@@ -111,7 +83,7 @@ def build() -> tuple[list[dict], dict]:
             }
 
     records = []
-    coverage = {"pali_ms": 0, "english_sujato": 0, "interlinear": 0, "narrative_quote": 0, "story_ref": 0}
+    coverage = {"interlinear": 0, "narrative_quote": 0, "story_ref": 0}
     for verse in range(1, 424):
         vagga = vagga_for_verse(verse)
         nq = narrative_quote.get(verse)
@@ -122,8 +94,6 @@ def build() -> tuple[list[dict], dict]:
             "vagga_number": vagga.number,
             "vagga_name_pali": vagga.name_pali,
             "vagga_name_en": vagga.name_en,
-            "pali_mahasangiti": pali_ms.get(verse),
-            "english_sujato": english_sujato.get(verse),
             "interlinear_pali": gloss["pali"] if gloss else None,
             "interlinear_english": gloss["english"] if gloss else None,
             "interlinear_notes": gloss["notes"] if gloss else [],
@@ -134,11 +104,20 @@ def build() -> tuple[list[dict], dict]:
         }
         records.append(rec)
 
-        coverage["pali_ms"] += rec["pali_mahasangiti"] is not None
-        coverage["english_sujato"] += rec["english_sujato"] is not None
-        coverage["interlinear"] += rec["interlinear_pali"] is not None
+        coverage["interlinear"] += bool(rec["interlinear_pali"] and rec["interlinear_english"])
         coverage["narrative_quote"] += rec["narrative_pali"] is not None
         coverage["story_ref"] += len(rec["story_group_ids"]) > 0
+
+    # Since Round 13 the interlinear fields are the only verse layer, so a
+    # verse without one has no verse text at all. Fail rather than ship a null.
+    gaps = [
+        (r["verse"], field)
+        for r in records
+        for field in ("interlinear_pali", "interlinear_english")
+        if not (r[field] or "").strip()
+    ]
+    if gaps:
+        raise ValueError(f"verse layer incomplete -- (verse, missing field): {gaps}")
 
     report = {
         "total_verses": 423,
@@ -147,7 +126,7 @@ def build() -> tuple[list[dict], dict]:
         "fully_complete_all_layers": sum(
             1
             for r in records
-            if r["pali_mahasangiti"] and r["english_sujato"] and r["interlinear_pali"] and r["story_group_ids"]
+            if r["interlinear_pali"] and r["interlinear_english"] and r["story_group_ids"]
         ),
     }
     return records, report

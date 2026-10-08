@@ -13,6 +13,12 @@ data/processed/stories.jsonl directly, same source Stage 0 used.
 Per the design doc: "Fail the build on 1-4. Warn and record on 5-7." Gates
 1-4 raise GateFailure; run_gates() catches nothing -- main() decides what a
 failure means (nonzero exit), this module just tells the truth.
+
+ROUND 13 (2026-10-08): gate 6 (cross-source agreement) is retired. It
+compared the SuttaCentral Pali edition against Ānandajoti's; the SuttaCentral
+edition was removed at SuttaCentral's request (data/raw/PROVENANCE.md), and
+with one Pali edition left there is nothing to agree or disagree. Gates 3
+and 5 now run on `interlinear_pali`, the only Pali field.
 """
 
 from __future__ import annotations
@@ -25,22 +31,19 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from dhammapada_rag.ingest.audit_corpus import (  # noqa: E402
-    check_title_body_coherence,
-    classify_pali_pair,
-)
+from dhammapada_rag.ingest.audit_corpus import check_title_body_coherence  # noqa: E402
 from dhammapada_rag.ingest.build_alignment_table import build as build_alignment_table  # noqa: E402
 from dhammapada_rag.ingest.join_verses import _SOURCE_NAMES, join  # noqa: E402
 from dhammapada_rag.vaggas import VAGGAS, vagga_for_verse  # noqa: E402
 
 HARD_GATES = (1, 2, 3, 4)
-WARN_GATES = (5, 6, 7)
+WARN_GATES = (5, 7)  # 6 retired in Round 13 -- see the module docstring
 
 
 class GateFailure(Exception):
     """Raised by main() when a hard gate (1-4) fails. Not raised by the gate
     functions themselves -- each returns a report dict with `passed: bool`
-    so run_gates() can collect all seven results before anything decides to
+    so run_gates() can collect every result before anything decides to
     stop the build."""
 
 
@@ -104,7 +107,8 @@ def gate_2_field_ownership(records: list[dict]) -> dict:
                     "verse": r["verse"], "field": field,
                     "problem": f"source={entry['source']!r}, expected {expected!r}",
                 })
-    return {"passed": not violations, "n_checked": len(records) * 4, "violations": violations}
+    n_checked = sum(len(r["text"]) for r in records)
+    return {"passed": not violations, "n_checked": n_checked, "violations": violations}
 
 
 # --------------------------------------------------------------------------
@@ -114,11 +118,15 @@ def gate_2_field_ownership(records: list[dict]) -> dict:
 _CONTROL_CHAR_RE = re.compile(r"[\x00-\x08\x0b-\x1f]")
 
 # Widened from the design doc's own draft set per docs/corpus_audit.md check
-# 3's finding: curly quotes and an em dash in pali_mahasangiti are genuine
-# source typography marking reported speech (Dhp 17: "Papam me katan"ti),
-# not OCR residue -- the design doc's own assumption doesn't hold for this
-# corpus, so a hard gate using the narrower set would fail 22 correct verses.
-_PALI_CHARSET_RE = re.compile(r"[^a-zāīūṁṃṅñṭḍṇḷ\s.,;'\-‘’“”—]", re.IGNORECASE)
+# 3's finding: curly quotes and an em dash are genuine source typography
+# marking reported speech (Dhp 17: "Papam me katan"ti), not OCR residue.
+# Round 13 widened it again when the gate moved to interlinear_pali (the
+# only Pali field left): Ānandajoti marks metrically short e/o with a breve
+# (ĕ, ŏ -- Dhp 17, 44, 95, ...) and punctuates with en dash, colon, ? and !,
+# and once with parentheses (Dhp 352). Measured before widening: those eight
+# characters were the only ones outside the old set, across all 423 verses.
+# Digits, control characters, mis-mapped glyphs and mojibake still fail.
+_PALI_CHARSET_RE = re.compile(r"[^a-zāīūṁṃṅñṭḍṇḷĕŏ\s.,;:?!()'\-‘’“”—–]", re.IGNORECASE)
 
 
 def gate_3_encoding(records: list[dict]) -> dict:
@@ -136,16 +144,9 @@ def gate_3_encoding(records: list[dict]) -> dict:
                     "verse": r["verse"], "field": field,
                     "codepoints": [f"U+{ord(c):04X}" for c in found],
                 })
-            # Restricted to pali_mahasangiti, matching Stage 0's own scope
-            # (audit_corpus.check_pali_charset): interlinear_pali is a
-            # different edition with legitimate notational conventions of
-            # its own (breve vowels marking metrically short vowels, its
-            # own punctuation) that this IAST-focused set was never meant
-            # to police -- checked here empirically before narrowing: an
-            # earlier version of this gate that also checked
-            # interlinear_pali flagged 65 verses, all breve vowels/
-            # punctuation, zero genuine damage.
-            if field == "pali_mahasangiti":
+            # Pali only -- the English legitimately carries characters this
+            # IAST-based set excludes (digits, brackets, other punctuation).
+            if field == "interlinear_pali":
                 offenders = sorted(set(_PALI_CHARSET_RE.findall(value)))
                 if offenders:
                     charset_violations.append({
@@ -183,7 +184,15 @@ def gate_4_alignment_closure() -> dict:
 # Gate 5 -- metrical sanity (warn only)
 # --------------------------------------------------------------------------
 
-_PALI_VOWEL_RE = re.compile(r"[aāiīuūeo]", re.IGNORECASE)
+_PALI_VOWEL_RE = re.compile(r"[aāiīuūeoĕŏ]", re.IGNORECASE)
+# Round 13: this gate now reads interlinear_pali. Ānandajoti joins pādas
+# with an en dash or colon (and ends questions with ?) where the removed
+# SuttaCentral edition used commas, so those split too. He also often
+# leaves a pāda boundary unpunctuated entirely (Dhp 49: two pādas, no
+# comma), which no punctuation split can recover -- most of what this gate
+# flags on the current corpus is two or three pādas read as one segment,
+# not damage. Warn-only, so recorded rather than tuned away.
+_PADA_SPLIT_RE = re.compile(r"[,;:–?!.]")
 # Genuine Dhammapada metres run from 8 (siloka pada) to 11 (tutthubha pada)
 # syllables; real variety exists beyond that, so this is deliberately wide
 # -- per the design doc, "a pada coming in at 3 or 19 syllables is almost
@@ -195,8 +204,8 @@ def gate_5_metrical_sanity(records: list[dict]) -> dict:
     anomalies = []
     n_padas = 0
     for r in records:
-        text = r["text"]["pali_mahasangiti"]["value"]
-        for pada in re.split(r"[,;]", text):
+        text = r["text"]["interlinear_pali"]["value"]
+        for pada in _PADA_SPLIT_RE.split(text):
             pada = pada.strip()
             if not pada:
                 continue
@@ -213,33 +222,7 @@ def gate_5_metrical_sanity(records: list[dict]) -> dict:
     }
 
 
-# --------------------------------------------------------------------------
-# Gate 6 -- cross-source agreement (warn only, record the rate)
-# --------------------------------------------------------------------------
-
-def gate_6_cross_source_agreement(records: list[dict]) -> dict:
-    exact = boundary = distinct = 0
-    for r in records:
-        a = r["text"]["pali_mahasangiti"]["value"]
-        b = r["text"]["interlinear_pali"]["value"]
-        tier = classify_pali_pair(a, b)
-        if tier == "exact":
-            exact += 1
-        elif tier == "boundary":
-            boundary += 1
-        else:
-            distinct += 1
-    n = len(records)
-    return {
-        "passed": True,  # warn-only; a high distinct rate is a finding, not a build blocker
-        "n_verses": n,
-        "n_exact": exact,
-        "n_boundary_artifact": boundary,
-        "n_distinct": distinct,
-        "exact_rate": round(exact / n, 4) if n else None,
-        "distinct_rate": round(distinct / n, 4) if n else None,
-    }
-
+# Gate 6 -- cross-source agreement: retired in Round 13 (module docstring).
 
 # --------------------------------------------------------------------------
 # Gate 7 -- title/body coherence (warn only)
@@ -278,7 +261,6 @@ def run_gates(root: Path) -> dict:
         "3_encoding": gate_3_encoding(records),
         "4_alignment_closure": gate_4_alignment_closure(),
         "5_metrical_sanity": gate_5_metrical_sanity(records),
-        "6_cross_source_agreement": gate_6_cross_source_agreement(records),
         "7_title_body_coherence": gate_7_title_body_coherence(stories),
     }
     hard_gate_names = ("1_structure", "2_field_ownership", "3_encoding", "4_alignment_closure")
@@ -365,16 +347,13 @@ def render_markdown(report: dict) -> str:
             lines.append(f"- ... and {len(m['anomalies']) - 20} more (see the JSON report)")
     lines.append("")
 
-    x = g["6_cross_source_agreement"]
     lines += [
-        "## Gate 6 -- Cross-source agreement (warning-only)",
+        "## Gate 6 -- Cross-source agreement (retired)",
         "",
-        f"Of {x['n_verses']} verses: **{x['n_exact']} exact** "
-        f"(rate {x['exact_rate']}), {x['n_boundary_artifact']} boundary-"
-        f"artifact, **{x['n_distinct']} distinct** (rate {x['distinct_rate']}). "
-        "See docs/corpus_normalization.md's \"measured effect\" table for "
-        "the pre/post Stage 2 comparison -- the distinct tier is mostly "
-        "genuine cross-edition variance, not corpus damage.",
+        "Retired in Round 13 (2026-10-08). It compared the SuttaCentral Pali "
+        "edition with Ānandajoti's; the SuttaCentral edition was removed at "
+        "SuttaCentral's request (see data/raw/PROVENANCE.md), leaving one Pali "
+        "edition and nothing to compare.",
         "",
     ]
 

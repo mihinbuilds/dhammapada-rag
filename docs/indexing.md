@@ -6,14 +6,21 @@ second stage... For fusion, use Reciprocal Rank Fusion."
 
 ## Chunk schema: what gets matched on
 
-`src/dhammapada_rag/index/chunks.py` derives **5,909 chunks** from
+`src/dhammapada_rag/index/chunks.py` derives **5,486 chunks** from
 `verses.jsonl` and `stories.jsonl` -- see that module's docstring for the
-full breakdown by type. Counts for the index shipped after the September
-2026 cleaning pass: `story_vatthu` 2,302, `verse_pali_ms` 423,
-`verse_en_sujato` 423, `verse_en_interlinear` 423, `story_desanavasane` 395,
-`story_titles` 305, `story_alignment` 305, `story_keywords` 305,
-`story_synopsis` 304, `story_nidana` 301, `verse_en_narrative` 226,
-`verse_notes` 129, `story_cast` 68 (2,362 of them windowed). Originally 2,769: a post-hoc
+full breakdown by type. Counts for the index shipped after Round 13
+(2026-10-08): `story_vatthu` 2,302, `verse_pali_interlinear` 423,
+`verse_en_interlinear` 423, `story_desanavasane` 395, `story_titles` 305,
+`story_alignment` 305, `story_keywords` 305, `story_synopsis` 304,
+`story_nidana` 301, `verse_en_narrative` 226, `verse_notes` 129,
+`story_cast` 68 (2,362 of them windowed).
+
+Round 13 removed the two SuttaCentral verse chunk types (423 Pali, 423
+English) at SuttaCentral's request and indexed Ānandajoti's interlinear Pali
+for the first time (423), taking the count from 5,909 to 5,486. See
+`data/raw/PROVENANCE.md` and `docs/evaluation.md`'s Round 13 section.
+
+Originally 2,769: a post-hoc
 correctness pass found that `story_vatthu`/`story_synopsis`/
 `story_desanavasane` were each emitted as one unwindowed chunk per story
 regardless of length, which silently truncated at `embed.py`'s 512-token
@@ -41,7 +48,7 @@ tokens/word; pure Pali runs ~3.98), not a word-count guess -- see
 this machine -- MPS is available but untested here for numerical
 compatibility, CPU was chosen for reliability given the corpus is small
 enough that CPU encoding is tractable -- ~157s for the original 2,769-chunk
-index; not re-measured for the current 5,909-chunk index, since re-timing
+index; the current 5,486-chunk index encodes in ~8s on CUDA (RTX 5080). Re-timing
 isn't load-bearing for anything this doc claims) and saves, per chunk:
 
 - **Dense**: 1024-dim normalized embedding (`dense.npy`)
@@ -60,7 +67,7 @@ the same space without needing separate models per language.
 `search.py`'s `ChunkIndex.search()`:
 
 1. Dense: cosine similarity (dot product; vectors pre-normalized) over all
-   5,909 chunks, top `dense_k=100`.
+   chunks (5,486), top `dense_k=100`.
 2. Sparse: BGE-M3's own `compute_lexical_matching_score` (token-overlap dot
    product weighted by learned importance) over all chunks, top
    `sparse_k=100`.
@@ -108,7 +115,7 @@ but the two libraries share one environment here.
 - If the chunk came from a story (has `group_id`), the group is that story's
   own `dhp_verses` -- e.g. a hit on a story explaining Dhp 3-4 returns both
   verses plus that one story.
-- If the chunk is verse-only (e.g. a Pali or Sujato-translation hit with no
+- If the chunk is verse-only (e.g. a Pali or English verse hit with no
   `group_id`), the group is defined by looking up which story/stories
   explain that verse (`verses.jsonl`'s `story_group_ids`), then expanding to
   *those stories'* full `dhp_verses` (handles the rare case where the
@@ -125,7 +132,7 @@ and returns up to `top_k` distinct groups.
 child died' returns Dhp 114 with its Pali, both translations, and Kisāgotamī's
 story." Running that exact query returns, among the top 3 distinct
 verse-groups: **Dhp 114 / story 8.13** (the mustard-seed parable) with full
-Pali + Sujato translation + synopsis, matching the spec's worked example.
+Pali + English translation + synopsis, matching the spec's worked example.
 
 It also surfaces something the spec's example didn't anticipate: the corpus
 has a *second*, different Kisā Gotamī story (20.11, explaining Dhp 287) that

@@ -11,12 +11,18 @@ Checks (design doc's numbering, Stage 0; check 8 added after the fact --
 see its own docstring):
   1. Title/body coherence      -- catches stories like 23.1 mechanically
   2. Control characters        -- any codepoint < U+0020 except \\n and \\t
-  3. Pali character set        -- OCR residue in pali_mahasangiti
-  4. Cross-source verse agreement -- pali_mahasangiti vs interlinear_pali
+  3. Pali character set        -- OCR residue in interlinear_pali
+  4. Cross-source verse agreement -- retired in Round 13 (see below)
   5. Inline-vs-canonical Pali  -- a story's pali_verse vs the verse record
   6. Alignment closure         -- union of dhp_verses == 1..423
   7. Length outliers           -- vatthu too short, or nidana longer than vatthu
   8. Quote-glyph mis-mapping   -- U+2015/U+2016 standing in for curly quotes
+
+ROUND 13 (2026-10-08): check 4 compared the SuttaCentral Pali edition with
+Ānandajoti's interlinear Pali. The SuttaCentral edition was removed at
+SuttaCentral's request (data/raw/PROVENANCE.md), so there is one Pali edition
+per verse and check 4 has nothing to compare; it reports itself as retired.
+Checks 3 and 5 now read `interlinear_pali`.
 
 Run: python -m dhammapada_rag.ingest.audit_corpus
 Writes: docs/corpus_audit.md (the deliverable) and
@@ -72,7 +78,8 @@ def classify_pali_pair(a: str, b: str) -> str:
     cross-source disagreement rate (checks 4 and 5) was ~46-50%, which
     looked like a corpus-quality crisis until the worst offenders turned
     out to be dominated by one specific, explainable pattern -- not word-
-    level edition variance. `pali_mahasangiti` carries a trailing vagga
+    level edition variance. The SuttaCentral Pali field (removed in Round
+    13) carried a trailing vagga
     name + verse-count colophon on every vagga-final verse (worst case:
     Dhp 423, the very last verse, carries the ENTIRE closing colophon of
     all 26 vaggas), and `interlinear_pali` carries a leading page-heading
@@ -210,19 +217,18 @@ def check_control_characters(records: list[dict], source_file: str) -> list[dict
 # Check 3 -- Pali character set
 # --------------------------------------------------------------------------
 
-# The design doc's own allowed set, case-insensitive, widened once against
-# real data: the first run of this check flagged 22 verses for U+2014 (em
-# dash) and U+201C/U+201D (curly quotes), all of them legitimate
-# reported-speech punctuation inside the verse itself (e.g. Dhp 17:
-# `"Papam me katan"ti`) -- not OCR residue, contra this comment's original
-# assumption. IAST lowercase Pali letters plus diacritics actually used in
-# this corpus, whitespace, a small ASCII punctuation set, and that
-# typographic punctuation are allowed. A digit or stray Greek/Cyrillic
-# letter surviving in pali_mahasangiti is still OCR/extraction residue by
-# construction -- the Mahasangiti source is machine-readable, segment-keyed
-# CC0 text, not a PDF scan.
+# The design doc's own allowed set, case-insensitive, widened twice against
+# real data. First: curly quotes (U+201C/U+201D) and an em dash (U+2014) are
+# legitimate reported-speech punctuation inside the verse itself (e.g. Dhp
+# 17: `"Papam me katan"ti`), not OCR residue. Second (Round 13, when this
+# check moved to interlinear_pali, the only Pali field left): Ānandajoti
+# marks metrically short e/o with a breve (ĕ, ŏ) and punctuates with en
+# dash, colon, ?, ! and parentheses -- measured as the only characters
+# outside the first set, across all 423 verses. A digit or stray Greek/
+# Cyrillic letter is still extraction residue. Kept identical to
+# validation_gates.py's gate 3 set.
 _PALI_CHARSET_RE = re.compile(
-    r"[^a-zāīūṁṃṅñṭḍṇḷ\s.,;'\-‘’“”—]",
+    r"[^a-zāīūṁṃṅñṭḍṇḷĕŏ\s.,;:?!()'\-‘’“”—–]",
     re.IGNORECASE,
 )
 
@@ -230,7 +236,7 @@ _PALI_CHARSET_RE = re.compile(
 def check_pali_charset(verses: list[dict]) -> list[dict]:
     hits = []
     for v in verses:
-        text = v.get("pali_mahasangiti") or ""
+        text = v.get("interlinear_pali") or ""
         offenders = sorted(set(_PALI_CHARSET_RE.findall(text)))
         if offenders:
             hits.append({
@@ -243,42 +249,15 @@ def check_pali_charset(verses: list[dict]) -> list[dict]:
 
 
 # --------------------------------------------------------------------------
-# Check 4 -- cross-source verse agreement (pali_mahasangiti vs interlinear_pali)
+# Check 4 -- cross-source verse agreement: retired in Round 13
 # --------------------------------------------------------------------------
 
-def check_cross_source_agreement(verses: list[dict]) -> dict:
-    exact = boundary = 0
-    distinct = []
-    n_comparable = 0
-    for v in verses:
-        a, b = v.get("pali_mahasangiti"), v.get("interlinear_pali")
-        if not a or not b:
-            continue
-        n_comparable += 1
-        tier = classify_pali_pair(a, b)
-        if tier == "exact":
-            exact += 1
-        elif tier == "boundary":
-            boundary += 1
-        else:
-            ratio = difflib.SequenceMatcher(
-                None, normalize_pali_orthography(a), normalize_pali_orthography(b)
-            ).ratio()
-            distinct.append({
-                "verse": v["verse"],
-                "similarity": round(ratio, 4),
-                "pali_mahasangiti": a,
-                "interlinear_pali": b,
-            })
-    distinct.sort(key=lambda d: d["similarity"])
-    return {
-        "n_comparable": n_comparable,
-        "n_exact": exact,
-        "n_boundary_artifact": boundary,
-        "n_distinct": len(distinct),
-        "distinct_rate": round(len(distinct) / n_comparable, 4) if n_comparable else None,
-        "worst_20_distinct": distinct[:20],
-    }
+CHECK_4_RETIRED = (
+    "Retired in Round 13 (2026-10-08). This check compared the SuttaCentral "
+    "Pali edition with Ānandajoti's interlinear Pali; the SuttaCentral edition "
+    "was removed at SuttaCentral's request (data/raw/PROVENANCE.md), leaving one "
+    "Pali edition per verse and nothing to compare."
+)
 
 
 # --------------------------------------------------------------------------
@@ -300,7 +279,7 @@ def check_inline_vs_canonical(stories: list[dict], verses_by_number: dict[int, d
         inline, vn = s.get("pali_verse"), s.get("pali_verse_number")
         if not inline or vn is None:
             continue
-        canonical = verses_by_number.get(vn, {}).get("pali_mahasangiti")
+        canonical = verses_by_number.get(vn, {}).get("interlinear_pali")
         if not canonical:
             continue
         n_comparable += 1
@@ -318,7 +297,7 @@ def check_inline_vs_canonical(stories: list[dict], verses_by_number: dict[int, d
                 "pali_verse_number": vn,
                 "similarity": round(ratio, 4),
                 "story_pali_verse": inline,
-                "canonical_pali_mahasangiti": canonical,
+                "canonical_interlinear_pali": canonical,
             })
     distinct.sort(key=lambda d: d["similarity"])
     return {
@@ -500,21 +479,13 @@ def render_markdown(report: dict) -> str:
 
     lines += ["", "## 3. Pali character set", ""]
     charset = report["pali_charset"]
-    lines.append(f"{len(charset)} verse(s) with a character in `pali_mahasangiti` outside the allowed IAST set.")
+    lines.append(f"{len(charset)} verse(s) with a character in `interlinear_pali` outside the allowed set.")
     lines.append("")
     if charset:
         codepoints_seen = sorted({c for h in charset for c in h["codepoints"]})
         lines.append(
-            f"**All {len(charset)} hits are `{'`, `'.join(codepoints_seen)}`** -- curly quotation "
-            "marks (U+201C/U+201D) and one em dash (U+2014), always wrapping a reported-speech "
-            "phrase inside the verse itself (e.g. Dhp 17: `“Pāpaṁ me katan”ti`, "
-            "\"'I have done wrong,' [thinking thus, he suffers]\"). **These are legitimate "
-            "typographic punctuation in the source, not OCR residue** -- the design doc's own "
-            "assumption (\"Latin punctuation, digits, or stray Greek/Cyrillic are OCR residue\") "
-            "does not hold for this specific case. The allowed character set in "
-            "`corpus_rebuild_design.md`'s Stage 5 gate 3 should include `“”—` before "
-            "being used as a hard gate, or every one of these 22 genuinely correct verses would "
-            "fail the build."
+            f"Characters found: `{'`, `'.join(codepoints_seen)}`. Each is a candidate for hand "
+            "review against the source HTML, not a confirmed error."
         )
         lines.append("")
         for h in charset[:30]:
@@ -523,63 +494,15 @@ def render_markdown(report: dict) -> str:
             lines.append(f"- ... and {len(charset) - 30} more (see `corpus_audit_report.json`)")
     else:
         lines.append(
-            "None found -- `pali_mahasangiti` stays within the allowed set (IAST letters plus the "
-            "em dash/curly quotes genuinely present in reported-speech verses) across all 423 "
-            "verses. An earlier, narrower version of this gate (IAST only, no typographic "
-            "punctuation) flagged 22 verses here, all confirmed legitimate on hand inspection -- "
-            "see git history for that finding; the gate was widened rather than the corpus changed."
+            "None found -- `interlinear_pali` stays within the allowed set across all 423 verses: "
+            "IAST letters, Ānandajoti's breve vowels (ĕ, ŏ) for metrically short e/o, and the "
+            "punctuation genuinely present in the source (curly quotes and dashes around reported "
+            "speech, colon, ?, !, parentheses). The set has been widened twice, each time after "
+            "hand inspection showed every hit was legitimate -- see git history; the corpus was "
+            "never changed to pass it."
         )
 
-    lines += ["", "## 4. Cross-source verse agreement (pali_mahasangiti vs. interlinear_pali)", ""]
-    cross = report["cross_source_agreement"]
-    lines.append(
-        f"Of {cross['n_comparable']} verses with both fields: **{cross['n_exact']} exact** match after "
-        f"folding edition orthography (hyphenation/niggahita/case/spacing); "
-        f"**{cross['n_boundary_artifact']} boundary-artifact** (one field is a normalized prefix or "
-        f"suffix of the other -- see below, not a content disagreement); "
-        f"**{cross['n_distinct']} distinct** (rate {cross['distinct_rate']}) -- genuine mismatches, "
-        f"the number worth acting on."
-    )
-    lines.append("")
-    if cross["n_boundary_artifact"] == 0:
-        lines.append(
-            "**The boundary-artifact tier is 0 on the current corpus.** An earlier version of this "
-            "corpus had `pali_mahasangiti` carrying a trailing vagga-name + verse-count colophon on "
-            "every vagga-final verse, and `interlinear_pali` carrying a leading page-heading fragment "
-            "on some vagga-initial verses -- both per-verse fields contaminated by neighboring "
-            "structural text that extraction didn't trim at the verse boundary. `build_verses.py`'s "
-            "cutover to Stage 2's normalized files (`docs/corpus_normalization.md`) fixed this at "
-            "the source; this check finding 0 confirms the fix is holding, not a claim this script "
-            "invents fresh each run. Hand-checking a sample of the *distinct* tier below shows it is "
-            "mostly a separate, real finding, not a bug: genuine word-level differences between the "
-            "two editions -- different verbal forms of the same root (Dhp 292: `karīyati` vs "
-            "`kayirati`), different word choice entirely (Dhp 371: `ramessu` vs `bhamassu`; Dhp 69: "
-            "`atha dukkhaṁ` vs `bālo dukkhaṁ`), not a formatting convention any normalization should "
-            "fold away. **This reads as genuine cross-edition textual variance** -- exactly the "
-            "phenomenon this project's own framing (Round 6, `docs/generation.md`) says it exists to "
-            "represent, here found in the base corpus a layer before generation ever touches it -- "
-            "not corpus damage. Confirming that at scale (rather than by spot-check) is a philology "
-            "question a word-level diff and ideally a Pali-reading human, not this script, should "
-            "answer -- flagged as Stage 0's own limit, not resolved here."
-        )
-    else:
-        lines.append(
-            f"**The boundary-artifact tier ({cross['n_boundary_artifact']} cases) is a real bug; the "
-            "distinct tier, spot-checked, is mostly a real finding, not a bug.** `pali_mahasangiti` "
-            "carries a trailing vagga-name + verse-count colophon on every vagga-final verse, and "
-            "`interlinear_pali` carries a leading page-heading fragment on some vagga-initial verses "
-            "-- both are per-verse fields contaminated by neighboring structural text extraction "
-            "didn't trim at the verse boundary, a corpus-construction bug `data/processed/"
-            "verses.jsonl` should fix regardless of whether a full rebuild happens."
-        )
-    lines.append("")
-    if cross["worst_20_distinct"]:
-        lines.append("Worst 20 genuinely distinct cases (lowest similarity first, boundary artifacts excluded):")
-        lines.append("")
-        for d in cross["worst_20_distinct"]:
-            lines.append(f"- Dhp {d['verse']} (similarity {d['similarity']}):")
-            lines.append(f"  - mahasangiti:  `{d['pali_mahasangiti']}`")
-            lines.append(f"  - interlinear:  `{d['interlinear_pali']}`")
+    lines += ["", "## 4. Cross-source verse agreement (retired)", "", report["cross_source_agreement"]["retired"]]
 
     lines += ["", "## 5. Inline-vs-canonical Pali (story's `pali_verse` vs. its `pali_verse_number`)", ""]
     inline = report["inline_vs_canonical"]
@@ -594,14 +517,10 @@ def render_markdown(report: dict) -> str:
     )
     lines.append("")
     lines.append(
-        "Same reading as check 4 above, spot-checked separately here: most of the distinct tier is "
-        "not corruption but genuine spelling/word-choice variance between the story's own "
-        "(Ānandajoti-sourced) inline quote and the (Mahāsaṅgīti-sourced) canonical verse -- e.g. "
-        "3.4's `saññam-essanti` vs canonical `saṁyamissanti`, 8.8's `vaddhāpacāyino` vs "
-        "`vuḍḍhāpacāyino`, 9.6's `Māppamaññetha` vs `Māvamaññetha`. Expected, since this check "
-        "compares the same two editions as check 4 by a different route (a story's own quote vs. "
-        "the verse record, rather than the verse record's two fields directly) -- not a second, "
-        "independent confirmation of a corpus defect, and read accordingly."
+        "Since Round 13 both sides of this comparison are Ānandajoti's: the story's inline quote "
+        "comes from his 2024 commentary edition (the source PDF), the canonical verse from his "
+        "2017 interlinear. A distinct case is a difference between two editions by the same "
+        "editor, or an extraction error on one side -- worth hand review either way."
     )
     lines.append("")
     if inline["worst_20_distinct"]:
@@ -610,7 +529,7 @@ def render_markdown(report: dict) -> str:
         for d in inline["worst_20_distinct"]:
             lines.append(f"- {d['group_id']} (cites Dhp {d['pali_verse_number']}, similarity {d['similarity']}):")
             lines.append(f"  - story pali_verse: `{d['story_pali_verse']}`")
-            lines.append(f"  - canonical:        `{d['canonical_pali_mahasangiti']}`")
+            lines.append(f"  - canonical:        `{d['canonical_interlinear_pali']}`")
 
     lines += ["", "## 6. Alignment closure", ""]
     closure = report["alignment_closure"]
@@ -672,34 +591,28 @@ def render_markdown(report: dict) -> str:
         "also run, and they already pass on the current corpus.",
         f"- **Control characters (check 2) are at {len(cc)} on this "
         "corpus.** They were one repeated cosmetic artifact (`\\x0c` in `desanavasane`/`body_raw` "
-        "on vagga-final stories), fixed at the source in `clean_body_text()`. The boundary-artifact "
-        f"tier of check 4 ({cross['n_boundary_artifact']} cases) -- the same class of vagga-boundary "
-        "contamination -- is already fixed at the source (`build_verses.py`'s Stage 2 cutover); "
-        f"check 5's {inline['n_boundary_artifact']} boundary-artifact cases are expected partial-"
+        "on vagga-final stories), fixed at the source in `clean_body_text()`. Check "
+        f"5's {inline['n_boundary_artifact']} boundary-artifact cases are expected partial-"
         "quote \"teasers\" (`verse_teaser`), not a bug. (That tier was 16 before the story "
         "parser stopped splitting verse quotations at page breaks: 11 of the 16 were full "
         "quotations cut off mid-verse by a page break, not teasers.)",
-        "- **One check's own premise didn't hold**: check 3's 22 \"violations\" were all legitimate "
-        "typographic punctuation, not OCR residue -- the character-set gate now allows them (see "
-        "check 3 above) rather than needing the corpus changed.",
+        "- **One check's own premise didn't hold**: check 3's first \"violations\" were all "
+        "legitimate typographic punctuation, not OCR residue -- the character-set gate now allows "
+        "them (see check 3 above) rather than needing the corpus changed.",
         "- **Title/body coherence (check 1) found one already-resolved false positive (23.1) and "
         "three more, hand-checked here** -- 16.4, 20.5, and 22.2 are also false positives (a "
         "pluralization mismatch, a name that lives in `nidana` rather than `vatthu`, and a "
         "paraphrased doctrinal title with no real proper noun), not corpus errors. The checker "
         "itself, not the corpus, was narrow; see check 1's function docstring for the fix.",
-        f"- **The large \"distinct\" numbers in checks 4/5 ({cross['distinct_rate']:.0%} and "
-        f"{inline['distinct_rate']:.0%}) are the one finding that "
-        "looked, before inspection, like it might justify a rebuild -- and mostly doesn't.** "
-        "Spot-checking shows most are genuine word-level variance between two real, already-"
-        "correctly-distinguishable editions (Mahāsaṅgīti vs. Ānandajoti), which is what "
-        "`corpus_rebuild_design.md`'s own Stage 1 ownership table already assumes is true "
-        "of these two fields -- not evidence the current corpus conflates its sources.",
+        f"- **Check 5's distinct tier ({inline['distinct_rate']:.0%}) compares two editions by "
+        "the same editor** (Ānandajoti's 2024 commentary quotes vs. his 2017 interlinear). Check "
+        "4, which compared editions by different editors, is retired with the SuttaCentral source "
+        "it depended on.",
         "",
         "**None of the above requires re-fetching from external sources, a new alignment table, "
         "or rebuilding the index.** All four of the prior audit pass's action items are now "
         "resolved on this corpus: (1) vagga-boundary contamination in `verses.jsonl`'s "
-        "`pali_mahasangiti`/`interlinear_pali` -- fixed by the Stage 2 cutover, confirmed at 0 "
-        "boundary-artifact cases above; (2) `\\x0c` stripped from `desanavasane`/`body_raw` at "
+        "Pali fields -- fixed by the Stage 2 cutover; (2) `\\x0c` stripped from `desanavasane`/`body_raw` at "
         "`clean_body_text()`; (3) 16.4/20.5/22.2 hand-checked against the source text and cleared "
         "as false positives, with the checker itself widened accordingly; (4) the Pali "
         "character-set gate now allows the typographic punctuation genuinely present in the "
@@ -734,7 +647,7 @@ def main() -> None:
             + check_control_characters(verses, "verses.jsonl")
         ),
         "pali_charset": check_pali_charset(verses),
-        "cross_source_agreement": check_cross_source_agreement(verses),
+        "cross_source_agreement": {"retired": CHECK_4_RETIRED},
         "inline_vs_canonical": check_inline_vs_canonical(stories, verses_by_number),
         "alignment_closure": check_alignment_closure(stories),
         "length_outliers": check_length_outliers(stories),
@@ -756,10 +669,7 @@ def main() -> None:
     print(f"1. Title/body coherence:       {len(report['title_body_coherence'])} stories flagged")
     print(f"2. Control characters:         {len(report['control_characters'])} fields flagged")
     print(f"3. Pali character set:         {len(report['pali_charset'])} verses flagged")
-    print(f"4. Cross-source agreement:     {report['cross_source_agreement']['n_distinct']}/"
-          f"{report['cross_source_agreement']['n_comparable']} genuinely distinct "
-          f"({report['cross_source_agreement']['distinct_rate']}) -- "
-          f"{report['cross_source_agreement']['n_boundary_artifact']} more are boundary artifacts, not disagreement")
+    print("4. Cross-source agreement:     retired (Round 13)")
     print(f"5. Inline-vs-canonical:        {report['inline_vs_canonical']['n_distinct']}/"
           f"{report['inline_vs_canonical']['n_comparable']} genuinely distinct "
           f"({report['inline_vs_canonical']['distinct_rate']}) -- "

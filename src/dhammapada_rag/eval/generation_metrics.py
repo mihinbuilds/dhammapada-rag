@@ -129,7 +129,7 @@ def main() -> None:
                         "group_ids": [s["group_id"] for s in b["stories"]],
                         "verse_numbers": b["verse_numbers"],
                         "verse_text": [
-                            {"verse": v["verse"], "pali": v["pali_mahasangiti"], "english": v["english_sujato"]}
+                            {"verse": v["verse"], "pali": v["interlinear_pali"], "english": v["interlinear_english"]}
                             for v in b["verses"]
                         ],
                         "commentary_text": [

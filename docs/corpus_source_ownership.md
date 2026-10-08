@@ -7,8 +7,15 @@ produce it — where a claim below needed checking rather than assuming, it
 was checked directly (cited per row) rather than carried over from the
 design doc's draft uncritically.
 
-Three sources here (`pali_mahasangiti`, `english_sujato`, the three
-`interlinear_*` fields) are **already fetched, ingested, and licensed** in
+**Round 13 (2026-10-08):** the two SuttaCentral rows below (a Pali root text
+and an English translation) are removed. SuttaCentral asked that their
+material not be used in any project that uses AI; both fields left the
+corpus and the repository's history (`data/raw/PROVENANCE.md`). The
+`interlinear_*` fields now own the verse layer alone. The rest of this
+document is the Stage 1 record as written.
+
+Three sources here (the two SuttaCentral fields, the three
+`interlinear_*` fields) were **already fetched, ingested, and licensed** in
 this corpus — Phase 1 did this work; this table cites it rather than
 re-deriving it. Two sources (`atthakatha_pali`, `atthakatha_english`) are
 **proposed, not yet fetched** — Stage 1 declares ownership in advance of
@@ -21,8 +28,8 @@ it doesn't affect anything this project currently generates against.
 
 | Field | Owning source | Format | Licence | Status |
 |---|---|---|---|---|
-| `pali_mahasangiti` | SuttaCentral `bilara-data`, `published` branch, Mahāsaṅgīti root text | JSON, segment-keyed | **CC0 1.0** (confirmed) | Already fetched: `sources/external/mahasangiti_pali/` |
-| `english_sujato` | SuttaCentral `bilara-data`, same branch, Bhikkhu Sujato's translation | JSON, segment-keyed | **CC0 1.0** (confirmed) | Already fetched: `sources/external/sujato_en/` |
+| ~~SuttaCentral Pali~~ | SuttaCentral | -- | -- | **Removed 2026-10-08** at SuttaCentral's request |
+| ~~SuttaCentral English~~ | SuttaCentral | -- | -- | **Removed 2026-10-08** at SuttaCentral's request |
 | `interlinear_pali` | Ānandajoti Bhikkhu, *Dhammapada* interlinear ed., 2nd ed., Nov 2017, ancient-buddhist-texts.net | HTML | **CC BY-SA 4.0**, attribution required (confirmed in writing, `sources/PERMISSION.md`) | Already fetched: `sources/external/anandajoti_interlinear/` |
 | `interlinear_english` | same as above | HTML | same as above | same as above |
 | `interlinear_notes` | same as above | HTML | same as above | same as above |
@@ -65,10 +72,10 @@ here.
 under this table, it owns titles and grouping only. Every verse-side field
 comes from a machine-readable, per-verse-keyed source instead. This isn't
 a hypothetical risk: Stage 0's audit (`docs/corpus_audit.md`, checks 4-5)
-already found real vagga-boundary contamination in `pali_mahasangiti`
+already found real vagga-boundary contamination in the SuttaCentral Pali
 itself (a machine-readable source), and separately found substantial
-genuine word-level variance between `pali_mahasangiti` and
-`interlinear_pali` -- two sources this table already keeps distinct. A PDF
+genuine word-level variance between it and `interlinear_pali` -- two
+sources this table kept distinct. A PDF
 text-extraction pipeline, the least reliable input in this project, has
 never been asked to be a third independent voice on the same verse text;
 this table keeps it that way.

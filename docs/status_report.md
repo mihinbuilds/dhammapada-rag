@@ -143,12 +143,12 @@ It is **unverified** whether the error originates in the Pali aṭṭhakathā, i
 
 ```
 === Dhp 416
-pali_mahasangiti => 'Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ. Yodha taṇhaṁ pahantvāna, anāgāro paribbaje; Taṇhābhavaparikkhīṇaṁ, tamahaṁ brūmi brāhmaṇaṁ.'
+pali_mahasangiti => [SuttaCentral text removed 2026-10-08]
 interlinear_pali => 'Yodha taṇhaṁ pahatvāna, anāgāro paribbaje, taṇhābhavaparikkhīṇaṁ, tam-ahaṁ brūmi brāhmaṇaṁ.'
-english_sujato => 'They’ve given up craving, … that’s who I declare a brahmin. They’ve given up craving, … that’s who I declare a brahmin.'
+english_sujato => [SuttaCentral text removed 2026-10-08]
 
 === Dhp 380
-pali_mahasangiti => 'Attā hi attano nātho, ko hi nātho paro siyā; Attā hi attano gati, tasmā saṁyamamattānaṁ; Assaṁ bhadraṁva vāṇijo.'
+pali_mahasangiti => [SuttaCentral text removed 2026-10-08]
 interlinear_pali => 'Attā hi attano nātho, attā hi attano gati, tasmā saṁyamayattānaṁ assaṁ bhadraṁ va vāṇijo.'
 ```
 

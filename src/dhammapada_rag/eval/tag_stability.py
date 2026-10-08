@@ -69,7 +69,7 @@ LAYERS = ("verse", "commentary", "alignment", "synthesis")
 # actual gold question (guaranteed to surface the verse group, by the same
 # construction-from-known-answer method eval_rubric.md describes). Phrasings
 # 2 and 3 are hand-written from the verse's own content (data/processed/
-# verses.jsonl english_sujato), asking about the same teaching from a
+# verses.jsonl's English translation at the time), asking about the same teaching from a
 # different angle -- the same principle Task F's two anger questions used.
 VERSE_QUESTIONS: dict[int, list[str]] = {
     11: [
@@ -98,7 +98,7 @@ VERSE_QUESTIONS: dict[int, list[str]] = {
         "What does the Dhammapada say about attachment to family and possessions?",
     ],
     89: [
-        "What does the Dhammapada say happens to those whose minds are rightly developed in the awakening factors and who let go of attachment?",
+        "What does the Dhammapada say about those who have developed the factors of awakening and given up grasping?",
         "What does the Dhammapada say about those who let go of attachment and develop the awakening factors?",
         "According to the Dhammapada, what happens to those whose defilements have ended?",
     ],

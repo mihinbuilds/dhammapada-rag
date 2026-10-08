@@ -3,48 +3,48 @@
   "machine": "cuda (NVIDIA GeForce RTX 5080)",
   "overall": {
     "baseline": {
-      "recall@1": 0.9123,
-      "recall@3": 0.9737,
-      "recall@5": 0.9737,
+      "recall@1": 0.8772,
+      "recall@3": 0.9474,
+      "recall@5": 0.9649,
       "recall@10": 0.9825,
-      "ndcg@10": 0.9537,
-      "mrr": 0.9443,
+      "ndcg@10": 0.9319,
+      "mrr": 0.9155,
       "gold_recall@10": 0.9825
     },
     "verse_only": {
-      "recall@1": 0.5,
-      "recall@3": 0.5263,
+      "recall@1": 0.4737,
+      "recall@3": 0.5175,
       "recall@5": 0.5351,
       "recall@10": 0.5526,
-      "ndcg@10": 0.5263,
-      "mrr": 0.5232,
+      "ndcg@10": 0.5108,
+      "mrr": 0.502,
       "gold_recall@10": 0.5526
     },
     "dense_only": {
-      "recall@1": 0.9211,
-      "recall@3": 0.9649,
-      "recall@5": 0.9737,
-      "recall@10": 0.9737,
-      "ndcg@10": 0.9521,
-      "mrr": 0.9453,
-      "gold_recall@10": 0.9737
+      "recall@1": 0.886,
+      "recall@3": 0.9474,
+      "recall@5": 0.9649,
+      "recall@10": 0.9649,
+      "ndcg@10": 0.928,
+      "mrr": 0.9164,
+      "gold_recall@10": 0.9649
     },
     "no_rerank": {
-      "recall@1": 0.8772,
-      "recall@3": 0.9649,
-      "recall@5": 0.9649,
+      "recall@1": 0.7982,
+      "recall@3": 0.9211,
+      "recall@5": 0.9386,
       "recall@10": 0.9737,
-      "ndcg@10": 0.9342,
-      "mrr": 0.9217,
+      "ndcg@10": 0.8871,
+      "mrr": 0.8603,
       "gold_recall@10": 0.9737
     },
     "flat": {
-      "recall@1": 0.9123,
-      "recall@3": 0.9649,
-      "recall@5": 0.9737,
+      "recall@1": 0.8772,
+      "recall@3": 0.9386,
+      "recall@5": 0.9649,
       "recall@10": 0.9825,
-      "ndcg@10": 0.9508,
-      "mrr": 0.9405,
+      "ndcg@10": 0.9288,
+      "mrr": 0.9117,
       "gold_recall@10": 0.9825
     }
   },
@@ -64,10 +64,10 @@
         "recall@1": 0.0,
         "recall@3": 0.0,
         "recall@5": 0.0,
-        "recall@10": 0.0714,
-        "ndcg@10": 0.0254,
-        "mrr": 0.0194,
-        "gold_recall@10": 0.0714
+        "recall@10": 0.0,
+        "ndcg@10": 0.0,
+        "mrr": 0.008,
+        "gold_recall@10": 0.0
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -114,7 +114,7 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.006,
+        "mrr": 0.007,
         "gold_recall@10": 0.0
       },
       "dense_only": {
@@ -160,10 +160,10 @@
         "recall@1": 0.125,
         "recall@3": 0.125,
         "recall@5": 0.125,
-        "recall@10": 0.125,
-        "ndcg@10": 0.125,
-        "mrr": 0.1357,
-        "gold_recall@10": 0.125
+        "recall@10": 0.25,
+        "ndcg@10": 0.1695,
+        "mrr": 0.1536,
+        "gold_recall@10": 0.25
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -196,48 +196,48 @@
     "doctrinal": {
       "n": 30,
       "baseline": {
-        "recall@1": 0.9,
-        "recall@3": 0.9667,
-        "recall@5": 0.9667,
+        "recall@1": 0.7667,
+        "recall@3": 0.8667,
+        "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.9421,
-        "mrr": 0.9346,
+        "ndcg@10": 0.8594,
+        "mrr": 0.8253,
         "gold_recall@10": 0.9667
       },
       "verse_only": {
-        "recall@1": 0.9667,
-        "recall@3": 1.0,
-        "recall@5": 1.0,
-        "recall@10": 1.0,
-        "ndcg@10": 0.9877,
-        "mrr": 0.9833,
-        "gold_recall@10": 1.0
+        "recall@1": 0.8333,
+        "recall@3": 0.9,
+        "recall@5": 0.9333,
+        "recall@10": 0.9333,
+        "ndcg@10": 0.881,
+        "mrr": 0.8649,
+        "gold_recall@10": 0.9333
       },
       "dense_only": {
-        "recall@1": 0.9,
-        "recall@3": 0.9667,
-        "recall@5": 0.9667,
-        "recall@10": 0.9667,
-        "ndcg@10": 0.9421,
-        "mrr": 0.9348,
-        "gold_recall@10": 0.9667
+        "recall@1": 0.7667,
+        "recall@3": 0.9,
+        "recall@5": 0.9333,
+        "recall@10": 0.9333,
+        "ndcg@10": 0.8506,
+        "mrr": 0.825,
+        "gold_recall@10": 0.9333
       },
       "no_rerank": {
-        "recall@1": 0.7333,
-        "recall@3": 0.9333,
-        "recall@5": 0.9333,
+        "recall@1": 0.4333,
+        "recall@3": 0.7667,
+        "recall@5": 0.8333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.87,
-        "mrr": 0.8387,
+        "ndcg@10": 0.6914,
+        "mrr": 0.6053,
         "gold_recall@10": 0.9667
       },
       "flat": {
-        "recall@1": 0.9,
-        "recall@3": 0.9333,
-        "recall@5": 0.9667,
+        "recall@1": 0.7667,
+        "recall@3": 0.8333,
+        "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.9354,
-        "mrr": 0.9259,
+        "ndcg@10": 0.8521,
+        "mrr": 0.8164,
         "gold_recall@10": 0.9667
       }
     },
@@ -253,13 +253,13 @@
         "gold_recall@10": 1.0
       },
       "verse_only": {
-        "recall@1": 0.0333,
-        "recall@3": 0.0333,
-        "recall@5": 0.0667,
-        "recall@10": 0.1,
-        "ndcg@10": 0.0582,
-        "mrr": 0.0542,
-        "gold_recall@10": 0.1
+        "recall@1": 0.0667,
+        "recall@3": 0.1,
+        "recall@5": 0.1333,
+        "recall@10": 0.1333,
+        "ndcg@10": 0.0962,
+        "mrr": 0.0919,
+        "gold_recall@10": 0.1333
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -304,10 +304,10 @@
         "recall@1": 0.8667,
         "recall@3": 0.9333,
         "recall@5": 0.9333,
-        "recall@10": 0.9333,
-        "ndcg@10": 0.9087,
-        "mrr": 0.905,
-        "gold_recall@10": 0.9333
+        "recall@10": 0.9667,
+        "ndcg@10": 0.9188,
+        "mrr": 0.9055,
+        "gold_recall@10": 0.9667
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -356,7 +356,7 @@
         "recall@5": 0.0,
         "recall@10": 0.0,
         "ndcg@10": 0.0,
-        "mrr": 0.006,
+        "mrr": 0.007,
         "gold_recall@10": 0.0
       },
       "dense_only": {
@@ -402,10 +402,10 @@
         "recall@1": 0.125,
         "recall@3": 0.125,
         "recall@5": 0.125,
-        "recall@10": 0.125,
-        "ndcg@10": 0.125,
-        "mrr": 0.1357,
-        "gold_recall@10": 0.125
+        "recall@10": 0.25,
+        "ndcg@10": 0.1695,
+        "mrr": 0.1536,
+        "gold_recall@10": 0.25
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -438,48 +438,48 @@
     "doctrinal": {
       "n": 30,
       "baseline": {
-        "recall@1": 0.9,
-        "recall@3": 0.9667,
-        "recall@5": 0.9667,
+        "recall@1": 0.7667,
+        "recall@3": 0.8667,
+        "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.9421,
-        "mrr": 0.9346,
+        "ndcg@10": 0.8594,
+        "mrr": 0.8253,
         "gold_recall@10": 0.9667
       },
       "verse_only": {
-        "recall@1": 0.9667,
-        "recall@3": 1.0,
-        "recall@5": 1.0,
-        "recall@10": 1.0,
-        "ndcg@10": 0.9877,
-        "mrr": 0.9833,
-        "gold_recall@10": 1.0
+        "recall@1": 0.8333,
+        "recall@3": 0.9,
+        "recall@5": 0.9333,
+        "recall@10": 0.9333,
+        "ndcg@10": 0.881,
+        "mrr": 0.8649,
+        "gold_recall@10": 0.9333
       },
       "dense_only": {
-        "recall@1": 0.9,
-        "recall@3": 0.9667,
-        "recall@5": 0.9667,
-        "recall@10": 0.9667,
-        "ndcg@10": 0.9421,
-        "mrr": 0.9348,
-        "gold_recall@10": 0.9667
+        "recall@1": 0.7667,
+        "recall@3": 0.9,
+        "recall@5": 0.9333,
+        "recall@10": 0.9333,
+        "ndcg@10": 0.8506,
+        "mrr": 0.825,
+        "gold_recall@10": 0.9333
       },
       "no_rerank": {
-        "recall@1": 0.7333,
-        "recall@3": 0.9333,
-        "recall@5": 0.9333,
+        "recall@1": 0.4333,
+        "recall@3": 0.7667,
+        "recall@5": 0.8333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.87,
-        "mrr": 0.8387,
+        "ndcg@10": 0.6914,
+        "mrr": 0.6053,
         "gold_recall@10": 0.9667
       },
       "flat": {
-        "recall@1": 0.9,
-        "recall@3": 0.9333,
-        "recall@5": 0.9667,
+        "recall@1": 0.7667,
+        "recall@3": 0.8333,
+        "recall@5": 0.9333,
         "recall@10": 0.9667,
-        "ndcg@10": 0.9354,
-        "mrr": 0.9259,
+        "ndcg@10": 0.8521,
+        "mrr": 0.8164,
         "gold_recall@10": 0.9667
       }
     },
@@ -495,13 +495,13 @@
         "gold_recall@10": 1.0
       },
       "verse_only": {
-        "recall@1": 0.0333,
-        "recall@3": 0.0333,
-        "recall@5": 0.0667,
-        "recall@10": 0.1,
-        "ndcg@10": 0.0582,
-        "mrr": 0.0542,
-        "gold_recall@10": 0.1
+        "recall@1": 0.0667,
+        "recall@3": 0.1,
+        "recall@5": 0.1333,
+        "recall@10": 0.1333,
+        "ndcg@10": 0.0962,
+        "mrr": 0.0919,
+        "gold_recall@10": 0.1333
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -546,10 +546,10 @@
         "recall@1": 0.8667,
         "recall@3": 0.9333,
         "recall@5": 0.9333,
-        "recall@10": 0.9333,
-        "ndcg@10": 0.9087,
-        "mrr": 0.905,
-        "gold_recall@10": 0.9333
+        "recall@10": 0.9667,
+        "ndcg@10": 0.9188,
+        "mrr": 0.9055,
+        "gold_recall@10": 0.9667
       },
       "dense_only": {
         "recall@1": 0.9333,
@@ -594,10 +594,10 @@
         "recall@1": 0.0,
         "recall@3": 0.0,
         "recall@5": 0.0,
-        "recall@10": 0.0714,
-        "ndcg@10": 0.0254,
-        "mrr": 0.0194,
-        "gold_recall@10": 0.0714
+        "recall@10": 0.0,
+        "ndcg@10": 0.0,
+        "mrr": 0.008,
+        "gold_recall@10": 0.0
       },
       "dense_only": {
         "recall@1": 1.0,
@@ -630,31 +630,31 @@
   },
   "ablation_deltas_ndcg10": {
     "verse_only": {
-      "delta": 0.4274,
+      "delta": 0.4211,
       "ci": [
-        0.3375,
-        0.5221
+        0.331,
+        0.5147
       ]
     },
     "dense_only": {
-      "delta": 0.0016,
+      "delta": 0.0039,
       "ci": [
-        -0.0076,
-        0.0101
+        -0.0078,
+        0.0167
       ]
     },
     "no_rerank": {
-      "delta": 0.0195,
+      "delta": 0.0448,
       "ci": [
-        -0.0071,
-        0.0468
+        0.0122,
+        0.0783
       ]
     },
     "flat": {
-      "delta": 0.0029,
+      "delta": 0.0031,
       "ci": [
         0.0,
-        0.0076
+        0.0077
       ]
     }
   },
@@ -662,15 +662,15 @@
     "verse_only": {
       "delta": 0.4299,
       "ci": [
-        0.3333,
-        0.5263
+        0.3421,
+        0.5175
       ]
     },
     "dense_only": {
-      "delta": 0.0088,
+      "delta": 0.0176,
       "ci": [
         0.0,
-        0.0263
+        0.0439
       ]
     },
     "no_rerank": {

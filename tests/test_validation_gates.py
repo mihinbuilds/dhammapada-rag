@@ -20,9 +20,9 @@ ROOT = Path(__file__).resolve().parents[1]
 
 def _skip_unless_normalized_present():
     norm_dir = ROOT / "data" / "normalized"
-    required = ["sc_pali.jsonl", "sc_sujato.jsonl", "aj_interlinear.jsonl", "aj_stories.jsonl"]
+    required = ["aj_interlinear.jsonl", "aj_stories.jsonl"]
     if not all((norm_dir / name).exists() for name in required):
-        pytest.skip("data/normalized/ Stage 2 outputs not present -- run the normalize_*.py scripts first")
+        pytest.skip("data/normalized/ Stage 2 outputs not present -- run the normalize_aj_*.py scripts first")
 
 
 def _gates_module():
@@ -51,22 +51,18 @@ def test_warn_gates_never_fail_the_build():
     _skip_unless_normalized_present()
     vg = _gates_module()
     report = vg.run_gates(ROOT)
-    for name in ("5_metrical_sanity", "6_cross_source_agreement", "7_title_body_coherence"):
+    for name in ("5_metrical_sanity", "7_title_body_coherence"):
         assert report["gates"][name]["passed"] is True
 
 
-def test_gate_6_matches_stage2s_measured_effect():
-    """Regression pin against docs/corpus_normalization.md's own reported
-    numbers (246 exact, 0 boundary artifact, 177 distinct, out of 423) --
-    gate 6 recomputes the same classification Stage 2 already measured, so
-    a mismatch would mean the two have drifted apart."""
+def test_gate_6_is_retired():
+    """Round 13: gate 6 compared the SuttaCentral Pali with Ānandajoti's;
+    the SuttaCentral edition is gone, so the gate no longer runs."""
     _skip_unless_normalized_present()
     vg = _gates_module()
     report = vg.run_gates(ROOT)
-    g6 = report["gates"]["6_cross_source_agreement"]
-    assert g6["n_exact"] == 246
-    assert g6["n_boundary_artifact"] == 0
-    assert g6["n_distinct"] == 177
+    assert "6_cross_source_agreement" not in report["gates"]
+    assert "Gate 6 -- Cross-source agreement (retired)" in vg.render_markdown(report)
 
 
 def test_gate_1_structure_catches_a_vagga_mismatch():
@@ -99,16 +95,31 @@ def test_gate_2_field_ownership_catches_a_wrong_source():
     records = [{
         "verse": 1,
         "text": {
-            "pali_mahasangiti": {"value": "x", "source": "anandajoti_2017_interlinear"},
-            "english_sujato": {"value": "x", "source": "suttacentral_sujato"},
-            "interlinear_pali": {"value": "x", "source": "anandajoti_2017_interlinear"},
+            "interlinear_pali": {"value": "x", "source": "some_other_edition"},
             "interlinear_english": {"value": "x", "source": "anandajoti_2017_interlinear"},
         },
     }]
     result = vg.gate_2_field_ownership(records)
     assert result["passed"] is False
     assert len(result["violations"]) == 1
-    assert result["violations"][0]["field"] == "pali_mahasangiti"
+    assert result["violations"][0]["field"] == "interlinear_pali"
+
+
+def test_gate_2_field_ownership_rejects_a_field_not_in_the_table():
+    """A removed field reappearing (e.g. a stale join reintroducing a
+    SuttaCentral field) must fail, not pass silently."""
+    vg = _gates_module()
+    records = [{
+        "verse": 1,
+        "text": {
+            "interlinear_pali": {"value": "x", "source": "anandajoti_2017_interlinear"},
+            "interlinear_english": {"value": "x", "source": "anandajoti_2017_interlinear"},
+            "removed_field": {"value": "x", "source": "suttacentral"},
+        },
+    }]
+    result = vg.gate_2_field_ownership(records)
+    assert result["passed"] is False
+    assert result["violations"][0]["problem"] == "field not in the ownership table at all"
 
 
 def test_gate_3_encoding_catches_a_control_character():
@@ -116,10 +127,8 @@ def test_gate_3_encoding_catches_a_control_character():
     records = [{
         "verse": 1,
         "text": {
-            "pali_mahasangiti": {"value": "clean text"},
-            "english_sujato": {"value": "has a \x01 control char"},
             "interlinear_pali": {"value": "clean text"},
-            "interlinear_english": {"value": "clean text"},
+            "interlinear_english": {"value": "has a \x01 control char"},
         },
     }]
     result = vg.gate_3_encoding(records)
@@ -127,22 +136,34 @@ def test_gate_3_encoding_catches_a_control_character():
     assert len(result["control_characters"]) == 1
 
 
-def test_gate_3_encoding_allows_curly_quotes_and_em_dash_in_pali():
-    """Per docs/corpus_audit.md check 3: curly quotes and an em dash are
-    genuine source typography in pali_mahasangiti (marking reported speech,
-    e.g. Dhp 17), not OCR residue -- must not be flagged."""
+def test_gate_3_encoding_allows_the_interlinears_own_typography():
+    """Per docs/corpus_audit.md check 3: curly quotes and dashes are genuine
+    source typography (marking reported speech, e.g. Dhp 17), and Ānandajoti
+    marks metrically short e/o with a breve -- none of it is OCR residue."""
     vg = _gates_module()
     records = [{
         "verse": 17,
         "text": {
-            "pali_mahasangiti": {"value": "“papam me katan”ti tasma—dukkham"},
-            "english_sujato": {"value": "clean"},
-            "interlinear_pali": {"value": "clean"},
+            "interlinear_pali": {"value": "“papam me katan”ti tasma—dukkham – kĕna? ŏ: (x)!"},
             "interlinear_english": {"value": "clean"},
         },
     }]
     result = vg.gate_3_encoding(records)
     assert result["passed"] is True
+
+
+def test_gate_3_encoding_still_flags_a_digit_in_pali():
+    vg = _gates_module()
+    records = [{
+        "verse": 1,
+        "text": {
+            "interlinear_pali": {"value": "manopubbaṅgamā dhammā 123"},
+            "interlinear_english": {"value": "clean"},
+        },
+    }]
+    result = vg.gate_3_encoding(records)
+    assert result["passed"] is False
+    assert result["pali_charset_violations"][0]["field"] == "interlinear_pali"
 
 
 def test_gate_4_alignment_closure_uses_the_real_alignment_table():

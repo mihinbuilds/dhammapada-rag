@@ -150,7 +150,7 @@ class VerseClaim(_ClaimBase):
     layer: Literal["verse"] = Field(...)
     group_id: str = Field(..., description="Story group_id this claim is sourced from.")
     verse_number: int = Field(..., description="Dhp verse number (1-423) this claim is sourced from.")
-    # Round 4, Task J: the corpus carries pali_mahasangiti for every verse and
+    # Round 4, Task J: the corpus carries Pali for every verse and
     # the prompt shows it, but nothing in the schema could carry it back out
     # -- no Pali reached the reader regardless of what the prompt asked for.
     # Verse-only (not on CommentaryClaim/SynthesisClaim): the claim this field
@@ -159,7 +159,7 @@ class VerseClaim(_ClaimBase):
     pali_support: str | None = Field(
         None,
         description=(
-            "The pada from the provided Pali (pali_mahasangiti) that this claim rests on, "
+            "The pada from the provided Pali (interlinear_pali) that this claim rests on, "
             "copied exactly, character for character -- not translated or paraphrased."
         ),
     )
@@ -327,8 +327,8 @@ _LABEL_PREFIXES = ("verse:", "commentary:", "alignment:", "synthesis:", "group_i
 # commentary
 # --------------------------------------------------------------------------
 #
-# The failure: "when anger surges like a lurching chariot, keep it in
-# check..." (Dhp 222, verbatim canonical verse) tagged 'commentary' in one
+# The failure: Dhp 222's English, verbatim canonical verse (the quote that
+# stood here was SuttaCentral text, removed 2026-10-08), tagged 'commentary' in one
 # run and 'verse' in another for the same sentence, depending on the
 # question. Cause traced to prompt.py's COVERAGE requirement (round 1 fix
 # for all-verse output): when retrieval returns verse-heavy groups with
@@ -392,15 +392,15 @@ def _containment(claim_text: str, source_text: str) -> float:
 # --------------------------------------------------------------------------
 #
 # Round 4's PALI_QUOTE_NOT_IN_SOURCE was a binary substring check against
-# pali_mahasangiti alone. Task O's probe (see docs/evaluation.md's Round 6
+# the SuttaCentral Pali field alone. Task O's probe (see docs/evaluation.md's Round 6
 # section) found that two of three flagged quotes -- "sabbam-atikkameyya"
 # for Dhp 221, "tam-ahaṁ"/"bhantaṁ va" for Dhp 222 -- are Ānandajoti's
 # sandhi-split, differently-capitalized rendering of the SAME words the
-# Mahasangiti edition prints unhyphenated ("sabbamatikkameyya", "Tamahaṁ",
+# SuttaCentral edition printed unhyphenated ("sabbamatikkameyya", "Tamahaṁ",
 # "bhantaṁva"), and that rendering reaches the model's own context: both
 # verses' story narrative fields (verses.jsonl's narrative_pali /
 # interlinear_pali) quote the verse in Ānandajoti's orthography in the same
-# prompt that also prints the Mahasangiti line SYSTEM_PROMPT's PALI SUPPORT
+# prompt that also printed the SuttaCentral line SYSTEM_PROMPT's PALI SUPPORT
 # rule asks the model to copy from. That makes the binary check wrong in two
 # ways at once: it can't tell "quoted a different edition of the right
 # verse" (edition variance -- the exact phenomenon this project exists to
@@ -409,7 +409,13 @@ def _containment(claim_text: str, source_text: str) -> float:
 #
 # Fix: normalize away the conventions that differ *between editions* but not
 # the words, and check the quote against every Pali field actually in
-# context, not pali_mahasangiti alone.
+# context, not one field alone.
+#
+# Round 13: the SuttaCentral Pali field is gone (removed at SuttaCentral's
+# request, data/raw/PROVENANCE.md). The candidates are now interlinear_pali
+# plus each retrieved story's pali_verse -- still two orthographies, both
+# Ānandajoti's (2017 interlinear, 2024 commentary edition), so the tiers
+# below still earn their keep.
 def _pali_exact(s: str) -> str:
     """NFC only. Catches byte-identical copying, the thing PALI SUPPORT asks for."""
     return unicodedata.normalize("NFC", s)
@@ -419,7 +425,7 @@ def _pali_orthographic(s: str) -> str:
     """Fold the conventions that differ between editions but not the words.
 
     Editions of the Pali canon differ systematically in how they mark sandhi
-    (Ānandajoti hyphenates "sabbam-atikkameyya" where Mahasangiti writes
+    (Ānandajoti hyphenates "sabbam-atikkameyya" where other editions write
     "sabbamatikkameyya"), in niggahita glyph (ṃ vs ṁ -- and ṅ is folded in
     too, since some digitizations use it interchangeably at a syllable-final
     nasal), in capitalisation at pada boundaries ("Tamahaṁ" vs "tamahaṁ"),
@@ -643,14 +649,14 @@ def audit(
     verse_text_by_number: dict[int, str] = {}
     all_verse_text: list[str] = []
     # Round 4/6, Task J/P: kept separate from verse_text_by_number above,
-    # which joins Pali + both English translations for the (looser)
+    # which joins the verse's Pali + English for the (looser)
     # verse-overlap containment check. pali_support must be checked against
     # Pali fields alone -- a claim's Pali quote "matching" only because it
     # overlaps the English gloss would defeat the point of asking for a
     # primary-source quote. Round 6, Task P widens this from a single field
-    # (pali_mahasangiti only) to every Pali field actually reaching the
-    # model's context for that verse -- pali_mahasangiti and interlinear_pali
-    # from the verse record, plus pali_verse from each retrieved story that
+    # (one edition only) to every Pali field actually reaching the
+    # model's context for that verse -- interlinear_pali from the verse
+    # record (the only verse-record Pali since Round 13), plus pali_verse from each retrieved story that
     # explains it -- since Task O's probe found the model's own prompt
     # carries more than one edition's orthography of the same verse.
     pali_candidates_by_number: dict[int, list[tuple[str, str]]] = {}
@@ -680,16 +686,11 @@ def audit(
                             (f"pali_verse ({gid})", s["pali_verse"])
                         )
             for v in b["verses"]:
-                parts = [v.get("pali_mahasangiti"), v.get("english_sujato"),
-                         v.get("interlinear_english")]
+                parts = [v.get("interlinear_pali"), v.get("interlinear_english")]
                 joined = " ".join(p for p in parts if p)
                 verse_text_by_number[v["verse"]] = joined
                 all_verse_text.append(joined)
                 vn = v["verse"]
-                if v.get("pali_mahasangiti"):
-                    pali_candidates_by_number.setdefault(vn, []).append(
-                        ("pali_mahasangiti", v["pali_mahasangiti"])
-                    )
                 if v.get("interlinear_pali"):
                     pali_candidates_by_number.setdefault(vn, []).append(
                         ("interlinear_pali", v["interlinear_pali"])
