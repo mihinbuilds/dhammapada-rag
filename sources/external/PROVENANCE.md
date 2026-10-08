@@ -14,6 +14,16 @@ AI, so both were deleted, and the code and derived files built from them went
 with them. The ruling, the date and what was removed are recorded in
 [`data/raw/PROVENANCE.md`](../../data/raw/PROVENANCE.md).
 
+**Purged from history, 2026-10-08.** Both directories were also removed from
+every past commit with `git filter-repo --invert-paths`, together with the
+two normalized files built from them and the code that only read them
+(`normalize_sc_pali.py`, `normalize_sc_sujato.py`, `_sc_segments.py`,
+`tests/test_normalize.py`). The README screenshots that showed their text
+were stripped by blob ID. Every commit hash in the repository changed as a
+result. Files whose contents carried the text but which are still part of the
+project, such as `verses.jsonl`, were not rewritten; `data/raw/PROVENANCE.md`
+says which and why.
+
 ## anandajoti_interlinear/ -- phrase-level gloss layer, all 423 verses
 
 - Source: `https://ancient-buddhist-texts.net/Texts-and-Translations/Dhammapada/`,
