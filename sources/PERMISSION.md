@@ -65,8 +65,27 @@ He updates his files when he finds mistakes, so our copy may fall behind the
 published versions. The snapshot this project uses, with its date and
 checksums, is recorded in [`data/raw/PROVENANCE.md`](../data/raw/PROVENANCE.md).
 
-## Outstanding courtesy
+## Courtesy: told where the project is published
 
-He asked to be told where the project is published if it goes online. This is
-a request, not a condition of the permission. Not yet done: the project has
-no public URL.
+He asked to be told where the project is published if it goes online. This
+was a request, not a condition of the permission. Done on 2026-10-07: the
+maintainer wrote to him, in the same email thread, with the repository URL.
+
+## Second confirmation, 2026-10-08
+
+- **Received:** 2026-10-08, same sender, same email thread.
+- **Context:** in reply to the 2026-10-07 message above, he pointed out that
+  SuttaCentral asks that its content not be used for AI, and linked their
+  licensing page. That prompted the question to SuttaCentral that led to the
+  removal of their texts on 2026-10-08 (see
+  [`data/raw/PROVENANCE.md`](../data/raw/PROVENANCE.md)). His next message,
+  written before SuttaCentral answered, confirmed his own permission again.
+
+The relevant sentence, verbatim. The rest of that message concerns an
+unrelated matter and is not reproduced here.
+
+> I really hope this didn't put a spanner in the works, and you are always
+> welcome to use my work if you need to.
+
+It changes nothing above: same works, same licence, same condition that it
+not be changed.

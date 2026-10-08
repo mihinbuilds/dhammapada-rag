@@ -124,7 +124,11 @@ prompt, displayed in the web interface and quoted in the evaluation records.
 
 ### The ruling
 
-On 2026-10-08 the project asked on SuttaCentral's forum whether a
+On 2026-10-07 Ānandajoti Bhikkhu, replying to a message telling him the
+project was online, pointed out that SuttaCentral's licensing page asks that
+its content not be used for AI (see `sources/PERMISSION.md`). The maintainer
+had not seen that request. On 2026-10-08 the project asked on SuttaCentral's
+forum whether a
 retrieval-based question-answering system over these texts fell under their
 request that their content not be used for AI:
 [Licensing question: retrieval over CC0 texts — does this fall under your AI request?](https://discourse.suttacentral.net/t/licensing-question-retrieval-over-cc0-texts-does-this-fall-under-your-ai-request/45514)
@@ -169,8 +173,9 @@ interlinear carries the verse layer"):
 - the README screenshots, retaken.
 
 Ānandajoti Bhikkhu's 2017 interlinear Pāli and English, already present for
-all 423 verses, now carry the verse layer alone. He has since confirmed again
-in writing: "you are always welcome to use my work if you need to." A Pāli
+all 423 verses, now carry the verse layer alone. He confirmed again in writing
+on 2026-10-08: "you are always welcome to use my work if you need to"
+(`sources/PERMISSION.md`). A Pāli
 reader on the SuttaCentral forum who has memorised the Dhammapada across
 eight English translations recommended Ānandajoti's as among the best at
 preserving the Pāli meaning and sequence.
