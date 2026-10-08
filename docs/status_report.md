@@ -1,5 +1,32 @@
 # Repository status report
 
+> **Superseded. This is a dated audit, kept as a record of 2026-09-23.** Its
+> findings are left as they were written. For the current state, see
+> [`docs/evaluation.md`](evaluation.md) (Round 10 and Round 13) and
+> [`data/raw/PROVENANCE.md`](../data/raw/PROVENANCE.md).
+>
+> Two things changed underneath it. The commit hashes it cites (e.g.
+> `2a20bfd`) are pre-2026-10-08 and no longer exist: history was rewritten
+> that day to remove SuttaCentral's material. Three quotations of that
+> material below were replaced with a marker for the same reason.
+>
+> Where each §8 open item stands, as of 2026-10-08:
+>
+> | # | Item | Status |
+> |---|---|---|
+> | 1 | Second annotator / agreement statistic | **Open.** Blind sheet, κ script and annotator brief are ready; needs a person. |
+> | 2 | Ānandajoti PDF licence | Resolved 2026-09-25: written permission, CC BY-SA 4.0 (`sources/PERMISSION.md`). |
+> | 3 | Story 23.1's nidāna | Resolved 2026-10-08: the source edition itself says Jetavana. Documented in `docs/datasheet.md`, not changed. |
+> | 4 | Cross-edition variance unclassified | No longer applies: the second Pāli edition was removed on 2026-10-08, so there is nothing to compare. |
+> | 5 | Eval artefacts stale | Retrieval re-run 2026-09-23 and again 2026-10-08. Generation metrics predate the 2026-10-08 prompt change. |
+> | 6 | `LICENSE`, `DATA_LICENSE.md`, `CITATION.cff`, `.gitattributes` | Added 2026-09-24. |
+> | 7 | `build_gold_set_PATCH.py` | Deleted 2026-09-25. |
+> | 8 | Gold set saturated | Gold set v2 (72 harder questions) added 2026-09-24. |
+> | 9 | Uncommitted work | Committed 2026-09-24. |
+> | 10 | `chunks.jsonl` newer than embeddings | Cleared by re-embedding (2026-09-23, again 2026-10-08). |
+> | 11 | Dhp 416 doubled | Came from the SuttaCentral fields, removed 2026-10-08; the interlinear has the verse once. |
+> | 12 | AppleDouble files in `.git/objects` | Gone: the 2026-10-08 rewrite repacked the object store (0 found). |
+
 Audit date: 2026-09-23. Branch `fix/commentary-pipeline` at `2a20bfd`, plus uncommitted working tree.
 Read-only: the only file this audit wrote is this one. Every number below comes from a command run during the audit. Where a claim could not be checked, it says **unverified**.
 
