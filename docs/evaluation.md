@@ -1428,22 +1428,69 @@ the verse record) went from 98 distinct of 226 to **0 distinct**. Ānandajoti's
 contain (217 exact, 9 partial "teaser" quotes). Before, this check had been
 comparing his quotes against the other editor's text.
 
-**Not re-run this round, and what that means.** Generation metrics
-(`generation_metrics.json`), the research-validation grid, tag stability and
-the model sweep all describe the pipeline as it was. The model's prompt
-carried the SuttaCentral Pali and English for every retrieved verse, and the
-PALI SUPPORT rule asked the model to copy from the SuttaCentral Pali line.
-That prompt line now shows Ānandajoti's Pali, and the rule points to it. The
-stored records of those runs (`generation_raw.jsonl` and its two archives,
-the three `research_validation_*.jsonl` files and `tag_stability_results.json`)
-have had every SuttaCentral string replaced with the marker
-`[SuttaCentral text removed 2026-10-08]`. That covers full verse texts and any
-verbatim span of 30 or more characters, including model outputs quoting
-them. The source labels in the stored prompts and warnings (the edition and
-translator names, and the two field names) now read "SuttaCentral". Nothing
-else in those records changed. Their metrics stand as a record
-of that pipeline, not of the current one. A fresh generation pass on the new
-prompt is the next step for those numbers.
+**Stored records of earlier runs.** The research-validation grid, tag
+stability and the model sweep were not re-run. They describe the pipeline as
+it was, when the prompt carried the SuttaCentral Pali and English for every
+retrieved verse and the PALI SUPPORT rule asked the model to copy from the
+SuttaCentral Pali line. Their stored records (the three
+`research_validation_*.jsonl` files, `tag_stability_results.json`, and the
+two older `generation_raw.jsonl` archives) have had every SuttaCentral string
+replaced with the marker `[SuttaCentral text removed 2026-10-08]`. That covers
+full verse texts and any verbatim span of 30 or more characters, including
+model outputs quoting them. The source labels in the stored prompts and
+warnings (the edition and translator names, and the two field names) now read
+"SuttaCentral". Nothing else in those records changed, and their metrics
+stand as a record of that pipeline.
+
+**Generation, re-run on the new prompt (2026-10-08).** The previous run, its
+judgments and its metrics are archived in
+`data/eval/archive_round12_with_suttacentral/`. A fresh run used the same
+27-question systematic sample, seed, model (`qwen2.5:7b-instruct`, num_ctx
+16384) and annotator procedure: every claim re-judged from scratch against
+the full stored source text (`data/eval/generation_judgments.py`).
+
+| Metric | Before (SuttaCentral in prompt) | After |
+|---|---|---|
+| Claims | 48 | 49 |
+| Layer accuracy | 0.854 | 0.837 |
+| Macro-F1 | 0.628 | 0.773 |
+| Anachronistic conflation | 4/40 = 0.100 | 3/38 = 0.079 |
+| Source fidelity | 40/48 = 0.833 | 42/49 = 0.857 |
+| Source fidelity, verse+commentary+alignment [95% CI] | 0.851 | 0.884 [0.762, 0.977] |
+| Pali quotes copied exactly | 8/11 = 0.727 | **11/11 = 1.000** |
+| Pali quotes in another edition's orthography | 3/11 = 0.273 | 0/11 |
+| Pali quote coverage | 0.807 | 0.863 |
+| Alignment recall | 0.778 | 0.556 |
+
+**One clear effect: the Pali quotes.** With two Pali editions in the prompt,
+three of the model's eleven Pali quotes were Ānandajoti's orthography where
+the rule asked for the other edition's line: real text, wrong copy. With one
+edition, all eleven are exact copies. The Round 6 three-tier check was built
+to tell those cases apart. Simplifying the context removed the case.
+
+**The rest is within what 27 questions can show.** Macro-F1 rises mostly
+because the previous run had no synthesis claims at all: that class scored 0
+on zero support and pulled the average down. It is not a real improvement.
+Accuracy, conflation and fidelity move by one or two claims each. Alignment
+recall fell because three alignment facts were tagged 'synthesis' (q097,
+q099, q120), a tagging pattern not seen before.
+
+Errors carried over from earlier rounds: conflation on q019, q067 and q079,
+the Māra/Māgandiya merge on q043, and fabricated anomalies on q119 and q120.
+Fixed: q093's count of bhikkhus, q037's speaker, and q055's gloss of *akata*.
+
+Two new findings:
+
+- **q001 dismissed its own answer.** Retrieval put the gold story (1.8,
+  Dhp 11) at rank 1. The model marked it `not_relevant`, answered from Dhp 347
+  instead, and then claimed Dhp 347 teaches the question's point. This is the
+  first logged case of the disposition field recording a generation
+  misjudgment on a gold group.
+- **The generation prompt never shows the interlinear notes.** The four knots
+  asked about in q037 are listed only in Ānandajoti's note on Dhp 90, so the
+  model's "not explicitly stated" is accurate to what it was shown. The same
+  gap affects every philological question whose answer lives in a note. That
+  is a design choice in `prompt.py`'s [VERSE] block, worth revisiting.
 
 **Annotation sheets.** The blind second-annotator sheets
 (`annotation_v2_blank.csv`, `annotation_v2_sample30.csv`) showed each
