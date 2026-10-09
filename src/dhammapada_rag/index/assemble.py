@@ -35,18 +35,40 @@ def load_verses_and_stories(root: Path) -> tuple[dict[int, dict], dict[str, dict
     return {v["verse"]: v for v in verses}, {s["group_id"]: s for s in stories}
 
 
-def assemble(chunk: dict, verses_by_number: dict[int, dict], stories_by_id: dict[str, dict]) -> dict:
+def resolve_story_ids(chunk: dict, verses_by_number: dict[int, dict]) -> list[str]:
+    """Every story in the verse-group a chunk belongs to, matched story first.
+
+    A verse-only chunk resolves to all stories explaining its verse. A
+    story-linked chunk resolves to its own story AND any other story
+    explaining the same verses. Round 17: that second half was missing -- a
+    story chunk resolved to its own story only, and query() deduplicates on
+    the verse tuple, so when two stories explain one verse (Dhp 416: 26.33
+    and 26.34) whichever ranked first won and the other could never be
+    returned. That broke this module's own promise ("every story that
+    explains them") and made the second story unretrievable at any rank.
+
+    The single implementation: eval/retrieval_eval.py imports it, so the
+    eval scores exactly the unit the system returns.
+    """
     if chunk.get("group_id"):
         story_ids = [chunk["group_id"]]
-    else:
-        v = chunk["dhp_verses"][0]
-        story_ids = verses_by_number[v]["story_group_ids"]
-        if not story_ids:
-            raise ValueError(
-                f"Dhp {v} has no story_group_ids; chunk {chunk['chunk_id']!r} cannot be "
-                f"resolved to a verse-group. Check data/processed/verses.jsonl coverage."
-            )
+        for v in chunk["dhp_verses"]:
+            for gid in verses_by_number[v]["story_group_ids"]:
+                if gid not in story_ids:
+                    story_ids.append(gid)
+        return story_ids
+    v = chunk["dhp_verses"][0]
+    story_ids = list(verses_by_number[v]["story_group_ids"])
+    if not story_ids:
+        raise ValueError(
+            f"Dhp {v} has no story_group_ids; chunk {chunk['chunk_id']!r} cannot be "
+            f"resolved to a verse-group. Check data/processed/verses.jsonl coverage."
+        )
+    return story_ids
 
+
+def assemble(chunk: dict, verses_by_number: dict[int, dict], stories_by_id: dict[str, dict]) -> dict:
+    story_ids = resolve_story_ids(chunk, verses_by_number)
     stories = [stories_by_id[gid] for gid in story_ids]
     verse_numbers = sorted({n for s in stories for n in s["dhp_verses"]})
     verses = [verses_by_number[n] for n in verse_numbers]

@@ -63,6 +63,7 @@ import numpy as np
 ROOT = Path(__file__).resolve().parents[3]
 sys.path.insert(0, str(ROOT / "src"))
 
+from dhammapada_rag.index.assemble import resolve_story_ids  # noqa: E402
 from dhammapada_rag.index.rerank import CrossEncoderReranker  # noqa: E402
 from dhammapada_rag.index.search import rrf_fuse  # noqa: E402
 from FlagEmbedding import BGEM3FlagModel  # noqa: E402
@@ -85,19 +86,9 @@ def load_index_arrays(index_dir: Path):
     return chunk_ids, dense, sparse, colbert, chunks
 
 
-def resolve_story_ids(chunk: dict, verses_by_number: dict[int, dict]) -> list[str]:
-    """Mirror index/assemble.py's assemble() exactly.
-
-    A story-linked chunk resolves to its own group_id. A verse-only chunk
-    resolves to ALL stories explaining that verse -- not just the first.
-    Diverging here means the eval scores a different unit than the system
-    returns, which is how the previous revision silently mismeasured every
-    multiply-explained verse.
-    """
-    if chunk.get("group_id"):
-        return [chunk["group_id"]]
-    v = chunk["dhp_verses"][0]
-    return list(verses_by_number[v]["story_group_ids"])
+# resolve_story_ids: imported from index/assemble.py (see its docstring) --
+# one implementation, so the eval cannot score a different unit than the
+# system returns, which is the drift FIX 2 above was about.
 
 
 def bundle_key(story_ids: list[str], stories_by_id: dict[str, dict]) -> tuple[int, ...]:

@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-215%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-222%20passing-brightgreen.svg)](tests/)
 [![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
 
 </div>
@@ -77,9 +77,9 @@ Current numbers, after the October 2026 change to the verse layer (see
 
 | Ablation | v1 Δ nDCG@10 [95% CI] | v2 Δ nDCG@10 [95% CI] |
 |---|---|---|
-| `verse_only` (no commentary chunks) | +0.421 [+0.331, +0.515] ✱ | +0.608 [+0.492, +0.715] ✱ |
-| `no_rerank` (no cross-encoder) | **+0.045 [+0.012, +0.078] ✱** | **+0.114 [+0.054, +0.176] ✱** |
-| `dense_only` (no sparse/ColBERT/RRF) | +0.004 [−0.008, +0.017] | +0.023 [−0.005, +0.058] |
+| `verse_only` (no commentary chunks) | +0.436 [+0.346, +0.531] ✱ | +0.608 [+0.492, +0.715] ✱ |
+| `no_rerank` (no cross-encoder) | **+0.051 [+0.015, +0.086] ✱** | **+0.114 [+0.054, +0.176] ✱** |
+| `dense_only` (no sparse/ColBERT/RRF) | +0.001 [−0.009, +0.013] | +0.023 [−0.005, +0.058] |
 | `flat` (no parent-group assembly) | +0.003 [+0.000, +0.008] | +0.003 [+0.000, +0.008] |
 
 <sub>✱ interval excludes zero. Both runs: same index, same code, RTX 5080.</sub>
@@ -199,7 +199,7 @@ commentary relates…"* survive being copied out.
 | Interlinear gloss + notes | Ānandajoti Bhikkhu, 2017 | CC BY-SA 4.0 |
 | Commentary, titles, verse grouping | Ānandajoti's revision of Burlingame, 2024 | CC BY-SA 4.0 |
 
-**423** verses · **26** vaggas · **305** commentarial stories · **5,486**
+**423** verses · **26** vaggas · **305** commentarial stories · **5,494**
 indexed chunks. Full coverage, no gaps, validated on every build.
 
 Until October 2026 the verse layer also used the Mahāsaṅgīti Pali and Bhikkhu

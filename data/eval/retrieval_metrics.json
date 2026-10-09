@@ -3,13 +3,13 @@
   "machine": "cuda (NVIDIA GeForce RTX 5080)",
   "overall": {
     "baseline": {
-      "recall@1": 0.8772,
-      "recall@3": 0.9474,
-      "recall@5": 0.9649,
-      "recall@10": 0.9825,
-      "ndcg@10": 0.9319,
-      "mrr": 0.9155,
-      "gold_recall@10": 0.9825
+      "recall@1": 0.8947,
+      "recall@3": 0.9649,
+      "recall@5": 0.9825,
+      "recall@10": 0.9912,
+      "ndcg@10": 0.9468,
+      "mrr": 0.9321,
+      "gold_recall@10": 0.9912
     },
     "verse_only": {
       "recall@1": 0.4737,
@@ -21,31 +21,31 @@
       "gold_recall@10": 0.5526
     },
     "dense_only": {
-      "recall@1": 0.886,
-      "recall@3": 0.9474,
-      "recall@5": 0.9649,
-      "recall@10": 0.9649,
-      "ndcg@10": 0.928,
-      "mrr": 0.9164,
-      "gold_recall@10": 0.9649
+      "recall@1": 0.9035,
+      "recall@3": 0.9649,
+      "recall@5": 0.9825,
+      "recall@10": 0.9825,
+      "ndcg@10": 0.9456,
+      "mrr": 0.9338,
+      "gold_recall@10": 0.9825
     },
     "no_rerank": {
       "recall@1": 0.7982,
-      "recall@3": 0.9211,
-      "recall@5": 0.9386,
-      "recall@10": 0.9737,
-      "ndcg@10": 0.8871,
-      "mrr": 0.8603,
-      "gold_recall@10": 0.9737
+      "recall@3": 0.9298,
+      "recall@5": 0.9474,
+      "recall@10": 0.9912,
+      "ndcg@10": 0.8958,
+      "mrr": 0.8654,
+      "gold_recall@10": 0.9912
     },
     "flat": {
-      "recall@1": 0.8772,
-      "recall@3": 0.9386,
-      "recall@5": 0.9649,
-      "recall@10": 0.9825,
-      "ndcg@10": 0.9288,
-      "mrr": 0.9117,
-      "gold_recall@10": 0.9825
+      "recall@1": 0.8947,
+      "recall@3": 0.9561,
+      "recall@5": 0.9825,
+      "recall@10": 0.9912,
+      "ndcg@10": 0.9437,
+      "mrr": 0.9283,
+      "gold_recall@10": 0.9912
     }
   },
   "by_type": {
@@ -100,13 +100,13 @@
     "corpus_anomaly": {
       "n": 2,
       "baseline": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.5,
-        "ndcg@10": 0.1505,
-        "mrr": 0.0556,
-        "gold_recall@10": 0.5
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -118,31 +118,31 @@
         "gold_recall@10": 0.0
       },
       "dense_only": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.0,
-        "ndcg@10": 0.0,
-        "mrr": 0.0111,
-        "gold_recall@10": 0.0
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.0,
-        "ndcg@10": 0.0,
-        "mrr": 0.0417,
-        "gold_recall@10": 0.0
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 1.0,
+        "ndcg@10": 0.4936,
+        "mrr": 0.3333,
+        "gold_recall@10": 1.0
       },
       "flat": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.5,
-        "ndcg@10": 0.1505,
-        "mrr": 0.0556,
-        "gold_recall@10": 0.5
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     },
     "cross_recension": {
@@ -342,13 +342,13 @@
     "corpus_anomaly": {
       "n": 2,
       "baseline": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.5,
-        "ndcg@10": 0.1505,
-        "mrr": 0.0556,
-        "gold_recall@10": 0.5
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "verse_only": {
         "recall@1": 0.0,
@@ -360,31 +360,31 @@
         "gold_recall@10": 0.0
       },
       "dense_only": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.0,
-        "ndcg@10": 0.0,
-        "mrr": 0.0111,
-        "gold_recall@10": 0.0
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       },
       "no_rerank": {
         "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.0,
-        "ndcg@10": 0.0,
-        "mrr": 0.0417,
-        "gold_recall@10": 0.0
+        "recall@3": 0.5,
+        "recall@5": 0.5,
+        "recall@10": 1.0,
+        "ndcg@10": 0.4936,
+        "mrr": 0.3333,
+        "gold_recall@10": 1.0
       },
       "flat": {
-        "recall@1": 0.0,
-        "recall@3": 0.0,
-        "recall@5": 0.0,
-        "recall@10": 0.5,
-        "ndcg@10": 0.1505,
-        "mrr": 0.0556,
-        "gold_recall@10": 0.5
+        "recall@1": 1.0,
+        "recall@3": 1.0,
+        "recall@5": 1.0,
+        "recall@10": 1.0,
+        "ndcg@10": 1.0,
+        "mrr": 1.0,
+        "gold_recall@10": 1.0
       }
     },
     "cst4_title_variant": {
@@ -630,24 +630,24 @@
   },
   "ablation_deltas_ndcg10": {
     "verse_only": {
-      "delta": 0.4211,
+      "delta": 0.436,
       "ci": [
-        0.331,
-        0.5147
+        0.3458,
+        0.5308
       ]
     },
     "dense_only": {
-      "delta": 0.0039,
+      "delta": 0.0012,
       "ci": [
-        -0.0078,
-        0.0167
+        -0.0095,
+        0.0126
       ]
     },
     "no_rerank": {
-      "delta": 0.0448,
+      "delta": 0.051,
       "ci": [
-        0.0122,
-        0.0783
+        0.0155,
+        0.086
       ]
     },
     "flat": {
@@ -660,24 +660,24 @@
   },
   "ablation_deltas_gold_recall10": {
     "verse_only": {
-      "delta": 0.4299,
+      "delta": 0.4386,
       "ci": [
-        0.3421,
-        0.5175
+        0.3509,
+        0.5351
       ]
     },
     "dense_only": {
-      "delta": 0.0176,
-      "ci": [
-        0.0,
-        0.0439
-      ]
-    },
-    "no_rerank": {
-      "delta": 0.0088,
+      "delta": 0.0087,
       "ci": [
         0.0,
         0.0263
+      ]
+    },
+    "no_rerank": {
+      "delta": 0.0,
+      "ci": [
+        0.0,
+        0.0
       ]
     },
     "flat": {

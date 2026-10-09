@@ -82,6 +82,9 @@ Chunk types:
                            every Dhp verse number the story explains, so
                            verse-grouping questions have literal text to
                            match against instead of only dhp_verses metadata
+    story_corpus_fact     Round 17 -- a structural fact about the edition (a verse
+                           with two stories; a header corrected against the
+                           story's own body), from index/corpus_facts.py
     story_cast            NEW -- dramatis personae, where present
     story_keywords        NEW -- keyword list, where present
     story_synopsis        One-paragraph synopsis
@@ -100,6 +103,8 @@ import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from dhammapada_rag.index.corpus_facts import build_facts  # noqa: E402
 
 # Window sizing in whitespace-delimited words. embed.py caps at 512 tokens.
 # 320 words was the original estimate (English ~1.3 tokens/word) but
@@ -345,6 +350,7 @@ def _title_text(s: dict) -> str:
 
 def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
     chunks: list[dict] = []
+    corpus_facts = build_facts(stories)
 
     for v in verses:
         n = v["verse"]
@@ -407,6 +413,12 @@ def build_chunks(verses: list[dict], stories: list[dict]) -> list[dict]:
             )
             chunks.append(_chunk(f"story:{gid}:alignment", "story_alignment",
                                  alignment_text, dhp_verses=dv, group_id=gid))
+
+        # Round 17: structural facts about this story, as text -- the same
+        # gap story_alignment closed in Round 2 (see index/corpus_facts.py).
+        for k, fact in enumerate(corpus_facts.get(gid, [])):
+            chunks.append(_chunk(f"story:{gid}:corpus_fact{k}", "story_corpus_fact", fact,
+                                 dhp_verses=dv, group_id=gid))
 
         if s.get("cast"):
             chunks.append(_chunk(f"story:{gid}:cast", "story_cast", f"Cast of story {gid}: {s['cast']}", dhp_verses=dv, group_id=gid))

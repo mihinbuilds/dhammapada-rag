@@ -210,6 +210,7 @@ from __future__ import annotations
 import re
 
 from dhammapada_rag.index.chunks import OVERLAP_WORDS, WINDOW_WORDS
+from dhammapada_rag.index.corpus_facts import facts_for
 
 # Fallback characters of narrative text per bundle, used only by callers that
 # render a prompt without knowing num_ctx (direct format_verse_group/
@@ -436,6 +437,12 @@ def format_verse_group(bundle: dict, narrative_budget_chars: int = NARRATIVE_BUD
             f"group_id {s['group_id']} covers Dhp {printed_verses} "
             f"({len(dhp_verses)} verse{'s' if len(dhp_verses) != 1 else ''}), titled \"{s['title_en']}\""
         )
+        # Round 17: structural facts about this story (a verse it shares
+        # with another story; a header corrected against its own body), so
+        # a question about the edition's structure is answered from context
+        # rather than guessed. Alignment-layer facts, hence this block.
+        for fact in facts_for(s["group_id"]):
+            lines.append(f"Corpus note: {fact}")
         # Found during Phase 5 generation-metrics judging (post-hoc, not
         # anticipated by the original bug list): index/chunks.py's
         # story_titles chunk (Phase 2 fix) carries title_pali/cst4_title/
