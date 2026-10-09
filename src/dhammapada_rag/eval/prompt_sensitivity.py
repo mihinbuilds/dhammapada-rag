@@ -38,16 +38,28 @@ import sys
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[3]
-sys.path.insert(0, str(ROOT / "data" / "eval"))
-sys.path.insert(0, str(ROOT / "data" / "eval" / "prompt_sensitivity"))
+sys.path.insert(0, str(ROOT / "data" / "eval"))  # judgment files import Verdict from generation_judgments
 
-from generation_judgments import JUDGMENTS as ROUND14  # noqa: E402
+
+def _load_module(path: Path):
+    name = f"judgments_{path.parent.name}"
+    spec = importlib.util.spec_from_file_location(name, path)
+    module = importlib.util.module_from_spec(spec)
+    sys.modules[name] = module  # dataclasses look their module up while it loads
+    spec.loader.exec_module(module)
+    return module
+
+
+# The Round 14 run's own judgments, loaded by path: the canonical
+# data/eval/generation_judgments.py has since moved on to a later run.
+ROUND14 = _load_module(ROOT / "data" / "eval" / "archive_round14_note_layer" / "generation_judgments.py").JUDGMENTS
 
 LAYERS = ("verse", "commentary", "alignment", "note", "synthesis")
 _PS = ROOT / "data" / "eval" / "prompt_sensitivity"
 _NB = ROOT / "data" / "eval" / "note_block"
+_CF = ROOT / "data" / "eval" / "corpus_facts"
 RUNS = {
-    "round14": ROOT / "data" / "eval" / "generation_raw.jsonl",
+    "round14": ROOT / "data" / "eval" / "archive_round14_note_layer" / "generation_raw.jsonl",
     "a_reorder": _PS / "run_a_reorder.jsonl",
     "b_markdown": _PS / "run_b_markdown.jsonl",
     "c_typography": _PS / "run_c_typography.jsonl",
@@ -55,12 +67,17 @@ RUNS = {
     "r16_a_reorder": _NB / "run_a_reorder.jsonl",
     "r16_b_markdown": _NB / "run_b_markdown.jsonl",
     "r16_c_typography": _NB / "run_c_typography.jsonl",
+    "r17_base": _CF / "run_base.jsonl",
+    "r17_a_reorder": _CF / "run_a_reorder.jsonl",
+    "r17_b_markdown": _CF / "run_b_markdown.jsonl",
+    "r17_c_typography": _CF / "run_c_typography.jsonl",
 }
 SETS = {
     "round15 (note block v1)": ["round14", "a_reorder", "b_markdown", "c_typography"],
     "round16 (note block v2)": ["r16_base", "r16_a_reorder", "r16_b_markdown", "r16_c_typography"],
+    "round17 (corpus facts)": ["r17_base", "r17_a_reorder", "r17_b_markdown", "r17_c_typography"],
 }
-JUDGMENT_FILES = (_PS / "judgments.py", _NB / "judgments.py")
+JUDGMENT_FILES = (_PS / "judgments.py", _NB / "judgments.py", _CF / "judgments.py")
 
 
 def _load(path: Path) -> list[dict]:
@@ -78,10 +95,7 @@ def _verdicts() -> tuple[dict, dict]:
     explicit = {}
     for path in JUDGMENT_FILES:
         if path.exists():
-            spec = importlib.util.spec_from_file_location(f"judgments_{path.parent.name}", path)
-            module = importlib.util.module_from_spec(spec)
-            spec.loader.exec_module(module)
-            explicit.update(module.JUDGMENTS)
+            explicit.update(_load_module(path).JUDGMENTS)
     by_sig = {}
     for r in _load(RUNS["round14"]):
         for i, c in enumerate(r["claims"]):

@@ -1696,6 +1696,103 @@ copying only. Paraphrase still needs a human judge. Audit errors do not
 trigger a regeneration, so the check did not change any answer measured
 here.
 
+## Round 17: facts about the edition, and a story assembly dropped (2026-10-08)
+
+The two `corpus_anomaly` questions had failed retrieval in every round
+since the gold set was built: which verse has two stories (q119), and which
+story's header misstates its verse (q120). Every answer then invented an
+anomaly for whatever was retrieved. Both answers were already in the repo:
+
+- the two-story verse (Dhp 416: 26.33 and 26.34) is what the alignment
+  table's duplication check reports;
+- the header typo (26.17's "Dhp 40" for Dhp 400) is one of the six entries,
+  with evidence, in `ingest/corrections.py`.
+
+No indexed text stated either. This is the gap Round 2 found for verse
+numbering, a third time: the corpus has the fact, the index never says it.
+
+**Two changes.**
+
+1. **Corpus facts as text.** `index/corpus_facts.py` turns those two
+   sources into sentences, generated rather than written by hand. Examples:
+   "Dhp 416 is explained by 2 separate commentarial stories: story 26.33 …
+   and story 26.34 … It is the only verse in this edition explained by more
+   than one story"; "Story 26.17's header line in the source, as extracted,
+   reads Dhp 40, but the verses quoted in the story's own body are Dhp 400
+   …". They are indexed as a new chunk type, `story_corpus_fact` (8 chunks;
+   5,486 → 5,494), and shown as "Corpus note:" lines in that story's
+   `[ALIGNMENT]` block. They are structural facts, stated by neither the
+   verse nor the commentary. The wording says only what is recorded: for
+   26.34, `corrections.py` cannot tell whether "Dhp 416408" is a source typo
+   or an extraction glitch, so no sentence blames the source.
+2. **An assembly bug, found by the first change.** With the facts indexed,
+   q120 reached rank 1 but q119 still missed, while the `flat` condition,
+   which skips assembly, ranked its answer 2nd. A chunk from a story
+   resolved to that story alone, and `query()` deduplicates bundles by verse
+   range. Dhp 416's two stories share one range, so whichever ranked first
+   kept the slot and the other could never be returned at any rank. That
+   contradicts `assemble.py`'s own docstring ("every story that explains
+   them"). A story chunk now brings every story explaining its verses,
+   matched story first. The rule lives in one function,
+   `assemble.resolve_story_ids`, which `eval/retrieval_eval.py` now imports
+   instead of keeping its own copy. Only Dhp 416 is affected.
+
+**Retrieval** (deterministic; per question, before → after):
+
+| | Baseline rank before → after |
+|---|---|
+| q119 (Dhp 416, second story 26.34) | not in top 10 → **1** |
+| q120 (26.17's header) | 9 → **1** |
+| any other question, either gold set | unchanged (one `verse_only` rank on v2 moved from 66 to 54) |
+
+v1 baseline nDCG@10 goes from 0.932 to 0.947, entirely from these two
+questions; v2 is unchanged. The ablation deltas moved slightly, by the same
+two questions (README table updated).
+
+**Generation, under the same four wordings.** Only prompts whose sources
+include one of the seven stories with a fact changed, so only q119, q120
+and one reworded q091 claim needed new judgments
+(`data/eval/corpus_facts/`).
+
+| | Round 16 (4 wordings) | Round 17 (4 wordings) |
+|---|---|---|
+| q119: names Dhp 416 | 0 of 4 | **4 of 4** |
+| q119: names the second story (Jotika, 26.34) | 0 of 4 | 1 of 4 |
+| q120: names 26.17 (Dhp 40 for 400) | 0 of 4 | **3 of 4** |
+| Source fidelity, range | 0.818–0.878 | 0.865–0.898 |
+| Layer accuracy, range | 0.764–0.833 | 0.741–0.845 |
+
+**Reading it.**
+
+- **The gain is real but partly circular.** The two questions were written
+  from these same facts, so answering them is near-tautological. The lasting
+  change is that a question about the edition's structure is now answered
+  from a stated fact instead of an invented one; before this round, every
+  answer to either question was a fabrication.
+- **Two remaining errors are informative.** Three of four runs name Jaṭila
+  (26.33) as the "second" story: the fact lists the stories in order but
+  never says which is first, and the model guessed. The fact's wording is
+  not being tuned to the question's phrasing; that would be fitting the
+  test. The fourth q120 run names 3.1, whose header ("Dhp 33" for 33–34) is
+  genuinely wrong too. The question assumes a single answer, but the corpus
+  has six corrected headers.
+- **Fidelity rises across all four wordings,** almost entirely because these
+  answers stopped fabricating. Accuracy's range overlaps Round 16's, so no
+  accuracy change is claimed.
+
+**The canonical generation run is now the current system.** Until this
+round, `generation_raw.jsonl` and the metrics the dashboard reads came from
+Round 14, before the Round 16 and 17 changes. The Round 17 base-prompt run
+replaces it; the Round 14 run is archived in
+`data/eval/archive_round14_note_layer/`. Its verdicts are not new: each
+claim's verdict is the from-scratch one already given to the identical
+claim in Rounds 14–17, assembled with its original note into
+`generation_judgments.py`. The canonical metrics reproduce the scorer's
+figures for that run: accuracy 0.741, conflation 3/40 = 0.075, fidelity
+47/54 = 0.870 (cited layers 0.878, 95% CI [0.755, 0.962]), Pali quotes
+copied exactly 12/12, `note` recall 3/6. As Round 15 showed, these are one
+wording's numbers; the four-wording ranges above are the better guide.
+
 ## Summary
 
 **What the evidence in this document supports:**

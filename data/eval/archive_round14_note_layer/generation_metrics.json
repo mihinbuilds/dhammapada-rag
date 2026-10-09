@@ -1,146 +1,142 @@
 {
   "n_questions": 27,
-  "n_claims": 54,
+  "n_claims": 52,
   "provenance_errors": 4,
-  "format_warnings": 5,
+  "format_warnings": 2,
   "predicted_marginal": {
-    "verse": 12,
+    "verse": 11,
     "commentary": 28,
     "alignment": 5,
-    "note": 4,
-    "synthesis": 5
+    "note": 2,
+    "synthesis": 6
   },
   "gold_marginal": {
     "verse": 8,
-    "commentary": 29,
-    "alignment": 9,
-    "note": 6,
-    "synthesis": 2
+    "commentary": 27,
+    "alignment": 8,
+    "note": 5,
+    "synthesis": 4
   },
   "confusion_matrix": {
     "verse": {
       "verse": 7,
-      "commentary": 0,
+      "commentary": 1,
       "alignment": 0,
       "note": 0,
-      "synthesis": 1
+      "synthesis": 0
     },
     "commentary": {
-      "verse": 3,
-      "commentary": 25,
+      "verse": 2,
+      "commentary": 23,
       "alignment": 1,
       "note": 0,
-      "synthesis": 0
+      "synthesis": 1
     },
     "alignment": {
       "verse": 1,
       "commentary": 2,
       "alignment": 4,
       "note": 0,
-      "synthesis": 2
+      "synthesis": 1
     },
     "note": {
       "verse": 1,
-      "commentary": 1,
+      "commentary": 2,
       "alignment": 0,
-      "note": 3,
-      "synthesis": 1
+      "note": 2,
+      "synthesis": 0
     },
     "synthesis": {
       "verse": 0,
       "commentary": 0,
       "alignment": 0,
-      "note": 1,
-      "synthesis": 1
+      "note": 0,
+      "synthesis": 4
     }
   },
   "per_class": {
     "verse": {
-      "precision": 0.5833,
+      "precision": 0.6364,
       "recall": 0.875,
-      "f1": 0.7,
+      "f1": 0.7368,
       "support": 8
     },
     "commentary": {
-      "precision": 0.8929,
-      "recall": 0.8621,
-      "f1": 0.8772,
-      "support": 29
+      "precision": 0.8214,
+      "recall": 0.8519,
+      "f1": 0.8364,
+      "support": 27
     },
     "alignment": {
       "precision": 0.8,
-      "recall": 0.4444,
-      "f1": 0.5714,
-      "support": 9
+      "recall": 0.5,
+      "f1": 0.6154,
+      "support": 8
     },
     "note": {
-      "precision": 0.75,
-      "recall": 0.5,
-      "f1": 0.6,
-      "support": 6
+      "precision": 1.0,
+      "recall": 0.4,
+      "f1": 0.5714,
+      "support": 5
     },
     "synthesis": {
-      "precision": 0.2,
-      "recall": 0.5,
-      "f1": 0.2857,
-      "support": 2
+      "precision": 0.6667,
+      "recall": 1.0,
+      "f1": 0.8,
+      "support": 4
     }
   },
-  "macro_f1": 0.6069,
-  "accuracy": 0.7407,
-  "conflation_rate": 0.075,
-  "commentary_tagged_verse": 3,
-  "verse_tagged_commentary": 0,
-  "source_fidelity_rate": 0.8704,
-  "unfaithful_claims": 7,
+  "macro_f1": 0.712,
+  "accuracy": 0.7692,
+  "conflation_rate": 0.0513,
+  "commentary_tagged_verse": 2,
+  "verse_tagged_commentary": 1,
+  "source_fidelity_rate": 0.75,
+  "unfaithful_claims": 13,
   "source_fidelity_scoped": {
-    "n": 49,
-    "rate": 0.8776,
+    "n": 46,
+    "rate": 0.7609,
     "ci_95": [
-      0.7551,
-      0.9623
+      0.6154,
+      0.8889
     ],
     "note": "verse+commentary+alignment only; excludes synthesis; bootstrap CI resampled by question"
   },
   "pali_fidelity": {
-    "n_pali_claims": 12,
+    "n_pali_claims": 11,
     "exact_copy_rate": 1.0,
     "variant_rate": 0.0,
     "fabrication_rate": 0.0,
-    "quote_coverage_rate": 0.8554,
-    "n_quote_coverage": 12
+    "quote_coverage_rate": 0.858,
+    "n_quote_coverage": 11
   },
   "source_disposition": {
     "has_data": true,
     "n_fully_covered": 27,
     "n_questions": 27,
     "counts": {
-      "used": 29,
-      "partially_relevant": 9,
+      "used": 26,
+      "partially_relevant": 10,
       "not_relevant": 45
     },
-    "n_total": 83,
-    "disposition_contradicts_claims": 2,
+    "n_total": 81,
+    "disposition_contradicts_claims": 0,
     "not_relevant_on_gold": [
-      [
-        "q120",
-        "26.17"
-      ],
       [
         "q001",
         "1.8"
       ]
     ],
-    "not_relevant_on_noise": 43
+    "not_relevant_on_noise": 44
   },
   "layer_count_distribution": {
     "1": 8,
-    "2": 13,
-    "3": 6,
+    "2": 15,
+    "3": 4,
     "4": 0
   },
   "claims_per_answer": {
-    "mean": 2.0,
+    "mean": 1.9259,
     "min": 1,
     "max": 4
   }
