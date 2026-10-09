@@ -351,6 +351,8 @@ class Generator:
         total_latency = 0.0
 
         schema_fallback_tried = False
+        note_retry_done = False
+        retry_reasons: list[str] = []
         for attempt in range(max_retries + 1):
             t0 = time.time()
             try:
@@ -425,6 +427,7 @@ class Generator:
                         ),
                     },
                 ]
+                retry_reasons.append("schema_validation")
                 continue
 
             # STOP GATE 3 fix: a schema-valid answer that ignores the
@@ -455,15 +458,55 @@ class Generator:
                         ),
                     },
                 ]
+                retry_reasons.append("no_commentary")
                 continue
 
             warnings = audit(answer, bundles, corpus_group_ids=corpus_group_ids)
+
+            # Round 18: the editor's notes given under another tag. Prompt
+            # structure (Round 16) raised note recall but left a stable
+            # failure -- q043's note gloss tagged verse/commentary/synthesis
+            # in 8 of 8 runs -- and Round 15 showed more prompt wording is
+            # not a reliable lever. When audit() detects it mechanically
+            # (NOTE_TEXT_AS_OTHER_LAYER: near-verbatim only), retry once
+            # naming the claim and the note, the same mechanism as the
+            # no-commentary retry above. Once per answer, so a model that
+            # will not relabel cannot loop; the second answer is kept either
+            # way and audited like any other.
+            note_flags = [w for w in warnings if w.code == "NOTE_TEXT_AS_OTHER_LAYER"]
+            if note_flags and not note_retry_done and attempt < max_retries:
+                note_retry_done = True
+                named = "\n".join(
+                    f"- claim {w.claim_index} ({answer.claims[w.claim_index].layer}): "
+                    f"{answer.claims[w.claim_index].text!r}"
+                    for w in note_flags
+                )
+                messages = messages + [
+                    {"role": "assistant", "content": content},
+                    {
+                        "role": "user",
+                        "content": (
+                            "These claims restate Ānandajoti Bhikkhu's editorial notes from a "
+                            "[NOTES] block, but are tagged as another layer:\n"
+                            f"{named}\n\n"
+                            "A note is neither the verse nor the commentary. Revise your answer: "
+                            "tag each of these claims \"note\", citing the verse_number shown in "
+                            "that note's <<citation_fields layer=note ...>> marker. Keep every "
+                            "other claim as it was."
+                        ),
+                    },
+                ]
+                retry_reasons.append("note_misattribution")
+                continue
+
+
             return {
                 "answer": answer,
                 "warnings": warnings,
                 "latency_s": total_latency,
                 "model": self.model,
                 "attempt": attempt + 1,
+                "retry_reasons": retry_reasons,
                 "prompt_tokens": prompt_tokens,
                 "num_ctx": self.num_ctx,
                 "schema_status": schema_status,

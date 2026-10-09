@@ -10,6 +10,8 @@ Run: pytest tests/test_note_layer.py -v
 
 from __future__ import annotations
 
+import json
+
 import pytest
 from pydantic import ValidationError
 
@@ -180,3 +182,53 @@ def test_a_verse_claim_closer_to_the_verse_than_the_note_is_not_flagged():
                        group_id="7.1", verse_number=90)
     ws = audit(answer(claim), [b])
     assert "NOTE_TEXT_AS_OTHER_LAYER" not in codes(ws)
+
+
+# ------------------------------------------------- Round 18: note retry
+
+class _FakeResponse:
+    def __init__(self, payload: dict):
+        self._payload = payload
+
+    def raise_for_status(self):
+        pass
+
+    def json(self):
+        return {"message": {"content": json.dumps(self._payload)}, "eval_count": 1, "eval_duration": 1}
+
+
+def _knot_answer(layer: str) -> dict:
+    claim = {"text": "The four knots are avarice, ill-will, grasping at virtue and practices, and "
+                     "insisting this is the truth.", "layer": layer, "verse_number": 90}
+    if layer == "commentary":
+        claim["group_id"] = "7.1"
+    return {"question": "q", "claims": [claim], "source_disposition": {"7.1": "used"}}
+
+
+def _run_generator(monkeypatch, responses: list[dict]):
+    from dhammapada_rag.generate import generate as gen_module
+
+    sent: list[list[dict]] = []
+
+    def fake_post(url, json=None, timeout=None):  # noqa: A002 -- mirrors requests.post
+        sent.append(json["messages"])
+        return _FakeResponse(responses[len(sent) - 1])
+
+    monkeypatch.setattr(gen_module.requests, "post", fake_post)
+    result = gen_module.Generator().generate("What are the four knots?", [bundle("7.1", [90], {90: [KNOTS]})])
+    return result, sent
+
+
+def test_note_text_under_another_tag_triggers_one_corrective_retry(monkeypatch):
+    result, sent = _run_generator(monkeypatch, [_knot_answer("commentary"), _knot_answer("note")])
+    assert result["retry_reasons"] == ["note_misattribution"]
+    assert result["answer"].claims[0].layer == "note"
+    assert "NOTE_TEXT_AS_OTHER_LAYER" not in codes(result["warnings"])
+    assert 'tag each of these claims "note"' in sent[1][-1]["content"]
+
+
+def test_the_note_retry_happens_at_most_once(monkeypatch):
+    result, sent = _run_generator(monkeypatch, [_knot_answer("commentary")] * 3)
+    assert result["retry_reasons"] == ["note_misattribution"]
+    assert len(sent) == 2
+    assert "NOTE_TEXT_AS_OTHER_LAYER" in codes(result["warnings"])

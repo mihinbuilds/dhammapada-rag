@@ -139,6 +139,7 @@ def main() -> None:
                 "structural_warnings": warnings_to_dicts(gen["warnings"]),
                 "model": gen["model"],
                 "latency_s": gen["latency_s"],
+                "retry_reasons": gen.get("retry_reasons", []),
                 "prompt_tokens": gen["prompt_tokens"],
                 "num_ctx": gen["num_ctx"],
                 # gold source text inlined so judging needs no corpus lookup
