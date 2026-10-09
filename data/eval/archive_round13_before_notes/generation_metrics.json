@@ -1,0 +1,124 @@
+{
+  "n_questions": 27,
+  "n_claims": 49,
+  "provenance_errors": 4,
+  "format_warnings": 2,
+  "predicted_marginal": {
+    "verse": 11,
+    "commentary": 27,
+    "alignment": 5,
+    "synthesis": 6
+  },
+  "gold_marginal": {
+    "verse": 9,
+    "commentary": 28,
+    "alignment": 9,
+    "synthesis": 3
+  },
+  "confusion_matrix": {
+    "verse": {
+      "verse": 8,
+      "commentary": 1,
+      "alignment": 0,
+      "synthesis": 0
+    },
+    "commentary": {
+      "verse": 3,
+      "commentary": 25,
+      "alignment": 0,
+      "synthesis": 0
+    },
+    "alignment": {
+      "verse": 0,
+      "commentary": 1,
+      "alignment": 5,
+      "synthesis": 3
+    },
+    "synthesis": {
+      "verse": 0,
+      "commentary": 0,
+      "alignment": 0,
+      "synthesis": 3
+    }
+  },
+  "per_class": {
+    "verse": {
+      "precision": 0.7273,
+      "recall": 0.8889,
+      "f1": 0.8,
+      "support": 9
+    },
+    "commentary": {
+      "precision": 0.9259,
+      "recall": 0.8929,
+      "f1": 0.9091,
+      "support": 28
+    },
+    "alignment": {
+      "precision": 1.0,
+      "recall": 0.5556,
+      "f1": 0.7143,
+      "support": 9
+    },
+    "synthesis": {
+      "precision": 0.5,
+      "recall": 1.0,
+      "f1": 0.6667,
+      "support": 3
+    }
+  },
+  "macro_f1": 0.7725,
+  "accuracy": 0.8367,
+  "conflation_rate": 0.0789,
+  "commentary_tagged_verse": 3,
+  "verse_tagged_commentary": 1,
+  "source_fidelity_rate": 0.8571,
+  "unfaithful_claims": 7,
+  "source_fidelity_scoped": {
+    "n": 43,
+    "rate": 0.8837,
+    "ci_95": [
+      0.7619,
+      0.9773
+    ],
+    "note": "verse+commentary+alignment only; excludes synthesis; bootstrap CI resampled by question"
+  },
+  "pali_fidelity": {
+    "n_pali_claims": 11,
+    "exact_copy_rate": 1.0,
+    "variant_rate": 0.0,
+    "fabrication_rate": 0.0,
+    "quote_coverage_rate": 0.8629,
+    "n_quote_coverage": 11
+  },
+  "source_disposition": {
+    "has_data": true,
+    "n_fully_covered": 27,
+    "n_questions": 27,
+    "counts": {
+      "used": 28,
+      "partially_relevant": 6,
+      "not_relevant": 47
+    },
+    "n_total": 81,
+    "disposition_contradicts_claims": 0,
+    "not_relevant_on_gold": [
+      [
+        "q001",
+        "1.8"
+      ]
+    ],
+    "not_relevant_on_noise": 46
+  },
+  "layer_count_distribution": {
+    "1": 8,
+    "2": 17,
+    "3": 2,
+    "4": 0
+  },
+  "claims_per_answer": {
+    "mean": 1.8148,
+    "min": 1,
+    "max": 3
+  }
+}

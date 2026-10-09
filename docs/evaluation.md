@@ -1498,6 +1498,82 @@ candidate's verses in the SuttaCentral English. That column now shows
 Ānandajoti's English. Questions, candidates and row order are unchanged, so
 the κ calibration point in `docs/eval_rubric.md` still applies.
 
+## Round 14: a fifth layer for the editor's notes (2026-10-08)
+
+Round 13 found that the generation prompt never showed Ānandajoti's
+interlinear notes. A question whose answer lives in a note (the four knots
+of Dhp 90; what *akata* means in Dhp 383) could not be answered. The notes
+are a modern editor's philological work, neither the verse nor Buddhaghosa,
+so they could not simply go into the `[VERSE]` block. That would invite the
+model to present a note as the verse. Filing them under `commentary` would
+attribute them to Buddhaghosa. They get their own layer, `note`
+(`docs/eval_rubric.md`, "The fifth layer").
+
+**What changed.**
+
+- `schemas.py`: a `NoteClaim` (`layer="note"`, `verse_number` only, since a
+  note belongs to a verse, not a story).
+- `audit()`: a new error, `NOTE_NOT_IN_CONTEXT`, for a note claim citing a
+  verse with no note in the retrieved context.
+- `generate.py`: the decoder's `verse_number` enum is limited to retrieved
+  verses that have notes, and the `NoteClaim` variant is dropped from the
+  schema when none do.
+- `prompt.py`: a `[NOTES]` block per source, and the layer added to
+  TAGGING, CITATIONS and OUTPUT DISCIPLINE.
+- `render.py`: note claims read "The editor's note explains …", cited
+  "[Dhp N, note]".
+- The web app has the fifth layer and colour; 13 new tests
+  (`tests/test_note_layer.py`). The Round 13 run is archived in
+  `data/eval/archive_round13_before_notes/`.
+
+**Generation, re-run and re-judged from scratch.** Same 27 questions, seed,
+model and index.
+
+| Metric | Round 13 | Round 14 |
+|---|---|---|
+| Claims | 49 | 52 |
+| Layer accuracy | 0.837 | 0.769 |
+| Macro-F1 (5 classes) | 0.773 (4 classes) | 0.712 |
+| Anachronistic conflation | 3/38 = 0.079 | 2/39 = 0.051 |
+| Source fidelity | 42/49 = 0.857 | 39/52 = 0.750 |
+| Source fidelity, cited layers [95% CI] | 0.884 [0.762, 0.977] | 0.761 [0.615, 0.889] |
+| Pali quotes copied exactly | 11/11 | 11/11 |
+| `note` precision / recall | — | 1.000 / 0.400 (n=5) |
+
+**The layer does what it was added for.** The two questions whose answer
+is in a note are answered from it, correctly tagged, and verbatim-faithful:
+q037 names the four knots, which Round 13 said were "not explicitly stated",
+and q055 glosses *akata* as Nibbāna. Both `note` claims are correct
+(precision 1.000).
+
+**It also makes a new error visible.** Three claims carry note content
+under the wrong tag. q043#0 gives the note's gloss (padāni = "the states of
+craving") as what the verse says. q013#1 and q043#1 present note content as
+"the commentary". The content of all three is accurate to the note, so
+without the fifth layer they would have scored as correct verse and
+commentary claims. Recall 0.400 is how often the model reaches for the new
+tag; it is the alignment layer's Round 7 problem again (recall 0.500 when
+first added), and its Round 8 fix (structure, not instruction) is the
+obvious next thing to try.
+
+**The fidelity drop is not attributable to the notes.** Fidelity fell from
+0.857 to 0.750, but most of the new errors are on questions with no note in
+context:
+
+- q113: a CST4 title that does not exist, correct in every earlier round;
+- q114: the wrong person in the nidāna;
+- q019: Dhp 258's "astute" merged into Dhp 259;
+- q031: Dhp 2's story credited to Dhp 1's;
+- q037#1: who healed whom, reversed.
+
+The system prompt changed, so every one of the 27 prompts changed, and at a
+fixed seed a 7B model's answers move with its prompt. The two intervals
+overlap. This reads as the run-to-run spread of the generator on a
+27-question sample, which every earlier round's single run has also
+carried and never measured. Measuring it is the step that would make any
+of these generation comparisons trustworthy: the same configuration run
+under several seeds, judged the same way.
+
 ## Summary
 
 **What the evidence in this document supports:**
