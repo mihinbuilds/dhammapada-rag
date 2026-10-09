@@ -249,10 +249,33 @@ Generated answers additionally need [Ollama](https://ollama.com):
 mode works and the UI falls back to it.
 
 <details>
-<summary><b>Windows note</b></summary>
+<summary><b>Windows (PowerShell)</b></summary>
 
-Set `PYTHONUTF8=1` (`setx PYTHONUTF8 1`) — the default cp1252 codepage cannot
-print Pali diacritics and crashes rather than degrading.
+Set `PYTHONUTF8=1` — the default cp1252 codepage cannot print Pali diacritics
+and crashes rather than degrading. Run uvicorn through the project's own
+interpreter (`python -m uvicorn`), so a `uvicorn.exe` from another environment
+on `PATH` cannot serve a different checkout:
+
+```powershell
+# Terminal 1 — API
+.venv\Scripts\Activate.ps1
+$env:PYTHONUTF8 = "1"
+python -m uvicorn dhammapada_rag.api.main:app --app-dir src --port 8000
+
+# Terminal 2 — web UI
+cd web; npm install; npm run dev                     # http://localhost:3000
+```
+</details>
+
+<details>
+<summary><b>Troubleshooting: the UI shows unexpected answers</b></summary>
+
+The web app talks to whatever answers on port 8000 (override with
+`NEXT_PUBLIC_API_BASE_URL` in `web/.env.local`; see `web/.env.example`). If an
+older checkout's API is still running there, the new API fails to bind and the
+UI silently uses the old one. Check `http://127.0.0.1:8000/health`: this
+corpus reports `"n_chunks": 5494`. On Windows, `netstat -ano | findstr :8000`
+gives the PID of whatever holds the port.
 </details>
 
 <details>
@@ -282,6 +305,32 @@ have no gold answer) and **v2** (72 harder questions across `narrative_deep`,
 `paraphrase`, `pali_ascii`, `disambiguation`, `multi_gold`,
 `situation_to_verse`). Ablations are single-factor — every condition except
 `no_rerank` reranks, so a delta is attributable to one component.
+
+### Generation
+
+A 27-question systematic sample of v1 (5 per type), generated with
+`qwen2.5:7b-instruct` and every claim judged by hand against its source
+([`docs/eval_rubric.md`](docs/eval_rubric.md)). Current canonical run (Round 17),
+with the range over four meaning-preserving prompt wordings beside it, since a
+single wording's numbers move by more than most single-round changes:
+
+| Metric | Canonical run | Range over 4 wordings (Round 17) |
+|---|---|---|
+| Layer attribution accuracy | 0.741 | 0.741–0.845 |
+| Source fidelity (all 54 claims) | 0.870 | 0.865–0.898 |
+| Source fidelity, cited layers [95% CI] | 0.878 [0.755, 0.962] | — |
+| Anachronistic conflation (commentary tagged `verse`) | 3/40 = 0.075 | — |
+| Pali quotes copied exactly | 12/12 | — |
+| `note` recall | 3/6 | 0.50–0.67 (Round 18) |
+
+```bash
+python -m dhammapada_rag.eval.generation_metrics     # → data/eval/generation_raw.jsonl
+# judge each claim in data/eval/generation_judgments.py, then:
+python -m dhammapada_rag.eval.aggregate_generation   # → data/eval/generation_metrics.json
+```
+
+Re-running generation replaces the claims, so the hand judgments must be redone
+before aggregating. Round-by-round history: [`docs/evaluation.md`](docs/evaluation.md).
 
 ![Evaluation dashboard](docs/img/evaluation.png)
 
