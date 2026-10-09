@@ -1574,6 +1574,75 @@ carried and never measured. Measuring it is the step that would make any
 of these generation comparisons trustworthy: the same configuration run
 under several seeds, judged the same way.
 
+## Round 15: how much does wording alone move the generation numbers? (2026-10-08)
+
+Round 14's fidelity fell from 0.857 to 0.750. Most of the new errors were on
+questions with no note in context, so the note layer could not explain them.
+Every round's generation comparison has rested on one run per
+configuration, and none has measured how much a run moves for reasons
+unrelated to the change being tested. This round measures it.
+
+**Repeat runs barely move.** Generation runs at temperature 0, so the seed
+does nothing. The planned "several seeds" check would have measured nothing,
+and was replaced. Re-running the exact Round 14 configuration gave 25 of 27
+answers word-for-word identical, and the other two differed by a few words
+(`data/eval/prompt_sensitivity/rerun_identical.jsonl`). At a fixed prompt,
+noise is negligible.
+
+**Wording does move them.** The Round 14 system prompt was run under three
+variants, each changing a single thing and keeping every rule's wording intact:
+
+- **A:** the rules reordered;
+- **B:** headings as Markdown;
+- **C:** typography only (`--` as an em dash, `->` as an arrow).
+
+The variant files and runs are in `data/eval/prompt_sensitivity/`. All 122
+new claims were judged from scratch under the Round 14 rules
+(`judgments.py` there); a claim identical to one already judged reused its
+verdict. Scored by `eval/prompt_sensitivity.py`, with the same metric
+definitions as `aggregate_generation.py`:
+
+| Run | Claims | Accuracy | Macro-F1 | Conflation | Fidelity | Note recall |
+|---|---|---|---|---|---|---|
+| Round 14 prompt | 52 | 0.769 | 0.712 | 0.051 | 0.750 | 0.40 |
+| A, reordered | 57 | 0.772 | 0.679 | 0.047 | 0.842 | 0.43 |
+| B, Markdown | 50 | 0.800 | 0.690 | 0.051 | 0.780 | 0.29 |
+| C, typography | 53 | 0.717 | 0.628 | 0.073 | 0.755 | 0.29 |
+| **Range** | 50–57 | **0.717–0.800** | 0.628–0.712 | 0.047–0.073 | **0.750–0.842** | 0.29–0.43 |
+
+**What this changes.**
+
+- **Round 14's fidelity drop is within the wording spread.** Fidelity moves
+  by up to 0.09 when nothing but the wording changes. Round 13 → 14 moved it
+  by 0.107, through a prompt change that also altered the wording. This run
+  cannot attribute that drop to the notes, and neither could Round 14.
+- **The same holds for every earlier single-run comparison of the
+  generator.** On this 27-question sample, a difference smaller than about
+  0.08 in layer accuracy or 0.09 in fidelity between two prompts is not
+  distinguishable from rewording noise. That covers several "small" movements
+  reported in Rounds 7–14, which are better read as no evidence either way.
+  The large, structural results are not affected:
+  - Round 5's decoder-enforced citations (errors unrepresentable, not rarer);
+  - Round 8's 0/27 → 27/27 source disposition;
+  - Round 13's 8/11 → 11/11 exact Pali copies, a mechanism (one edition in
+    the prompt) rather than a rate;
+  - the retrieval ablations, which are deterministic.
+- **Specific behaviours depend on wording too.** q001's retrieved gold verse
+  (Dhp 11) was dismissed under two of the four wordings and used correctly
+  under the other two. q043's note gloss was tagged `note` in none of the four
+  runs: verse, commentary or synthesis every time. That is a stable failure
+  worth fixing, unlike most of the movement above.
+- **The note layer's effect is the stable part.** Every run answered q037 and
+  q055 from the notes. All 9 claims tagged `note` across the four runs are
+  correct (precision 1.00 under every wording). The misattribution of note
+  content also appeared in every run, and note recall (0.29–0.43) is low under
+  every wording.
+
+**For future rounds:** compare generation configurations across several
+wordings, not one, and report the range. A change is real when it moves the
+range, not a single run. `--system-prompt` on `generation_metrics.py` and
+`eval/prompt_sensitivity.py` exist for that.
+
 ## Summary
 
 **What the evidence in this document supports:**

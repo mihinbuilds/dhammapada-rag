@@ -70,6 +70,23 @@ def stratified_sample(gold: list[dict], per_type: int = 5) -> list[dict]:
 
 
 def main() -> None:
+    import argparse
+
+    ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
+    ap.add_argument("--out", default="data/eval/generation_raw.jsonl", help="relative to repo root")
+    ap.add_argument(
+        "--system-prompt", default=None,
+        help="Text file replacing prompt.SYSTEM_PROMPT for this run only -- for prompt-sensitivity "
+             "experiments (docs/evaluation.md, Round 15). Recorded in every output row.",
+    )
+    args = ap.parse_args()
+    variant = None
+    if args.system_prompt:
+        from dhammapada_rag.generate import prompt as prompt_module
+        prompt_module.SYSTEM_PROMPT = (ROOT / args.system_prompt).read_text(encoding="utf-8")
+        variant = args.system_prompt
+        print(f"System prompt replaced from {variant}")
+
     gold = [json.loads(l) for l in (ROOT / "data" / "eval" / "gold_set.jsonl").read_text(encoding="utf-8").splitlines()]
     sample = stratified_sample(gold, per_type=5)
     print(
@@ -83,7 +100,7 @@ def main() -> None:
     corpus_group_ids = set(stories_by_id)
     generator = Generator(seed=SEED)
 
-    out_path = ROOT / "data" / "eval" / "generation_raw.jsonl"
+    out_path = ROOT / args.out
     out_path.parent.mkdir(parents=True, exist_ok=True)
 
     n_no_commentary = 0
@@ -104,6 +121,7 @@ def main() -> None:
 
             row = {
                 "question_id": q["question_id"],
+                "system_prompt_variant": variant,
                 "type": q["type"],
                 "question": q["question"],
                 "gold_group_ids": q["gold_group_ids"],

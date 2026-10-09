@@ -301,6 +301,11 @@ have no gold answer) and **v2** (72 harder questions across `narrative_deep`,
   queries.
 - **Two of four retrieval components show no measurable effect** — see the
   ablation table above.
+- **Generation numbers move with prompt wording.** Rewording the system prompt
+  without changing its meaning moves layer accuracy by up to 0.08 and source
+  fidelity by up to 0.09 on the 27-question sample (repeat runs at a fixed
+  prompt are near-identical). Single-run differences smaller than that are
+  not evidence of anything; see `docs/evaluation.md`, Round 15.
 
 ---
 
