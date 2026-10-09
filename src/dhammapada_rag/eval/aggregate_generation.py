@@ -29,7 +29,7 @@ FIXES over the previous revision:
 
 REQUIRED JUDGMENT SHAPE. Each entry in JUDGMENTS must expose:
     tag_correct: bool          predicted layer matches the gold layer
-    gold_layer:  str           "verse" | "commentary" | "synthesis"
+    gold_layer:  str           "verse" | "commentary" | "alignment" | "note" | "synthesis"
     is_conflation: bool        commentary content presented as verse
     faithful: bool             claim's content accurately represents (does
                                 not invert or misstate) the source text it is
@@ -91,7 +91,7 @@ from dhammapada_rag.generate.schemas import _pali_orthographic, normalize_group_
 # confusion matrix below is 4x4, not 3x3. Every loop in this file already
 # iterates LAYERS rather than hardcoding three names, so this one-line
 # change is sufficient to widen the matrix, marginals, and per-class table.
-LAYERS = ("verse", "commentary", "alignment", "synthesis")
+LAYERS = ("verse", "commentary", "alignment", "note", "synthesis")
 
 # Round 8, Task AC seed: reproducible bootstrap, same rationale as
 # model_sweep.py's own resampling (Round 5, Task N correction) -- an
@@ -359,7 +359,7 @@ def main():
     fid_point, fid_lo, fid_hi = _bootstrap_ci_by_question(
         [{"question_id": c["question_id"], "faithful": c["faithful"]} for c in sourced_claims], "faithful"
     )
-    print("\n=== Source fidelity, verse+commentary+alignment only, bootstrap 95% CI (Task AC) ===")
+    print("\n=== Source fidelity, cited layers only (all but synthesis), bootstrap 95% CI (Task AC) ===")
     print(f"  n={len(sourced_claims)} (excludes {n - len(sourced_claims)} synthesis claims)")
     print(f"  fidelity rate: {fid_point:.3f}  95% CI [{fid_lo:.3f}, {fid_hi:.3f}]  (resampled by question, n={_BOOTSTRAP_RESAMPLES})")
 

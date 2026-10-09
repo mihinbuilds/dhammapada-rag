@@ -199,6 +199,7 @@ class LayerCounts(BaseModel):
     verse: int = 0
     commentary: int = 0
     alignment: int = 0
+    note: int = 0
     synthesis: int = 0
 
 

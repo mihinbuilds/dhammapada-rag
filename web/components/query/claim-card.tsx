@@ -15,6 +15,7 @@ export function ClaimCard({ claim, index }: { claim: ClaimOut; index: number }) 
     parts.push(`Dhp ${claim.verse_number}`);
   }
   if (claim.group_id) parts.push(`DhpA ${claim.group_id}`);
+  if (claim.layer === "note") parts.push("note");
   const citation = parts.length ? parts.join(" · ") : "no citation";
 
   return (

@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-197%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-210%20passing-brightgreen.svg)](tests/)
 [![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
 
 </div>
@@ -20,7 +20,7 @@ Dhammapada. The mustard seed is Buddhaghosa's, written eight centuries after the
 verse it explains. A system that does not mark that difference is not summarising
 the text — it is quietly rewriting it.
 
-This project keeps four kinds of statement apart, tags every generated claim with
+This project keeps five kinds of statement apart, tags every generated claim with
 which kind it is, and refuses to emit a citation it cannot resolve against
 something actually retrieved.
 
@@ -149,33 +149,39 @@ Retrieval matches on the **tightest** unit — one verse, one pāda gloss, one
 window of narrative — then returns the **whole** verse-group, so the reader
 always sees every layer regardless of which one matched.
 
-### The four layers
+### The five layers
 
 ```mermaid
 flowchart TB
     V("<b>VERSE</b><br>canonical Dhammapada<br><i>c. 3rd century BCE</i>")
     C("<b>COMMENTARY</b><br>Buddhaghosa's aṭṭhakathā<br><i>c. 5th century CE</i>")
     AL("<b>ALIGNMENT</b><br>which story explains which verses<br><i>modern editorial apparatus</i>")
-    SY("<b>SYNTHESIS</b><br>inference across sources<br><i>stated in neither</i>")
+    NO("<b>NOTE</b><br>Ānandajoti's philological notes<br><i>modern editor, 2017</i>")
+    SY("<b>SYNTHESIS</b><br>inference across sources<br><i>stated in none</i>")
 
     V -.->|explained by| C
     C -.->|indexed by| AL
+    V -.->|annotated by| NO
     V --> SY
     C --> SY
 
     classDef verse fill:#EFF4FF,stroke:#1D4ED8,stroke-width:1.5px,color:#14110F
     classDef comm fill:#FFFAEB,stroke:#B45309,stroke-width:1.5px,color:#14110F
     classDef align fill:#F6F4FF,stroke:#6D28D9,stroke-width:1.5px,color:#14110F
+    classDef note fill:#ECFEFF,stroke:#0E7490,stroke-width:1.5px,color:#14110F
     classDef synth fill:#F1FDF4,stroke:#15803D,stroke-width:1.5px,color:#14110F
     class V verse
     class C comm
     class AL align
+    class NO note
     class SY synth
 ```
 
 `alignment` exists because *"story 1.3 explains Dhp 3–4"* is true of neither the
 verse nor the commentary — it is a modern editorial fact, and filing it under
-`commentary` attributes to Buddhaghosa a claim he never made.
+`commentary` attributes to Buddhaghosa a claim he never made. `note` exists for
+the same reason: an editor's gloss on a word ("what is not made is Nibbāna") is
+neither the verse nor Buddhaghosa, and tagging it as either misattributes it.
 
 The answer schema has **no free-text summary field**, deliberately: an untagged
 paragraph is the escape hatch a conflated claim slips through. Readable prose is

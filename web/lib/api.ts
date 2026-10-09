@@ -8,7 +8,7 @@
 
 const API_BASE = process.env.NEXT_PUBLIC_API_BASE_URL ?? "http://localhost:8000";
 
-export type Layer = "verse" | "commentary" | "alignment" | "synthesis";
+export type Layer = "verse" | "commentary" | "alignment" | "note" | "synthesis";
 export type Severity = "error" | "warning" | "info";
 export type Disposition = "used" | "partially_relevant" | "not_relevant";
 
@@ -103,6 +103,7 @@ export interface LayerCounts {
   verse: number;
   commentary: number;
   alignment: number;
+  note: number;
   synthesis: number;
 }
 

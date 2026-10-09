@@ -2,7 +2,7 @@ import type { Disposition, Layer, Severity } from "@/lib/api";
 
 /** Mirrors ui/app.py's LAYER_STYLE / LAYER_DESC / LAYER_ORDER so the two
  * surfaces agree on what each layer means and looks like. */
-export const LAYER_ORDER: Layer[] = ["verse", "commentary", "alignment", "synthesis"];
+export const LAYER_ORDER: Layer[] = ["verse", "commentary", "alignment", "note", "synthesis"];
 
 /** Static, literal class strings (not template-built) so Tailwind's scanner
  * can see and keep every variant -- a computed `bg-${layer}-bg` string would
@@ -34,6 +34,14 @@ export const LAYER_META: Record<
     badge: "bg-alignment-bg text-alignment border border-alignment/20",
     dot: "bg-alignment",
     solid: "bg-alignment text-white",
+  },
+  note: {
+    label: "Note",
+    desc: "Ānandajoti's editorial notes on a verse",
+    var: "--note",
+    badge: "bg-note-bg text-note border border-note/20",
+    dot: "bg-note",
+    solid: "bg-note text-white",
   },
   synthesis: {
     label: "Synthesis",

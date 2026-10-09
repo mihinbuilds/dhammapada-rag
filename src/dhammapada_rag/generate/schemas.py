@@ -30,7 +30,7 @@ from typing import Annotated, Iterable, Literal, Union
 
 from pydantic import BaseModel, Field, model_validator
 
-Layer = Literal["verse", "commentary", "synthesis", "alignment"]
+Layer = Literal["verse", "commentary", "synthesis", "alignment", "note"]
 
 # --------------------------------------------------------------------------
 # Canonical group_id form
@@ -221,8 +221,32 @@ class AlignmentClaim(_ClaimBase):
         return data
 
 
+# Round 14: a fifth claim variant for Ānandajoti Bhikkhu's interlinear notes
+# -- a modern editor's philological notes on a verse (variant readings,
+# grammar, the four knots of Dhp 90, "What is not made is Nibbāna" on Dhp
+# 383). They are neither the verse's own words nor Buddhaghosa's commentary,
+# so tagging note content as either would attribute it to the wrong author,
+# the exact error this project exists to prevent. Until Round 14 the notes
+# never reached the prompt at all, which left philological questions whose
+# answer lives in a note unanswerable (docs/evaluation.md, Round 13).
+# A note belongs to a verse, not to a commentarial story, so the citation is
+# the verse_number alone -- no group_id.
+class NoteClaim(_ClaimBase):
+    layer: Literal["note"] = Field(...)  # see VerseClaim.layer's comment: required, not defaulted
+    verse_number: int = Field(
+        ..., description="Dhp verse number (1-423) whose editorial note this claim draws on."
+    )
+
+    @model_validator(mode="before")
+    @classmethod
+    def _default_layer(cls, data):
+        if isinstance(data, dict):
+            data.setdefault("layer", "note")
+        return data
+
+
 Claim = Annotated[
-    Union[VerseClaim, CommentaryClaim, AlignmentClaim, SynthesisClaim], Field(discriminator="layer")
+    Union[VerseClaim, CommentaryClaim, AlignmentClaim, SynthesisClaim, NoteClaim], Field(discriminator="layer")
 ]
 
 Disposition = Literal["used", "partially_relevant", "not_relevant"]
@@ -286,6 +310,7 @@ Code = Literal[
     "MISSING_DISPOSITION",        # error   -- a retrieved group has no source_disposition entry
     "UNKNOWN_DISPOSITION_GROUP",  # warning -- source_disposition names a group that was never retrieved
     "DISPOSITION_CONTRADICTS_CLAIMS",  # warning -- 'not_relevant' group cited, or 'used' group cited by nothing
+    "NOTE_NOT_IN_CONTEXT",        # error   -- note claim cites a verse with no note in the retrieved context
 ]
 
 _SEVERITY: dict[str, Severity] = {
@@ -309,6 +334,7 @@ _SEVERITY: dict[str, Severity] = {
     "MISSING_DISPOSITION": "error",
     "UNKNOWN_DISPOSITION_GROUP": "warning",
     "DISPOSITION_CONTRADICTS_CLAIMS": "warning",
+    "NOTE_NOT_IN_CONTEXT": "error",
 }
 
 # Round 5, Task L: SYSTEM_PROMPT's OUTPUT DISCIPLINE rule, checked
@@ -320,7 +346,7 @@ _SEVERITY: dict[str, Severity] = {
 # `"text": "verse: Pubbenivāsaṁ yo vedī..."`) -- a leaked label means the
 # prose is unusable as prose even when the `layer` field is correct, since a
 # reader (or a copy-paste into another document) would see the raw label.
-_LABEL_PREFIXES = ("verse:", "commentary:", "alignment:", "synthesis:", "group_id:", "verse_number:")
+_LABEL_PREFIXES = ("verse:", "commentary:", "alignment:", "synthesis:", "note:", "group_id:", "verse_number:")
 
 # --------------------------------------------------------------------------
 # Round 4, Task F: mechanical detection of verse text relabelled as
@@ -660,6 +686,9 @@ def audit(
     # explains it -- since Task O's probe found the model's own prompt
     # carries more than one edition's orthography of the same verse.
     pali_candidates_by_number: dict[int, list[tuple[str, str]]] = {}
+    # Round 14: which retrieved verses actually carry an interlinear note --
+    # a NoteClaim citing any other verse has nothing in context to stand on.
+    notes_by_number: dict[int, list[str]] = {}
     if bundles is not None:
         for b in bundles:
             for s in b["stories"]:
@@ -686,6 +715,8 @@ def audit(
                             (f"pali_verse ({gid})", s["pali_verse"])
                         )
             for v in b["verses"]:
+                if v.get("interlinear_notes"):
+                    notes_by_number[v["verse"]] = v["interlinear_notes"]
                 parts = [v.get("interlinear_pali"), v.get("interlinear_english")]
                 joined = " ".join(p for p in parts if p)
                 verse_text_by_number[v["verse"]] = joined
@@ -810,6 +841,25 @@ def audit(
             # would have caught it should stay legible even with no live
             # check left to trigger it) but there is no longer an attribute
             # to inspect here.
+            continue
+
+        # Round 14: a NoteClaim cites only a verse_number. Valid when that
+        # verse was retrieved and carries a note; it then counts as using
+        # every retrieved group the verse belongs to, for the disposition
+        # cross-check below.
+        if isinstance(c, NoteClaim):
+            if bundles is not None:
+                if c.verse_number not in notes_by_number:
+                    warnings.append(
+                        _warn("NOTE_NOT_IN_CONTEXT", i,
+                              f"cites the note on Dhp {c.verse_number}, but no retrieved verse "
+                              f"with a note has that number (notes in context: "
+                              f"{sorted(notes_by_number) or 'none'}): {c.text!r}")
+                    )
+                else:
+                    cited_group_ids.update(
+                        g for g, vs in verses_by_group.items() if c.verse_number in vs
+                    )
             continue
 
         # Round 7, Task T: AlignmentClaim cites a group_id like verse/

@@ -128,7 +128,7 @@ export default function AskPage() {
           Layer-attributed answering over the Dhammapada and its commentary
         </h1>
         <p className="mt-3 max-w-2xl font-serif text-[0.98rem] leading-relaxed text-ink-soft">
-          Every generated claim is tagged <strong>verse / commentary / alignment / synthesis</strong>{" "}
+          Every generated claim is tagged <strong>verse / commentary / alignment / note / synthesis</strong>{" "}
           and cited back to its source; the audit layer flags any citation that cannot be trusted.
         </p>
         <div className="flex flex-wrap items-center gap-2 mt-5">

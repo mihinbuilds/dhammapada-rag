@@ -30,7 +30,7 @@ const plexMono = IBM_Plex_Mono({
 export const metadata: Metadata = {
   title: "Dhammapada RAG — Layer-Attributed Answering",
   description:
-    "Retrieval-augmented generation over the Dhammapada and its commentary, with every claim tagged verse / commentary / alignment / synthesis and cited back to its source.",
+    "Retrieval-augmented generation over the Dhammapada and its commentary, with every claim tagged verse / commentary / alignment / note / synthesis and cited back to its source.",
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {

@@ -36,6 +36,10 @@ _OPENERS = {
     "commentary": "The commentary relates",
     "alignment": "The alignment table records",
     "synthesis": "By way of synthesis",
+    # Round 14: names its author, because "the note" alone would not tell a
+    # reader who copied the sentence out that this is a modern editor, not
+    # the text or its commentary.
+    "note": "The editor's note explains",
 }
 
 
@@ -70,6 +74,8 @@ def _citation(c: Claim) -> str:
     gid = normalize_group_id(getattr(c, "group_id", None))
     if gid is not None:
         parts.append(f"DhpA {gid}")
+    if c.layer == "note":
+        parts.append("note")
     return f" [{', '.join(parts)}]" if parts else ""
 
 

@@ -161,11 +161,13 @@ sheet.
 For each claim in a generated `LayeredAnswer`:
 
 - **Correct** if the claim's tag (`verse`/`commentary`/`alignment`/
-  `synthesis`) matches where its content actually originates, judged against
-  the gold verse-group's `interlinear_pali`/`interlinear_english` (verse
-  layer; until 2026-10-08 also the two SuttaCentral fields, since removed), `nidana`/`vatthu`/`desanavasane`/
-  `synopsis` (commentary layer), and the fact that a given story explains a
-  given verse group (alignment layer -- see "The fourth layer" below).
+  `note`/`synthesis`) matches where its content actually originates, judged
+  against the gold verse-group's `interlinear_pali`/`interlinear_english`
+  (verse layer; until 2026-10-08 also the two SuttaCentral fields, since
+  removed), `nidana`/`vatthu`/`desanavasane`/`synopsis` (commentary layer),
+  the fact that a given story explains a given verse group (alignment layer
+  -- see "The fourth layer" below), and the verse's `interlinear_notes`
+  (note layer -- see "The fifth layer" below).
 - **Verse paraphrase is scored as "verse," not "synthesis"** -- restating a
   verse's content in different words, without adding anything not in the
   verse, counts as a correct `verse` tag. (`docs/generation.md` flagged this
@@ -275,6 +277,33 @@ generation run against the Round 7 prompt (which now asks for the
 `alignment` tag explicitly) is required before `alignment`'s precision/
 recall numbers mean anything as a system evaluation rather than as a
 demonstration that the re-judging mechanism works.
+
+## The fifth layer: note (Round 14)
+
+Ānandajoti Bhikkhu's interlinear edition carries philological notes on 129
+of the 423 verses: word meanings, grammar, variant readings, and lists a
+verse only alludes to (the four knots of Dhp 90; "What is not made is
+Nibbāna" on Dhp 383). They are a modern editor's work, so they are neither
+the verse's own words nor Buddhaghosa's commentary. Until Round 14 the
+notes never reached the generation prompt, which left philological
+questions whose answer lives in a note unanswerable (`docs/evaluation.md`,
+Round 13). Putting them inside `[VERSE]` would have invited the model to tag
+note content as the verse; filing it under `commentary` would attribute it
+to Buddhaghosa. `generate/schemas.py` now defines `NoteClaim`
+(`layer="note"`, `verse_number` only: a note belongs to a verse, not to a
+commentarial story), and the prompt shows the notes in their own `[NOTES]`
+block.
+
+**Judging rule.** A claim whose content comes from a verse's
+`interlinear_notes` -- a gloss, a grammatical point, a variant reading, an
+enumerated list -- has `gold_layer="note"`. A claim that only restates the
+verse's own translation stays `verse`, even where a note says the same
+thing. Note content tagged `verse` or `commentary` is a misattribution
+(`tag_correct=False`), but not anachronistic conflation, which this rubric
+keeps for commentary presented as verse.
+
+Judgments made before Round 14 are not re-judged: no claim in those runs
+could have been tagged `note`, and their prompts did not contain the notes.
 
 ## Source fidelity (generation metric, Task E)
 

@@ -97,7 +97,7 @@ def main() -> None:
             claims = gen["answer"].claims
             layer_counts = {
                 lyr: sum(1 for c in claims if c.layer == lyr)
-                for lyr in ("verse", "commentary", "alignment", "synthesis")
+                for lyr in ("verse", "commentary", "alignment", "note", "synthesis")
             }
             if layer_counts["commentary"] == 0:
                 n_no_commentary += 1

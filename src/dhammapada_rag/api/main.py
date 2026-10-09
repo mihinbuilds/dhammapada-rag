@@ -162,6 +162,7 @@ def run_answer(req: AnswerRequest) -> AnswerResponse:
             verse=sum(1 for c in claims if c.layer == "verse"),
             commentary=sum(1 for c in claims if c.layer == "commentary"),
             alignment=sum(1 for c in claims if c.layer == "alignment"),
+            note=sum(1 for c in claims if c.layer == "note"),
             synthesis=sum(1 for c in claims if c.layer == "synthesis"),
         ),
         source_disposition=result["answer"].source_disposition,

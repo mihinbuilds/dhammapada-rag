@@ -222,7 +222,7 @@ def main():
                         # project's central claim. The audit cannot see this; count it.
                         "layer_counts": {
                             lyr: sum(1 for c in gen["answer"].claims if c.layer == lyr)
-                            for lyr in ("verse", "commentary", "alignment", "synthesis")
+                            for lyr in ("verse", "commentary", "alignment", "note", "synthesis")
                         },
                     })
                 except GenerationError as e:
@@ -300,12 +300,13 @@ def main():
         ok = [r for r in results if r["model"] == model_name and r["success"]]
         if not ok:
             continue
-        tot = {lyr: sum(r["layer_counts"][lyr] for r in ok) for lyr in ("verse", "commentary", "alignment", "synthesis")}
+        tot = {lyr: sum(r["layer_counts"][lyr] for r in ok) for lyr in ("verse", "commentary", "alignment", "note", "synthesis")}
         n = sum(tot.values()) or 1
         print(
             f"  {model_name:24s} verse={tot['verse']:>3d} ({tot['verse']/n:4.0%})  "
             f"commentary={tot['commentary']:>3d} ({tot['commentary']/n:4.0%})  "
             f"alignment={tot['alignment']:>3d} ({tot['alignment']/n:4.0%})  "
+            f"note={tot['note']:>3d} ({tot['note']/n:4.0%})  "
             f"synthesis={tot['synthesis']:>3d} ({tot['synthesis']/n:4.0%})"
         )
     print(

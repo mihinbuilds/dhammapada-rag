@@ -60,7 +60,7 @@ from dhammapada_rag.index.search import ChunkIndex  # noqa: E402
 SEED = 20260801
 CONTAINMENT_THRESHOLD = 0.8
 # Round 7, Task T: "alignment" is a fourth layer -- see generate/schemas.py.
-LAYERS = ("verse", "commentary", "alignment", "synthesis")
+LAYERS = ("verse", "commentary", "alignment", "note", "synthesis")
 
 # 15 verses from data/eval/gold_set.jsonl (one per distinct verse, taken in
 # file order -- all happen to be 'doctrinal', the type gold_set.jsonl lists

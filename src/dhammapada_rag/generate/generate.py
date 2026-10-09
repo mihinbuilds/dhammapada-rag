@@ -80,6 +80,7 @@ from dhammapada_rag.generate.schemas import (  # noqa: E402
     AuditWarning,
     CommentaryClaim,
     LayeredAnswer,
+    NoteClaim,
     VerseClaim,
     audit,
     bundles_have_commentary,
@@ -170,6 +171,12 @@ def _constrained_schema(bundles: list[dict]) -> dict:
     to an object keyed by exactly the retrieved group_ids, each required and
     enum'd to the three Disposition values, additionalProperties=False. See
     this function's body for why that makes coverage decoder-enforced.
+
+    Round 14: NoteClaim's verse_number is constrained to the retrieved
+    verses that actually carry an interlinear note. When none do, the
+    NoteClaim variant is removed from the union altogether -- an empty enum
+    is not a valid schema, and a note claim with nothing to cite should be
+    unrepresentable, not merely flagged.
     """
     schema = LayeredAnswer.model_json_schema()
     gids = sorted({s["group_id"] for b in bundles for s in b["stories"]})
@@ -206,6 +213,23 @@ def _constrained_schema(bundles: list[dict]) -> dict:
         "items": {"type": "integer", "enum": vnums},
         "description": "The group's FULL list of Dhp verse numbers from the provided sources.",
     }
+
+    note_vnums = sorted({
+        v["verse"] for b in bundles for v in b.get("verses", []) if v.get("interlinear_notes")
+    })
+    claim_items = schema["properties"]["claims"]["items"]
+    if note_vnums:
+        note_props = defs.get("NoteClaim", {}).get("properties")
+        if not note_props:
+            raise ValueError("Could not locate NoteClaim properties in generated schema")
+        note_props["verse_number"] = {
+            "type": "integer", "enum": note_vnums,
+            "description": "Dhp verse number whose editorial note, from the provided sources, this claim draws on.",
+        }
+    else:
+        claim_items["oneOf"] = [r for r in claim_items["oneOf"] if r.get("$ref") != "#/$defs/NoteClaim"]
+        claim_items["discriminator"]["mapping"].pop("note", None)
+        defs.pop("NoteClaim", None)
 
     # Round 8, Task Z: source_disposition constrained to an object with
     # EXACTLY the retrieved group_ids as keys -- additionalProperties=False
@@ -483,7 +507,7 @@ def main() -> None:
     )
 
     layers = [c.layer for c in result["answer"].claims]
-    counts = {l: layers.count(l) for l in ("verse", "commentary", "alignment", "synthesis")}
+    counts = {l: layers.count(l) for l in ("verse", "commentary", "alignment", "note", "synthesis")}
     print(f"Layers: {counts}")
     if counts["commentary"] == 0:
         print(
@@ -503,6 +527,8 @@ def main() -> None:
             src = f"[{c.layer} | Dhp {c.verse_number} | {c.group_id}]"
         elif isinstance(c, AlignmentClaim):
             src = f"[{c.layer} | Dhp {c.verse_numbers} | {c.group_id}]"
+        elif isinstance(c, NoteClaim):
+            src = f"[{c.layer} | Dhp {c.verse_number}]"
         else:
             src = f"[{c.layer}]"
         print(f"{src} {c.text}")
