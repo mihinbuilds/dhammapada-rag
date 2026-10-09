@@ -327,16 +327,26 @@ export default function EvaluationPage() {
                       <strong>The reranker is the Round 10 result.</strong> Removing the cross-encoder
                       costs {fmtDelta(retrieval.ablation_deltas_ndcg10?.no_rerank)} nDCG@10 here, an
                       interval clear of zero
-                      {retrievalBySet.v1?.ablation_deltas_ndcg10?.no_rerank && (
-                        <>
-                          ; on v1 the same code and model gave{" "}
-                          {fmtDelta(retrievalBySet.v1.ablation_deltas_ndcg10.no_rerank)}, spanning zero
-                        </>
-                      )}
-                      . v1&apos;s null was the question set being too easy, not the component being
-                      inert. Dense-only and flat stay null on both sets, so the extra fusion arms and
+                      {retrievalBySet.v1?.ablation_deltas_ndcg10?.no_rerank &&
+                        (retrievalBySet.v1.ablation_deltas_ndcg10.no_rerank.ci[0] > 0 ? (
+                          <>
+                            ; on v1 it is{" "}
+                            {fmtDelta(retrievalBySet.v1.ablation_deltas_ndcg10.no_rerank)}, also clear
+                            of zero. v1 first showed it as a null, which was the question set being
+                            too easy; since the October 2026 corpus change, v1&apos;s doctrinal
+                            questions depend on the reranker too
+                          </>
+                        ) : (
+                          <>
+                            ; on v1 the same code and model gave{" "}
+                            {fmtDelta(retrievalBySet.v1.ablation_deltas_ndcg10.no_rerank)}, spanning
+                            zero. v1&apos;s null was the question set being too easy, not the component
+                            being inert
+                          </>
+                        ))}
+                      . Dense-only and flat stay null on both sets, so the extra fusion arms and
                       parent-group assembly show no measurable return yet. See docs/evaluation.md,
-                      Round 10.
+                      Rounds 10 and 13.
                     </p>
                   )}
                 </div>
