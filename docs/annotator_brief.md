@@ -20,6 +20,12 @@ attempt the full sheet, it's fine to split it across two sittings, or to
 just do as much as you have time for — see "Returning the file" below for
 how a partial sheet is handled.
 
+**If you were sent a link to the web form, use that instead of the CSV.**
+It shows the same 208 rows, saves each judgement as you make it (you can
+stop and come back), keeps your answers private from other readers, and
+lets you download your sheet as the same CSV. The rule and the advice below
+apply unchanged.
+
 ## What you're doing
 
 The project retrieves short "stories" (each explains one or more verses of

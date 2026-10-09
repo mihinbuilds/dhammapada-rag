@@ -1793,6 +1793,60 @@ figures for that run: accuracy 0.741, conflation 3/40 = 0.075, fidelity
 copied exactly 12/12, `note` recall 3/6. As Round 15 showed, these are one
 wording's numbers; the four-wording ranges above are the better guide.
 
+## Round 18: a corrective retry for notes under another tag (2026-10-08)
+
+q043's note gloss had been tagged `verse`, `commentary` or `synthesis` in 8
+of 8 runs, and Round 15 showed that rewording the prompt is not a reliable
+lever. The generator already had a non-prompt mechanism for one failure:
+when an answer ignores retrieved commentary, it is sent back once with a
+message saying so. This round adds a second case to that mechanism. When
+`audit()` reports `NOTE_TEXT_AS_OTHER_LAYER`, the model gets one retry,
+naming the flagged claims and asking for them to be tagged `note` with the
+verse number from the note's marker. It fires once per answer at most, and
+the second answer is kept and audited either way. `generate()` now
+returns, and `generation_metrics.py` records, `retry_reasons` for every
+answer.
+
+**Results, same four wordings** (5 new claims judged; everything else
+identical; `data/eval/note_retry/`):
+
+| | Round 17 | Round 18 |
+|---|---|---|
+| Note recall, pooled | 11/23 = 0.48 | 14/23 = 0.61 |
+| Note recall, range | 0.33–0.60 | 0.50–0.67 |
+| Runs in which the note retry fired | — | 2 of 4 (3 answers) |
+| q043: note content tagged `note` | 0 of 10 claims | 1 of 10 |
+| Fidelity, range | 0.865–0.898 | 0.868–0.880 |
+
+**Reading it.** Every retry produced a correctly tagged note claim, and
+nothing else in those answers got worse. But the retry can only act on what
+the audit detects, and the audit detects near-verbatim copying only. Most
+of q043's note content is paraphrase below the 0.50 overlap threshold, so
+the retry rarely sees it: 1 of q043's 10 note-content claims is now tagged
+`note`. Under the base wording and wording A the retry never fired, and
+those runs are word for word identical to Round 17. The canonical
+generation run is therefore unchanged. What remains of the q043 failure is
+paraphrased note content, which needs a judge that reads for meaning, not
+a word-overlap check.
+
+**A side finding about the existing retry.** This is the first round that
+records why a retry happened, and the no-commentary retry turns out to be
+routine, not exceptional: it fired on 10 to 16 of the 27 questions in each
+run. The model's first answer leaves out commentary most of the time, and
+the answers measured in every round since Round 3 are largely second
+attempts, made after a corrective message. Nothing measured is wrong
+because of it, but it means the single-pass generator is weaker than the
+answers suggest, and it doubles the cost of most answers.
+
+**Second annotator: a web form.** The blind 30-question sheet is now also
+a private web page with its own saved store. A reader judges each of the 208
+rows in the browser, each label is saved under their own account, and
+readers cannot see each other's labels. Only the page's owner can read
+every sheet. A reader can download their sheet as the same CSV that
+`annotation_sheet.py kappa` reads, and the owner can download anyone's.
+`docs/annotator_brief.md` points readers to it. It still needs a person to
+fill it in.
+
 ## Summary
 
 **What the evidence in this document supports:**

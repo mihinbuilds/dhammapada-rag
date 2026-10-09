@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-222%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-224%20passing-brightgreen.svg)](tests/)
 [![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
 
 </div>
@@ -288,9 +288,10 @@ have no gold answer) and **v2** (72 harder questions across `narrative_deep`,
 ### Limitations, stated plainly
 
 - **Evaluation is single-annotator.** No inter-annotator agreement statistic
-  exists. A blind 30-question sheet, a κ script and an annotator brief are
-  ready ([`docs/annotator_brief.md`](docs/annotator_brief.md)); a second reader
-  has not yet run them. Calibration point: on that sheet, 10% randomly flipped
+  exists. A blind 30-question sheet (also as a web form that saves each
+  reader's labels privately), a κ script and an annotator brief are ready
+  ([`docs/annotator_brief.md`](docs/annotator_brief.md)); a second reader has
+  not yet run them. Calibration point: on that sheet, 10% randomly flipped
   labels gives κ ≈ 0.685 (0.645–0.710 over five seeds), so whatever number
   comes back can be read against something concrete rather than a textbook
   threshold.

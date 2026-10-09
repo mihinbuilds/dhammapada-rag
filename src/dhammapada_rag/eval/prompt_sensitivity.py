@@ -58,6 +58,7 @@ LAYERS = ("verse", "commentary", "alignment", "note", "synthesis")
 _PS = ROOT / "data" / "eval" / "prompt_sensitivity"
 _NB = ROOT / "data" / "eval" / "note_block"
 _CF = ROOT / "data" / "eval" / "corpus_facts"
+_NR = ROOT / "data" / "eval" / "note_retry"
 RUNS = {
     "round14": ROOT / "data" / "eval" / "archive_round14_note_layer" / "generation_raw.jsonl",
     "a_reorder": _PS / "run_a_reorder.jsonl",
@@ -71,13 +72,18 @@ RUNS = {
     "r17_a_reorder": _CF / "run_a_reorder.jsonl",
     "r17_b_markdown": _CF / "run_b_markdown.jsonl",
     "r17_c_typography": _CF / "run_c_typography.jsonl",
+    "r18_base": _NR / "run_base.jsonl",
+    "r18_a_reorder": _NR / "run_a_reorder.jsonl",
+    "r18_b_markdown": _NR / "run_b_markdown.jsonl",
+    "r18_c_typography": _NR / "run_c_typography.jsonl",
 }
 SETS = {
     "round15 (note block v1)": ["round14", "a_reorder", "b_markdown", "c_typography"],
     "round16 (note block v2)": ["r16_base", "r16_a_reorder", "r16_b_markdown", "r16_c_typography"],
     "round17 (corpus facts)": ["r17_base", "r17_a_reorder", "r17_b_markdown", "r17_c_typography"],
+    "round18 (note retry)": ["r18_base", "r18_a_reorder", "r18_b_markdown", "r18_c_typography"],
 }
-JUDGMENT_FILES = (_PS / "judgments.py", _NB / "judgments.py", _CF / "judgments.py")
+JUDGMENT_FILES = (_PS / "judgments.py", _NB / "judgments.py", _CF / "judgments.py", _NR / "judgments.py")
 
 
 def _load(path: Path) -> list[dict]:
