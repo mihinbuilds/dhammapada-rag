@@ -20,12 +20,18 @@ Judgments are looked up per claim:
 
 Metric definitions match aggregate_generation.py exactly.
 
+Round 16 adds a second set of four runs, same wordings, after the [NOTES]
+block was restructured (data/eval/note_block/); both sets are scored side
+by side, so the block's effect is read against the wording spread rather
+than against a single run.
+
 Run: python -m dhammapada_rag.eval.prompt_sensitivity [--todo]
   --todo   list every claim that still has no verdict, and stop
 """
 
 from __future__ import annotations
 
+import importlib.util
 import json
 import statistics
 import sys
@@ -38,12 +44,23 @@ sys.path.insert(0, str(ROOT / "data" / "eval" / "prompt_sensitivity"))
 from generation_judgments import JUDGMENTS as ROUND14  # noqa: E402
 
 LAYERS = ("verse", "commentary", "alignment", "note", "synthesis")
+_PS = ROOT / "data" / "eval" / "prompt_sensitivity"
+_NB = ROOT / "data" / "eval" / "note_block"
 RUNS = {
     "round14": ROOT / "data" / "eval" / "generation_raw.jsonl",
-    "a_reorder": ROOT / "data" / "eval" / "prompt_sensitivity" / "run_a_reorder.jsonl",
-    "b_markdown": ROOT / "data" / "eval" / "prompt_sensitivity" / "run_b_markdown.jsonl",
-    "c_typography": ROOT / "data" / "eval" / "prompt_sensitivity" / "run_c_typography.jsonl",
+    "a_reorder": _PS / "run_a_reorder.jsonl",
+    "b_markdown": _PS / "run_b_markdown.jsonl",
+    "c_typography": _PS / "run_c_typography.jsonl",
+    "r16_base": _NB / "run_base.jsonl",
+    "r16_a_reorder": _NB / "run_a_reorder.jsonl",
+    "r16_b_markdown": _NB / "run_b_markdown.jsonl",
+    "r16_c_typography": _NB / "run_c_typography.jsonl",
 }
+SETS = {
+    "round15 (note block v1)": ["round14", "a_reorder", "b_markdown", "c_typography"],
+    "round16 (note block v2)": ["r16_base", "r16_a_reorder", "r16_b_markdown", "r16_c_typography"],
+}
+JUDGMENT_FILES = (_PS / "judgments.py", _NB / "judgments.py")
 
 
 def _load(path: Path) -> list[dict]:
@@ -58,10 +75,13 @@ def signature(question_id: str, c: dict) -> tuple:
 
 
 def _verdicts() -> tuple[dict, dict]:
-    try:
-        from judgments import JUDGMENTS as explicit  # noqa: E402
-    except ImportError:
-        explicit = {}
+    explicit = {}
+    for path in JUDGMENT_FILES:
+        if path.exists():
+            spec = importlib.util.spec_from_file_location(f"judgments_{path.parent.name}", path)
+            module = importlib.util.module_from_spec(spec)
+            spec.loader.exec_module(module)
+            explicit.update(module.JUDGMENTS)
     by_sig = {}
     for r in _load(RUNS["round14"]):
         for i, c in enumerate(r["claims"]):
@@ -126,18 +146,26 @@ def main() -> None:
 
     per_run = {run: metrics(claims) for run, claims in results.items()}
     keys = ("claims", "accuracy", "macro_f1", "conflation_rate", "fidelity", "fidelity_cited", "note_recall")
-    print(f"{'run':14s}" + "".join(f"{k:>16s}" for k in keys))
-    for run, m in per_run.items():
-        print(f"{run:14s}" + "".join(f"{m[k]:>16.3f}" if m[k] is not None else f"{'-':>16s}" for k in keys))
-    spread = {}
-    for k in keys:
-        vals = [m[k] for m in per_run.values() if m[k] is not None]
-        spread[k] = {"mean": statistics.mean(vals), "min": min(vals), "max": max(vals),
-                     "sd": statistics.stdev(vals) if len(vals) > 1 else 0.0}
-    print(f"{'mean':14s}" + "".join(f"{spread[k]['mean']:>16.3f}" for k in keys))
-    print(f"{'min-max':14s}" + "".join(f"{spread[k]['min']:>8.3f}-{spread[k]['max']:<7.3f}" for k in keys))
-    out = ROOT / "data" / "eval" / "prompt_sensitivity" / "results.json"
-    out.write_text(json.dumps({"per_run": per_run, "spread": spread}, indent=2), encoding="utf-8")
+    spread_by_set = {}
+    for set_name, runs in SETS.items():
+        runs = [r for r in runs if r in per_run]
+        if not runs:
+            continue
+        print(f"\n== {set_name}")
+        print(f"{'run':18s}" + "".join(f"{k:>16s}" for k in keys))
+        for run in runs:
+            m = per_run[run]
+            print(f"{run:18s}" + "".join(f"{m[k]:>16.3f}" if m[k] is not None else f"{'-':>16s}" for k in keys))
+        spread = {}
+        for k in keys:
+            vals = [per_run[r][k] for r in runs if per_run[r][k] is not None]
+            spread[k] = {"mean": statistics.mean(vals), "min": min(vals), "max": max(vals),
+                         "sd": statistics.stdev(vals) if len(vals) > 1 else 0.0}
+        print(f"{'mean':18s}" + "".join(f"{spread[k]['mean']:>16.3f}" for k in keys))
+        print(f"{'min-max':18s}" + "".join(f"{spread[k]['min']:>8.3f}-{spread[k]['max']:<7.3f}" for k in keys))
+        spread_by_set[set_name] = spread
+    out = _PS / "results.json"
+    out.write_text(json.dumps({"per_run": per_run, "spread_by_set": spread_by_set}, indent=2), encoding="utf-8")
     print(f"\nWrote {out}")
 
 

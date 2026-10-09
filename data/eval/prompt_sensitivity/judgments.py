@@ -12,7 +12,7 @@ stating, since it recurs: answering q019's "astute" with Dhp 259's
 
 from __future__ import annotations
 
-from generation_judgments import Verdict
+from generation_judgments import Verdict  # noqa: E402 -- data/eval is on sys.path (prompt_sensitivity.py)
 
 V = Verdict
 A, B, C = "a_reorder", "b_markdown", "c_typography"

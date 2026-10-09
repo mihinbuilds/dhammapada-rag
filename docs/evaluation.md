@@ -1643,6 +1643,59 @@ wordings, not one, and report the range. A change is real when it moves the
 range, not a single run. `--system-prompt` on `generation_metrics.py` and
 `eval/prompt_sensitivity.py` exist for that.
 
+## Round 16: restructuring the notes block (2026-10-08)
+
+Round 15 left the note layer with low recall under every wording
+(0.29–0.43). The model drew on the editor's notes but tagged them `verse`,
+`commentary` or `synthesis`. The alignment layer had the same problem when it
+was added (recall 0.500, Round 7). Round 8 fixed it with structure, not more
+instructions: its own block, a header saying what it is, and a
+`<<citation_fields>>` marker carrying the citation beside the text. That
+took recall to 0.778. This round applies the same fix to the notes.
+
+**What changed, and what didn't.** `format_verse_group()` now opens the
+block with "[NOTES -- Ānandajoti Bhikkhu's modern editorial notes, neither
+verse nor commentary; a claim drawn from them is a "note" claim]" and puts a
+`<<citation_fields layer=note verse_number=N>>` marker before each verse's
+notes. The system prompt is unchanged, so Round 15's three wordings still
+apply. The comparison is four runs against four runs, same wordings, with
+only the block different (`data/eval/note_block/`; 104 new claims judged
+from scratch, `judgments.py` there).
+
+| | Note block v1 (Round 15) | Note block v2 (Round 16) |
+|---|---|---|
+| Note recall, pooled | 9/26 = 0.35 | 11/23 = 0.48 |
+| Note recall, range over wordings | 0.29–0.43 | 0.33–0.60 |
+| Note recall, paired by wording | | higher in **4 of 4** |
+| Layer accuracy, range | 0.717–0.800 | 0.764–0.833 |
+| Source fidelity, range | 0.750–0.842 | 0.818–0.878 |
+| Conflation, range | 0.047–0.073 | 0.022–0.075 |
+
+**Reading it.** Note recall rose under every wording, which no single-run
+comparison could have shown. The counts are small (5–7 note claims per
+run), so this is consistent evidence of a modest gain, not a large one.
+Accuracy and fidelity also moved up on average, but their ranges overlap
+Round 15's, and nothing in the change should affect fidelity, so neither is
+claimed.
+
+**What did not move.** q043's note gloss (padāni = "the states of craving")
+was still never tagged `note`, under any wording. It is answered from the
+note every time, under one of the other four tags. That is now 8 runs out
+of 8, a fixed behaviour of this model on this question, and the clearest
+remaining target.
+
+**A check for what the prompt doesn't prevent.** `audit()` gains
+`NOTE_TEXT_AS_OTHER_LAYER` (error), the note-layer counterpart of
+`VERSE_TEXT_AS_COMMENTARY`. It flags a non-note claim whose content words
+come mostly from a retrieved note, when the claim overlaps the note more
+than the verse. The threshold, 0.50, was set from the Round 15 judgments:
+it caught 6 of 17 mis-tagged note claims there, with no false alarm among
+the other 159. In the Round 16 runs it fired 3 times, all correct, out of
+12 mis-tagged note claims. Like the verse check, it catches near-verbatim
+copying only. Paraphrase still needs a human judge. Audit errors do not
+trigger a regeneration, so the check did not change any answer measured
+here.
+
 ## Summary
 
 **What the evidence in this document supports:**
