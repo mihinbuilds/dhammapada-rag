@@ -16,7 +16,14 @@ from pydantic import ValidationError
 from dhammapada_rag.generate.generate import _constrained_schema
 from dhammapada_rag.generate.prompt import format_verse_group
 from dhammapada_rag.generate.render import render_plain
-from dhammapada_rag.generate.schemas import LayeredAnswer, NoteClaim, VerseClaim, audit
+from dhammapada_rag.generate.schemas import (
+    CommentaryClaim,
+    LayeredAnswer,
+    NoteClaim,
+    SynthesisClaim,
+    VerseClaim,
+    audit,
+)
 
 KNOTS = "Usually enumerated as four: the knots of avarice, ill-will, grasping at virtue and practices, and insisting 'this is the truth'."
 
@@ -119,13 +126,13 @@ def test_note_label_in_text_is_flagged():
 
 def test_notes_render_in_their_own_block_not_inside_verse():
     text = format_verse_group(bundle("7.1", [90], {90: [KNOTS]}), narrative_budget_chars=100)
-    verse_block = text[text.index("[VERSE]"):text.index("[NOTES]")]
+    verse_block = text[text.index("[VERSE]"):text.index("[NOTES")]
     assert KNOTS not in verse_block
-    assert f"Dhp 90 -- note: {KNOTS}" in text[text.index("[NOTES]"):]
+    assert f"Dhp 90 -- note: {KNOTS}" in text[text.index("[NOTES"):]
 
 
 def test_no_notes_block_when_no_verse_has_notes():
-    assert "[NOTES]" not in format_verse_group(bundle("1.1", [1]), narrative_budget_chars=100)
+    assert "[NOTES" not in format_verse_group(bundle("1.1", [1]), narrative_budget_chars=100)
 
 
 def test_note_claims_render_with_their_author_and_no_commentary_citation():
@@ -136,3 +143,40 @@ def test_note_claims_render_with_their_author_and_no_commentary_citation():
     assert "The editor's note explains: The four knots" in out
     assert "[Dhp 90, note]" in out
     assert "DhpA" not in out.split("The editor's note explains")[1]
+
+
+# ---------------------------------------------------------- Round 16 additions
+
+def test_notes_block_carries_a_citation_marker_per_verse():
+    text = format_verse_group(bundle("7.1", [90], {90: [KNOTS]}), narrative_budget_chars=100)
+    notes_block = text[text.index("[NOTES"):]
+    assert "neither verse nor commentary" in notes_block.splitlines()[0]
+    assert "<<citation_fields layer=note verse_number=90>>" in notes_block
+
+
+@pytest.mark.parametrize("claim", [
+    CommentaryClaim(text="The commentary explains the four knots of avarice, ill-will, grasping at virtue "
+                         "and practices, and insisting this is the truth.", group_id="7.1", verse_number=90),
+    SynthesisClaim(text="The four knots are avarice, ill-will, grasping at virtue and practices, and "
+                        "insisting this is the truth."),
+])
+def test_note_text_under_another_layer_is_flagged(claim):
+    ws = audit(answer(claim), [bundle("7.1", [90], {90: [KNOTS]})])
+    assert "NOTE_TEXT_AS_OTHER_LAYER" in codes(ws)
+
+
+def test_the_same_text_tagged_note_is_not_flagged():
+    claim = NoteClaim(text="The four knots are avarice, ill-will, grasping at virtue and practices, and "
+                           "insisting this is the truth.", verse_number=90)
+    ws = audit(answer(claim), [bundle("7.1", [90], {90: [KNOTS]})])
+    assert "NOTE_TEXT_AS_OTHER_LAYER" not in codes(ws)
+
+
+def test_a_verse_claim_closer_to_the_verse_than_the_note_is_not_flagged():
+    b = bundle("7.1", [90], {90: ["The knots are abandoned by the one who has reached his goal."]})
+    b["verses"][0]["interlinear_english"] = ("For the one who has reached his goal, who grieves not, "
+                                             "who has abandoned all the knots, no fever is found.")
+    claim = VerseClaim(text="For the one who has reached his goal and abandoned all the knots, no fever is found.",
+                       group_id="7.1", verse_number=90)
+    ws = audit(answer(claim), [b])
+    assert "NOTE_TEXT_AS_OTHER_LAYER" not in codes(ws)

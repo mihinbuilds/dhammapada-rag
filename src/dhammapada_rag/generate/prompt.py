@@ -372,10 +372,22 @@ def format_verse_group(bundle: dict, narrative_budget_chars: int = NARRATIVE_BUD
     # authorship is visible from where they sit -- the same lesson as Round
     # 8's [ALIGNMENT] block (a model infers the taxonomy from where text
     # sits). Never inside [VERSE]: a note is not the verse.
+    #
+    # Round 16: the block now mirrors [ALIGNMENT]'s Round 8 structure, which
+    # took that layer's recall from 0.500 to 0.778 -- a header naming the
+    # author and stating the layer is neither verse nor commentary, and a
+    # <<citation_fields>> marker per verse carrying exactly what a NoteClaim
+    # needs (layer and verse_number), so the citation is copied from beside
+    # the text it cites. Round 15 found note content under every other tag
+    # in every wording, with note recall 0.29-0.43.
     noted = [v for v in bundle["verses"] if v.get("interlinear_notes")]
     if noted:
-        lines.append("[NOTES] (Ānandajoti Bhikkhu's editorial notes -- tag claims from here \"note\")")
+        lines.append(
+            "[NOTES -- Ānandajoti Bhikkhu's modern editorial notes, neither verse nor commentary; "
+            "a claim drawn from them is a \"note\" claim]"
+        )
         for v in noted:
+            lines.append(f"<<citation_fields layer=note verse_number={v['verse']}>>")
             for note in v["interlinear_notes"]:
                 lines.append(f"Dhp {v['verse']} -- note: {note}")
 

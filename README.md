@@ -7,7 +7,7 @@
 [![License: MIT](https://img.shields.io/badge/code-MIT-blue.svg)](LICENSE)
 [![Data: CC BY-SA 4.0](https://img.shields.io/badge/data-CC%20BY--SA%204.0-lightgrey.svg)](DATA_LICENSE.md)
 [![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-3776ab.svg)](pyproject.toml)
-[![Tests](https://img.shields.io/badge/tests-210%20passing-brightgreen.svg)](tests/)
+[![Tests](https://img.shields.io/badge/tests-215%20passing-brightgreen.svg)](tests/)
 [![Corpus](https://img.shields.io/badge/corpus-423%20verses%20%C2%B7%20305%20stories-8a6d3b.svg)](docs/datasheet.md)
 
 </div>

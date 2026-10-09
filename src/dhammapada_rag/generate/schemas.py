@@ -311,6 +311,7 @@ Code = Literal[
     "UNKNOWN_DISPOSITION_GROUP",  # warning -- source_disposition names a group that was never retrieved
     "DISPOSITION_CONTRADICTS_CLAIMS",  # warning -- 'not_relevant' group cited, or 'used' group cited by nothing
     "NOTE_NOT_IN_CONTEXT",        # error   -- note claim cites a verse with no note in the retrieved context
+    "NOTE_TEXT_AS_OTHER_LAYER",   # error   -- non-note claim's wording is mostly a retrieved editorial note
 ]
 
 _SEVERITY: dict[str, Severity] = {
@@ -335,6 +336,7 @@ _SEVERITY: dict[str, Severity] = {
     "UNKNOWN_DISPOSITION_GROUP": "warning",
     "DISPOSITION_CONTRADICTS_CLAIMS": "warning",
     "NOTE_NOT_IN_CONTEXT": "error",
+    "NOTE_TEXT_AS_OTHER_LAYER": "error",
 }
 
 # Round 5, Task L: SYSTEM_PROMPT's OUTPUT DISCIPLINE rule, checked
@@ -381,6 +383,17 @@ _LABEL_PREFIXES = ("verse:", "commentary:", "alignment:", "synthesis:", "note:",
 # tuned to minimize flags -- report this value in the write-up.
 VERSE_OVERLAP_THRESHOLD = 0.60
 MIN_CONTENT_WORDS = 6
+
+# Round 16: the note-layer counterpart of VERSE_TEXT_AS_COMMENTARY. Set
+# from data, not by analogy: over the 176 judged non-note claims from
+# Round 15's four runs whose context held a note, 0.50 caught 6 of the 17
+# claims whose content was a note under another tag, with no false alarm
+# among the other 159 (0.40: 7/17 caught, 2 false alarms; 0.60: 4/17). The
+# claim must also overlap the note more than the verse, so restating a
+# verse whose note repeats its words is not flagged. Like the verse check,
+# this catches near-verbatim misattribution only; paraphrase still needs a
+# human judge.
+NOTE_OVERLAP_THRESHOLD = 0.50
 
 _STOPWORDS = {
     "the", "a", "an", "is", "are", "was", "were", "be", "been", "of", "in",
@@ -830,6 +843,27 @@ def audit(
                               f"{PALI_COVERAGE_THRESHOLD:.0%}) -- a genuine but partial quote "
                               f"presented as the verse: {c.text!r}")
                     )
+
+        # Round 16: note content presented under another layer -- the
+        # error the fifth layer exists to make visible. Mechanical and
+        # near-verbatim only (see NOTE_OVERLAP_THRESHOLD). Compared against
+        # the cited verse's note when the claim cites a noted verse,
+        # otherwise against every retrieved note.
+        if not isinstance(c, NoteClaim) and notes_by_number and bundles is not None:
+            cited = getattr(c, "verse_number", None)
+            if cited is None and getattr(c, "verse_numbers", None):
+                cited = c.verse_numbers[0]
+            candidates = [cited] if cited in notes_by_number else list(notes_by_number)
+            best = max(candidates, key=lambda n: _containment(c.text, " ".join(notes_by_number[n])))
+            note_overlap = _containment(c.text, " ".join(notes_by_number[best]))
+            verse_overlap = _containment(c.text, verse_text_by_number.get(best, ""))
+            if note_overlap >= NOTE_OVERLAP_THRESHOLD and note_overlap > verse_overlap:
+                warnings.append(
+                    _warn("NOTE_TEXT_AS_OTHER_LAYER", i,
+                          f"tagged {c.layer!r} but {note_overlap:.0%} of its content words appear in "
+                          f"the editorial note on Dhp {best} (threshold {NOTE_OVERLAP_THRESHOLD:.0%}) -- "
+                          f"this is Ānandajoti's note presented as another layer: {c.text!r}")
+                )
 
         if isinstance(c, SynthesisClaim):
             # Round 4/5 amendment (Task K/L amendment): SynthesisClaim has no
